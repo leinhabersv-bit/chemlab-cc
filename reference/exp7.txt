@@ -1,0 +1,234 @@
+=== PAGE 33 ===
+33 ---
+44 
+ 
+44  
+Experiment 7. Size dependent color variation of 
+Cu2O nanoparticles by a spectrophotometer 
+ 
+ 
+Subject Code Size dependent color variation of Cu2O nanoparticles by 
+a spectrophotometer 
+L T P J C 
+0 0 2 0 1 
+Problem 
+definition 
+Nanomaterial plays a significant role in our recent life. The electronic 
+materials such as processors of computers, mobile phones consist of 
+nanosized semiconductor materials whose properties depend on their 
+composition, size. It is essential to understand  the size dependent optical 
+properties of semiconductor compound such as Cu2O. 
+Methodology Cu2O particles can be synthesized via redox reactions between sugar and 
+Benedict’s reagent. Heating the Benedict’s reagent with glucose solution in 
+alkali medium leads to reduction of blue coloured copper(II) ions to Cu2O 
+nanoparticle with other colour. These solution, when exposed to light, 
+scatters light (Tyndall effect) which can be measured by Nephelometry. 
+Solution Prepare Cu2O nanoparticle solution and measure its turbidity 
+Student learning 
+outcomes 
+Students will learn to 
+a) Prepare the Cu2O nanoparticle and its properties 
+b) Perform Nephelometric method and size specific Tyndall effects 
+Importance of the experiment: 
+ 
+Nanoscience and nanotechnology play an important role in our daily life. Materials from 
+processors of personal computers, mobile phones, light emitting diodes to medical equipment, 
+drugs etc. consist of nanosized parts with unique properties. The electroni cs material are 
+mainly based on semiconductor materials such as silicon and gallium arsenide whose 
+properties depend on their composition, shape and size. This experiment aims at providing an 
+explanation of size-dependent optical properties of semiconductor compounds. 
+ 
+ 
+Optical Properties of Cu2O: 
+ 
+Cu2O absorbs light in wavelength range from UV to orange and its most common color is red. 
+However, as Cu2O is a semiconductor, its bandgap depends on size, shape, and crystalline 
+structure of the sample. 
+Below certain limit (less than micrometer), bandgap changes subsequently changing the color of 
+Cu2O. 
+ 
+
+
+
+=== PAGE 34 ===
+34 ---
+45 
+ 
+45  
+ 
+ 
+Principle: 
+ 
+When a solution with suspension is exposed to light, part of the incident light energy is 
+dissipated by absorption, reflection and refraction, while the remaining is transmitted. When 
+the suspension is viewed at right angles to  the direction of the  incident light, the system 
+appears opalescent due  to the reflection of light from  the particles of suspension (Tyndall 
+effect). The reflection of light is irregular in nature and therefore the 
+term scattered light is used for it. The measurement of the intensity of scattered light as a 
+function of the suspended particle concentration is done by the technique known as 
+Turbidimetry or Nephelometry. The intensity of scattered light is measured at r ight angles to 
+the direction of the incident light. Light scattering properties changes with respect to the 
+particle size. 
+Reaction scheme: 
+ 
+Cu2O particles can be synthesized via redox reactions between sugar and alkaline solution of 
+copper(II) complex with citrate anions (Benedict’s reagent). Heating the sugar solution with 
+Benedict’s reagent in alkali medium leads to sugar oxidation to corresponding carboxylic acid 
+salts and reduction of blue colored copper(II) ions to Cu2O with other color. Higher reactivity 
+leads to formation of bigger Cu2O particles. 
+ 
+ 
+Reagents & Apparatus: 
+ 
+a) Copper sulphate (CuSO4·5H2O) (d) Sodium hydroxide (NaOH) 
+(b) Sodium carbonate (Na2CO3) (e) Glucose solution 
+(c) Trisodium citrate dihydrate 
+(Na3C6H5O7·2H2O) [Na3Cit] 
+(f) Nephelometer spectrophotometer 
+ 
+ 
+Procedure: 
+ 
+(a) Preparation of Benedict’s reagent: Dissolve 6.0 g of CuSO4·5H2O in 20 mL of hot water. 
+Prepare alkaline citric solution by mixing 4.0 g of Na2CO3 and 7.0 g of Na3Cit in 40 mL of water. 
+
+
+
+
+=== PAGE 35 ===
+35 ---
+46 
+ 
+46  
+Add this citrate solution in hot CuSO 4 solution. After that the mixture was diluted with 40 mL 
+of water. [Conc. of stock solution = 240 mmol w.r.t. CuSO4.] 
+(b) Preparation of glucose solution: Prepare glucose solution by dissolving 30.0 g glucose 
+in 750 mL of water. [Conc. of stock solution = 222 mmol] 
+(c) Preparation of NaOH solution: Prepare 100 mL of 1.0 M NaOH solution. 
+ 
+(d) Preparation of conditioning agent (Glycerol-alcohol solution): Mix 400 mL absolute 
+ethanol to 200mL of glycerol. 
+(e) Preparation of Cu2O solution: 
+ 
+1. Take 50 mL volumetric flask and label them 1, 2, 3, 4, 5 (for Table 1) & A, B, C, D (for 
+Table 2) 
+Table 1: 
+ 
+Sample No. Vol. of Benedict’s 
+reagent (mL) 
+Vol. of glucose 
+solution (mL) 
+Conc. of 
+NaOH (M) 
+Observation/Color 
+1 0.5 4.5 0.0 Yellow 
+
+
+
+=== PAGE 36 ===
+36 ---
+47 
+ 
+47  
+2 0.5 4.5 0.0001 
+ 
+Red 
+3 0.5 4.5 0.001 
+4 0.5 4.5 0.01 
+5 0.5 4.5 0.1 
+ 
+Ta
+ble 
+2: 
+ 
+Sample 
+No. 
+Vol. of Benedict’s 
+reagent (mL) 
+Vol. of glucose 
+solution (mL) 
+Vol. of NaOH 0.01 
+M (mL) 
+A 0.5 4.5 45 
+B 1.0 9.0 40 
+C 1.5 13.5 35 
+D 2.0 18.0 30 
+ 
+2. Mix certain amounts of Benedict’s reagent in the volumetric flask and dilute the 
+solution with 45 mL of NaOH solution of certain concentration. 
+3. To each flask add glucose solution and make the volume to 50 mL (with respective 
+NaOH solution) and mix well. 
+4. From the flask, take around 10 mL solution in test tubes and place the test tubes with 
+reaction mixtures into a beaker with boiling water and keep it there for 5 min. 
+5. After that, transfer the test tubes to the beaker with room temperature water in order to 
+stop reaction. 
+6. The fresh samples can be photographed (Table 1) and use for analysis purpose (Table 2). 
+7. Next, mix equal volume of conditioning agent (glycerol:ethanol – 1:2) to the sample 
+solution (10mL of analyte + 10 mL of conditioning agent). Afterwards, transfer the 
+samples (A – D) in cuvette (the sample tube for turbidity analysis that should be very 
+clean inside and outside and should not contain any scratches).  Note the reading on 
+turbidity scale [Turbidity is measured in NTU (Nephelometric Turbidity Units)]. 
+8. Prepare a standard curve by plotting turbidity (NTU units) vs the volume of NaOH (Refer 
+the Appendix in presentation file, .ppt). Then calculate the unknown concentration of 
+copper(II) by back calculation. 
+Observations: 
+ 
+ 
+ 
+Sample Vol. of NaOH (mL) Turbidity (NTU) 
+A   
+B   
+
+
+
+=== PAGE 37 ===
+37 ---
+48 
+ 
+48  
+C   
+D   
+ 
+ 
+Result: 
+ 
+1) The volume of NaOH for the unknown solution  mL. 
+ 
+2) The concentration Cu(II) solution is  mmol. 
+ 
+Reference: 
+ 
+N. E. Markina, M. V. Pozharov, A. V. Markin. J. Chem. Educ. 2016, 93, 4, 704–707. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+
+
+

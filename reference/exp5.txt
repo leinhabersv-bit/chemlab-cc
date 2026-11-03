@@ -1,0 +1,199 @@
+=== PAGE 26 ===
+26 ---
+37 
+ 
+37  
+Experiment 5. Determination of reaction rate, 
+order and molecularity of ethylacetate 
+hydrolysis 
+Introduction: 
+Esters are chemical compounds that are derived from organic or inorganic acids were at least 
+one hydroxyl group is replaced by an alkoxy group. Esters with low molecular weight are found 
+in pheromones and essential oils. They are less polar than alcohol and more polar than ethers. 
+They are characterized by some water solubility due to their participation in hydrogen bonding. 
+In easy terms, Hydrolysis is a simple reaction with water. 
+Acid-Catalysed Hydrolysis of Methyl Esters 
+Since water is such a poor nucleophile, the method of increasing the rate  of nucleophilic 
+addition with an ester is to increase the electrophilicity of the ester. This can be achieved in a 
+number of ways. The most common is to use a Lewis acid or Bronsted acid to form a positively 
+charged intermediate that is far more reactive and even mild nucleophiles such as water will 
+react. 
+Importance: 
+• Sodium acetic acid derivation is a kind of salt.  At the point when water is added to 
+sodium acetic acid derivation, the compound securities separate, making it isolate into 
+sodium particles and acetic acid secondary particles.  At that point, acetic acid  
+secondary particles in the water then join with hydrogen iotas to make a corrosive 
+called acidic corrosive. 
+• Alkyl halides are synthetic mixes frequently utilized as a part of refrigerants as 
+CFCs (chlorofluorocarbons). At the point when water is added to alkyl halides, 
+the substance is then changed over to a kind of liquor, which is for the most part 
+more secure for the earth. 
+• Through the study of chemical kinetics, it can reasonably guide us to know how to 
+control the reaction conditions and improve the main reaction rate, in order to increase 
+the production of chemical products, and also guide us to learn how to suppress or slow 
+down the reaction rate of side reactions 
+ 
+Expt. No.: Date: 
+ 
+Experiment 
+Determination of Reaction Rate, Order and Molecularity of Ethyl 
+acetate Hydrolysis 
+Problem definition Acid catalyzed hydrolysis of ethyl acetate to produce acetic acid and ethyl alcohol 
+Methodology Following chemical kinetics of the reaction through acid base titrimetric 
+Solution Hydrolysing ethyl acetate to get ethyl alcohol and acetic acid 
+
+
+
+=== PAGE 27 ===
+27 ---
+38 
+ 
+38  
+Student learning 
+outcomes 
+Follow the hydrolysis through pseudo first order kinetics to know the 
+reaction rate, order and molecularity 
+Aim: 
+To determine the rate constant of the hydrolysis of Ethyl acetate using an 
+acid as catalyst and to understand the order and molecularity of the 
+reaction. 
+ 
+Principle: 
+The hydrolysis of an ester occurs according to the equation 
+ 
+ 
+CH3COOC2H5 + H2O → CH3COOH + C2H5OH 
+This reaction follows pseudo first order kinetics since the concentration of 
+ethyl acetate only changes with time and the concentration of water does 
+not change significantly since it is taken in large excess. Two molecules 
+are involved in the reaction but the order is first only and the rate is 
+computed using first order rate equation. 
+ 
+ 
+The following rate equation is applicable to the 
+above reaction: Rate  [Ester] [H2O] 
+Since [H2O] remains constant, 
+Rate = 
+=−dtdc
+]['1 Esterk  
+where ‘c’ represents concentration of the ester at any time t; k’ 1 is the specific velocity constant. As 
+the reaction progresses, the accumulation of acetic acid increases. Drawing a known volume of the 
+reaction mixture at known regular intervals of time and titrating it against standard sodium hydroxide 
+solution will indicate the increase in acetic acid presence. 
+The acid hydrolysis of ester is a first-order bimolecular reaction, and the reaction follows pseudo first 
+order kinetics. This is because the amount of water is in large excess so that its concentration does 
+not change significantly to alter the reaction r ate. The reaction goes practically to completion (the 
+equilibrium shifts to the right) and the rate is first order with respect to the ester.  
+ 
+Requirements: 
+Reagents and solutions: Ethyl acetate, 0.5N HCl, 0.2N NaOH, Phenolphthalein indicator, 
+
+
+
+=== PAGE 28 ===
+28 ---
+39 
+ 
+39  
+Ice-cubes Apparatus: Burette 50mL, Pipettes-5mL, 10mL, Conical flasks, Wash bottle 
+Reaction bottle 250mL. Procedure: 
+ 
+Exactly 100 mL of 0.5N-hydrochloric acid solution are taken in a 250 mL clean reaction bottle 
+and exactly 5 mL of the ester is added to it. Zero time is noted when half the volume of ester 
+solution in the pipette is transferred into the reaction bottle. After thorough mixing, 
+immediately 10mL of the solution is pipetted out into a clean conical flask containing ice-cold 
+water. It is then titrated against 0.2 N sodium hydroxide solution from the burette using 
+Phenolphthalein indicator. The end-point is the first appearance of a pale permanent 
+    pink colour. The same volumes of the reaction mixture is withdrawn at regular intervals, say 10 
+minutes and is   titrated against sodium hydroxide solution. The reaction is allowed to go to 
+completion by keeping the reaction Mixture over a hot water bath for about 90 minutes. The final 
+reading is then noted. 
+ 
+ 
+Calculations: 
+ 
+ 
+Let V0 be the volume of alkali used at zero time and Vt. be the volume of alkali used after the 
+time ‘t’ seconds. Let V be the reading when the reaction is completed. Concentrations of the 
+ester at various time intervals are expressed in terms of volume of NaOH solution. 
+ 
+ 
+A = initial concentration of ester = (V - Vo) 
+(a-x) = concentration of ester at any time‘t’ = (V - VO) – (Vt – Vo) 
+= (V - Vo – Vt + Vo) 
+= (V - Vt) 
+ 
+ 
+The specific rate constant of the reactions is given by  
+                
+'1k  = 
+t
+303.2  log 
+
+
+
+
+
+− xa
+a  
+         
+'1k  = 
+t
+303.2  log 
+ −− toVV VV  
+       
+'1k = Slope x 2.303 
+ 
+The rate constant values are calculated at different time intervals which should nearly be the same. 
+A graph is drawn between log(V - Vt) and time ‘t’.  From the slope of the plot, the rate constant is 
+calculated, and it is compared with the experimental value. 
+
+
+
+=== PAGE 29 ===
+29 ---
+40 
+ 
+40  
+ 
+ 
+ 
+Table-1: 
+ 
+ 
+S.No. 
+Time 
+min 
+Volume of 
+NaOH 
+mL 
+ 
+ 
+mL 
+ 
+ 
+ 
+ 
+min-1 
+1 0     
+2 10     
+3 20     
+4 30     
+5 40     
+6 50     
+7 60     
+8 ∞     
+ 
+Results: 
+The Rate Constant for the hydrolysis of an ester from 
+1. Calculated value = 
+2. Graphical value = 
+3. Molecularity of the reaction = 
+4. Order of the reaction = 
+ 
+ 
+ 
+
+
+
+

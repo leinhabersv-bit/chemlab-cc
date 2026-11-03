@@ -1,0 +1,139 @@
+=== PAGE 30 ===
+30 ---
+41 
+ 
+41  
+Experiment 6. Magnesium Salt Water Activated 
+Battery- Effect of Salt Concentration on Voltage 
+generation 
+1. Introduction: 
+Magnesium batteries are batteries that utilize  magnesium cations as the active charge 
+transporting agent in solution and as the elemental anode of an electrochemical cell. Both 
+non-rechargeable primary cell and rechargeable secondary cell chemistries have been 
+investigated. A significant advantage of magnesium cells is the use of a solid magnesium 
+anode, allowing a higher energy density cell design. 
+ 
+The voltage created in batteries is due to movement of electron from anode to cathode. At 
+the anode oxidation takes place releasing electrons and these electrons travel to the 
+cathode and at the cathode reduction takes place. The electrical energy is gener ated by 
+the movement of electrons. When a metal electrode such as magnesium is immersed in 
+the electrolyte containing NaCl, it will lose two electrons and act as anode and oxidation 
+will take place, i.e., Mg will be converted to Mg +2 and the electrons will  pass into the 
+electrolyte. The electrons travel through the electrolyte towards copper electrode making it 
+more negative and hence reduction will take place at cathode (i.e., at the copper electrode). 
+Since these electrodes are of different metals, their reactivities will be different, and so 
+different. One electrode will become charged to a greater extent than the other and 
+because of the difference in reactivities will have a different voltage. Because of t his 
+difference, electrons want to move from one electrode to the other. This attractive potential 
+is the voltage that we measure between the electrodes, and the origin of the batteries’ 
+electrical power. 
+ 
+Experiment 
+Construction of Mg – salt water activated battery Effect of 
+Salt Concentration on Voltage generation 
+ 
+Problem definition 
+Construction of Mg – Salt water activated battery using Copper as 
+cathode, measure its voltage and verify performance. 
+ 
+Methodology 
+Construction of a galvanic cell using Mg as anode and Copper as 
+as cathode and measure its voltage as individual cell and when 
+cells are connected in series using salt water as electrolyte. 
+Solution To verify working of Mg-Cu salt water activated battery and its use as an eco-friendly galvanic cell. 
+
+
+
+=== PAGE 31 ===
+31 ---
+42 
+ 
+42  
+Student learning 
+outcomes 
+Understand the construction of Mg anode and Copper cathode as 
+to make Mg-Cu salt water activated primary battery and understand 
+its utility for low current applications. 
+2. Aim: 
+To construct galvanic cells using Mg as anode and Cu as cathode and salt water as 
+electrolyte and to understand its utility for low current applications. 
+3. Working principle of the system: 
+When a highly oxidizable electrode such as Magnesium is used as anode, it loses two 
+electrons easily to the electrolyte i.e. NaCl (salt water) and gets oxidized to Mg2+. These 
+electrons travel through the electrolyte  and get discharged at the cathode i.e. Copper 
+where Cu2+ gets reduced to metallic copper. 
+ 
+ 
+• At anode 
+Mg  → Mg+2 +  2e- (OXIDATION) 
+ 
+• At Cathode 
+Cu2+ + 2e- → Cu (REDUCTION) 
+ 
+Movement of two electrons from anode to cathode results in production of electrical 
+energy. 
+ 
+ 
+Requirements: 
+Materials: 
+Magnesium anodes (6 nos.) Copper wire cathodes (6 nos.), plastic containers of 100 
+mL capacity (6 nos.), Crystal salt (30 grams), Alligator clips, Copper wire, Digital 
+multimeter (DMM) and 6V LED bulb. 
+4. Methodology : Experimental Setup: 
+• Six empty plastic cups of 100 mL capacity are taken. 
+• 100 ml of NaCl solution containing 5% of crystal salt is filled in each one of the cups. 
+This is made by dissolving 5 grams of crystal salt in 100 mL of water (30 grams of salt 
+in 300 mL of tap water) 
+• One Mg anode connected with copper leads through a glass tube and one Copper 
+Cathode connected with copper leads through a glass tube are inserted into the pre-
+made holes on the lid. The distance between Mg and Cu is maintained at 2 cms. 
+• The lid with the electrode assembly is fixed by threading to the plastic cup. All six cups 
+are arranged in similar manner. 
+• The Mg and Cu electrode should dip in salt water solution completely. 
+• Thin copper wire connected with alligator clips is used for electrical connections. 
+Use thin copper wire and alligator clips to connect each electrode. 
+
+
+
+=== PAGE 32 ===
+32 ---
+43 
+ 
+43  
+• The voltage of each cell is measured by connecting Copper to positive and 
+magnesium to negative terminal of the DMM and noted. 
+• Then all the six cells were connected in series by making one main Mg as anode 
+and one Copper as cathode for the final connection. 
+• The voltage of the battery with six cells connected in series is measured and recorded. 
+• One LED bulb of 9 V rating is connected to the main terminals and this started 
+glowing and is expected to glow for a period of 4-5 hours when all the Mg gets 
+converted into MgCl2. 
+5. Observations and Results: 
+6.  
+ 
+Cell Voltages/Volts 
+Cell 1 Cell 2 Cell 3 Cell 4 Cell 5 Cell 6 
+Th. Ob
+s. 
+Th. Obs. Th. Obs. Th. Obs. Th. Obs. Th. Obs. 
+ 
+            
+%Error  %Error  %Error  %Error  %Error  %Error  
+Observed Voltage of battery when all six cells are connected in series :  V Theoretical 
+voltage of battery when all six cells are connected in series:  V 
+% Error : 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+
+
+
