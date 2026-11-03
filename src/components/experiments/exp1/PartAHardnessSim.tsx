@@ -325,3 +325,4 @@ export const PartAHardnessSim: React.FC<PartAHardnessSimProps> = ({ onResultsGen
     </div>
   );
 };
+

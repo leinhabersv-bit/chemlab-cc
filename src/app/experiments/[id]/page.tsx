@@ -1,6 +1,7 @@
 import React from "react";
 import { notFound } from "next/navigation";
 import { EXPERIMENTS_REGISTRY } from "@/data/experiments-registry";
+import { LabWorkspace } from "@/components/laboratory/LabWorkspace";
 import { ExperimentShell } from "@/components/experiment/ExperimentShell";
 import type { Metadata } from "next";
 
@@ -21,7 +22,7 @@ export async function generateMetadata({
     return { title: "Experiment Not Found — CHEMLAB CC" };
   }
   return {
-    title: `Exp ${experiment.number}: ${experiment.shortTitle} — CHEMLAB CC`,
+    title: `Exp ${experiment.number}: ${experiment.shortTitle} — CHEMLAB CC Digital Laboratory`,
     description: experiment.aim,
   };
 }
@@ -36,6 +37,11 @@ export default async function ExperimentPage({
 
   if (!experiment) {
     notFound();
+  }
+
+  // Purpose-built digital laboratory workspace for Experiment 1
+  if (experiment.id === "exp-1") {
+    return <LabWorkspace experiment={experiment} />;
   }
 
   return <ExperimentShell experiment={experiment} />;

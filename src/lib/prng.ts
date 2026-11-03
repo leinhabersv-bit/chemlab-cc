@@ -43,3 +43,4 @@ export class PRNG {
 
 /** Global default PRNG instance */
 export const defaultPRNG = new PRNG(2026);
+

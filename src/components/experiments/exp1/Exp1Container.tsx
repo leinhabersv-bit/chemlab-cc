@@ -145,3 +145,4 @@ export const Exp1Container: React.FC<Exp1ContainerProps> = ({ mode }) => {
     </div>
   );
 };
+

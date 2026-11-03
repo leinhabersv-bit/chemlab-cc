@@ -172,3 +172,4 @@ export const PartEPalmPhSim: React.FC<PartEPalmPhSimProps> = ({ onResultsGenerat
     </div>
   );
 };
+

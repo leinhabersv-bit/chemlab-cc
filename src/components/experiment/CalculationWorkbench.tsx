@@ -237,3 +237,4 @@ export const CalculationWorkbench: React.FC = () => {
     </div>
   );
 };
+

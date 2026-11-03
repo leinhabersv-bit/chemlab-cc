@@ -1,7 +1,7 @@
 import { test, expect } from "@playwright/test";
 
-test.describe("CHEMLAB CC — Virtual Chemistry Laboratory", () => {
-  test("Homepage loads with 10 syllabus experiments and metrics", async ({ page }) => {
+test.describe("CHEMLAB CC — Digital Laboratory Redesign", () => {
+  test("Homepage loads with laboratory visual identity and 10 syllabus experiments", async ({ page }) => {
     await page.goto("/");
     await expect(page).toHaveTitle(/CHEMLAB CC/);
 
@@ -21,79 +21,101 @@ test.describe("CHEMLAB CC — Virtual Chemistry Laboratory", () => {
     await expect(launchBtn).toBeVisible();
   });
 
-  test("Experiment 1: Full 5-in-1 Water Analysis user journey", async ({ page }) => {
+  test("Experiment 1: Purpose-built 3-pane digital laboratory workbench", async ({ page }) => {
     await page.goto("/experiments/exp-1");
-    // Verify main h1 title
-    await expect(page.locator("h1", { hasText: "Comprehensive Water Analysis" })).toBeVisible();
 
-    // 1. Learn Tab
-    await expect(page.getByText("Student Learning Outcomes:")).toBeVisible();
-    await expect(page.getByText("Verified Reaction Equations:")).toBeVisible();
-    await expect(page.getByText("Documented Inconsistencies & Errata:")).toBeVisible();
+    // 1. Top Bar & Workspace Regions
+    await expect(page.getByText("BENCH WORKSPACE")).toBeVisible();
+    await expect(page.getByText("REAGENTS & TOOLS")).toBeVisible();
+    
+    const isCompact = (page.viewportSize()?.width ?? 1440) < 1024;
+    if (isCompact) {
+      // Test mobile/tablet drawer toggle to verify Contextual Inspector without blocking reagents
+      await page.getByTitle("Toggle Contextual Inspector").click();
+      await expect(page.getByText("CONTEXTUAL INSPECTOR")).toBeVisible();
+      // Reopen reagents drawer for titration steps
+      await page.getByTitle("Toggle Reagents & Tools Drawer").click();
+      await expect(page.getByText("REAGENTS & TOOLS")).toBeVisible();
+    } else {
+      await expect(page.getByText("CONTEXTUAL INSPECTOR")).toBeVisible();
+    }
 
-    // 2. Demonstration Tab
-    await page.getByRole("button", { name: /2\. Demonstration/i }).click();
-    await expect(page.getByText("ANIMATED DEMONSTRATION STAGE")).toBeVisible();
-    const playDemoBtn = page.getByRole("button", { name: /Play Guided Demo/i });
-    await expect(playDemoBtn).toBeVisible();
+    // 2. Interactive Titration Workflow on Physical Bench
+    // Step A: Pipette 20 mL Sample
+    const pipetteBtn = page.getByRole("button", { name: /Std Hard Water/i });
+    await expect(pipetteBtn).toBeVisible();
+    await pipetteBtn.click();
+    await expect(page.getByText(/20\.0 mL Pipetted/i)).toBeVisible();
 
-    // 3. Hands-on Practice Tab
-    await page.getByRole("button", { name: /3\. Hands-on Practice/i }).click();
-    await expect(page.getByText("TITRATION I: STANDARDIZATION")).toBeVisible();
+    // Step B: Add Ammonia Buffer
+    const bufferBtn = page.getByRole("button", { name: /Ammonia Buffer/i });
+    await expect(bufferBtn).toBeVisible();
+    await bufferBtn.click();
+    await expect(page.getByText(/Buffer Added/i)).toBeVisible();
 
-    // Part A: EDTA titration
-    const dropBtn = page.getByRole("button", { name: /Drop \(0.05 mL\)/i });
-    const fastBtn = page.getByRole("button", { name: /Fast \(1.0 mL\)/i });
+    // Step C: Add EBT Indicator
+    const indicatorBtn = page.getByRole("button", { name: /EBT Indicator/i });
+    await expect(indicatorBtn).toBeVisible();
+    await indicatorBtn.click();
+    await expect(page.getByText("✓ Indicator Added (Wine Red Complex)")).toBeVisible();
+
+    // On compact screens, close overlay drawer so bench controls are directly interactable
+    if (isCompact) {
+      await page.getByRole("button", { name: /✕ Close/i }).first().click();
+    }
+
+    // Step D: Operate Burette Stopcock
+    const dropBtn = page.getByRole("button", { name: /\+0\.05 mL Drop/i });
+    const fastBtn = page.getByRole("button", { name: /\+1\.0 mL Rapid/i });
     await expect(dropBtn).toBeVisible();
     await expect(fastBtn).toBeVisible();
 
-    // Dispense some volume
+    // Dispense titrant
     await fastBtn.click();
     await fastBtn.click();
     await dropBtn.click();
-    // Record reading
-    const recordBtn = page.getByRole("button", { name: /Record Reading:/i });
+    await expect(page.getByText(/Burette:/i)).toBeVisible();
+
+    // Step E: Record Reading
+    const recordBtn = page.getByRole("button", { name: /Record Titre Reading:/i });
     await expect(recordBtn).toBeVisible();
     await recordBtn.click();
-    await expect(page.getByText("TABLE 1: STANDARDIZATION OF EDTA")).toBeVisible();
 
-    // Switch to Part B (Chloride Conductometry)
-    await page.getByRole("button", { name: /Part B/i }).click();
-    await expect(page.getByText("PART B: CONDUCTOMETRIC PRECIPITATION TITRATION")).toBeVisible();
-    const addAgNo3Btn = page.getByRole("button", { name: /Add 1.0 mL AgNO3/i });
-    await addAgNo3Btn.click();
-    await addAgNo3Btn.click();
-    await expect(page.getByText("TITRATION PLOT: CONDUCTANCE VS VOL AgNO3")).toBeVisible();
+    // 3. Subpart Switching & Instruments
+    // Switch to Chloride Conductometry
+    const chlorideTab = page.getByRole("button", { name: "chloride" }).first();
+    await chlorideTab.click();
+    await expect(page.getByText(/DIGITAL CONDUCTOMETER/i)).toBeVisible();
 
-    // Switch to Part C (Sulfate Nephelometry)
-    await page.getByRole("button", { name: /Part C/i }).click();
-    await expect(page.getByText("PART C: NEPHELOMETRIC TURBIDITY ESTIMATION")).toBeVisible();
-    const zeroSetBtn = page.getByRole("button", { name: /Zero Set \(Blank\)/i });
-    await expect(zeroSetBtn).toBeVisible();
+    // Switch to Sulfate Nephelometry
+    const sulfateTab = page.getByRole("button", { name: "sulfate" }).first();
+    await sulfateTab.click();
+    await expect(page.getByText(/DIGITAL NEPHELOMETER/i)).toBeVisible();
 
-    // Switch to Part D (TDS)
-    await page.getByRole("button", { name: /Part D/i }).click();
-    await expect(page.getByText("PART D: TOTAL DISSOLVED SOLIDS (TDS) ESTIMATION")).toBeVisible();
-    await expect(page.getByText("Recorded Electrical Conductivity (EC):")).toBeVisible();
+    // Switch to TDS Estimation
+    const tdsTab = page.getByRole("button", { name: "tds" }).first();
+    await tdsTab.click();
+    await expect(page.getByText(/Proportionality Constant kₑ:/i)).toBeVisible();
 
-    // Switch to Part E (pH)
-    await page.getByRole("button", { name: /Part E/i }).click();
-    await expect(page.getByText("PART E: POTENTIOMETRIC pH MEASUREMENT")).toBeVisible();
-    await expect(page.getByText("DIGITAL BENCHTOP pH METER")).toBeVisible();
+    // Switch to pH Measurement
+    const phTab = page.getByRole("button", { name: "ph" }).first();
+    await phTab.click();
+    await expect(page.getByText(/DIGITAL BENCHTOP pH METER/i)).toBeVisible();
 
-    // Switch to Final CPCB Report
-    await page.getByRole("button", { name: /Final CPCB Report/i }).click();
-    await expect(page.locator("h2", { hasText: "Comprehensive Water Quality Analysis Report" })).toBeVisible();
-    await expect(page.getByText("Total Hardness (as CaCO3)")).toBeVisible();
-    await expect(page.getByText("Chloride (as Cl-)")).toBeVisible();
-    await expect(page.getByText("Total Dissolved Solids (TDS)")).toBeVisible();
-    await expect(page.getByText("Sulfate (as SO4 2-)")).toBeVisible();
-  });
+    // 4. Laboratory Notebook Drawer
+    const notebookToggle = page.getByRole("button", { name: /Notebook/i }).first();
+    await notebookToggle.click();
+    await expect(page.getByText("LABORATORY NOTEBOOK & OBSERVATIONS")).toBeVisible();
+    await expect(page.getByRole("button", { name: "BIS Compliance Report" })).toBeVisible();
 
-  test("Formative Concept Quiz evaluation", async ({ page }) => {
-    await page.goto("/experiments/exp-1");
-    await page.getByRole("button", { name: /5\. Quiz & Review/i }).click();
-    await expect(page.getByText("Formative Concept Quiz")).toBeVisible();
-    await expect(page.getByText("Q1. Why is ammonia buffer")).toBeVisible();
+    // Open BIS report sheet inside notebook
+    await page.getByRole("button", { name: "BIS Compliance Report" }).click();
+    await expect(page.getByText("Comprehensive Water Quality Analysis Report")).toBeVisible();
+
+    // 5. Guided Demonstration Mode Switch
+    const demoModeBtn = page.getByRole("button", { name: /Demo/i }).first();
+    await demoModeBtn.click();
+    await expect(page.getByText("ANIMATED DEMONSTRATION STAGE")).toBeVisible();
+    await expect(page.getByRole("button", { name: /Play Guided Demo/i })).toBeVisible();
   });
 });
