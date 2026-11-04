@@ -190,25 +190,26 @@ export const FlaskStirrerV2: React.FC<FlaskStirrerV2Props> = ({
       </div>
 
       {/* Volume & Solution Status Pill */}
-      <div className="flex items-center gap-2 mt-1 px-3 py-1 bg-slate-900/90 border border-slate-800 rounded-lg text-xs font-mono">
+      <div className="flex items-center gap-2 mt-1 px-3 py-1.5 bg-bench-900 border border-bench-750 rounded-xl text-xs font-mono shadow-md">
         <span
-          className="w-3 h-3 rounded-full border border-slate-600 shadow-sm"
-          style={{ backgroundColor: liquidColor === "transparent" ? "#334155" : liquidColor }}
+          className="w-3.5 h-3.5 rounded-full border border-bench-600 shadow-inner"
+          style={{ backgroundColor: liquidColor === "transparent" ? "#222732" : liquidColor }}
         />
-        <span className="text-slate-300">
-          Flask: <strong className="text-cyan-300">{clampedVol.toFixed(1)} mL</strong>
+        <span className="text-enamel-200">
+          Flask: <strong className="text-instrument-sky font-bold">{clampedVol.toFixed(1)} mL</strong>
         </span>
         <button
           onClick={onToggleStirrer}
-          className={`text-[10px] px-1.5 py-0.5 rounded border transition-colors ${
+          className={`text-[10px] px-2 py-0.5 rounded-md border font-bold transition-colors ${
             isStirring
-              ? "bg-emerald-950/80 border-emerald-600 text-emerald-300"
-              : "bg-slate-800 border-slate-700 text-slate-400 hover:text-slate-200"
+              ? "bg-emerald-950 border-emerald-700 text-instrument-phosphor"
+              : "bg-bench-800 border-bench-700 text-enamel-400 hover:text-white"
           }`}
         >
-          {isStirring ? "Stirring (ON)" : "Stir (OFF)"}
+          {isStirring ? "STIRRER (ON)" : "STIRRER (OFF)"}
         </button>
       </div>
     </div>
   );
 };
+

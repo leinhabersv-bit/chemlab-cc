@@ -8,16 +8,16 @@ test.describe("CHEMLAB CC — Digital Laboratory Redesign", () => {
     // Verify brand in navbar
     const brandLink = page.getByRole("link", { name: /CHEMLAB CC/i }).first();
     await expect(brandLink).toBeVisible();
-    await expect(page.getByText("BCHY101P ENGINEERING CHEMISTRY LAB (2026–27)")).toBeVisible();
+    await expect(page.getByText(/BCHY101P CURRICULUM/i)).toBeVisible();
 
-    // Verify all 10 experiments are present in the catalog using exact match
+    // Verify all 10 stations are present in the directory using exact station text
     for (let i = 1; i <= 10; i++) {
-      const expNumberText = `EXP ${i.toString().padStart(2, "0")}`;
-      await expect(page.getByText(expNumberText, { exact: true })).toBeVisible();
+      const stationText = `STATION ${i.toString().padStart(2, "0")}`;
+      await expect(page.getByText(stationText, { exact: true }).first()).toBeVisible();
     }
 
-    // Verify launch button for Experiment 1
-    const launchBtn = page.getByRole("link", { name: /Launch Experiment 1/i }).first();
+    // Verify launch button for Station 01
+    const launchBtn = page.getByRole("link", { name: /Deploy Station 01/i }).first();
     await expect(launchBtn).toBeVisible();
   });
 
@@ -42,10 +42,10 @@ test.describe("CHEMLAB CC — Digital Laboratory Redesign", () => {
 
     // 2. Interactive Titration Workflow on Physical Bench
     // Step A: Pipette 20 mL Sample
-    const pipetteBtn = page.getByRole("button", { name: /Std Hard Water/i });
+    const pipetteBtn = page.getByRole("button", { name: /Std Hard Water/i }).first();
     await expect(pipetteBtn).toBeVisible();
     await pipetteBtn.click();
-    await expect(page.getByText(/20\.0 mL Pipetted/i)).toBeVisible();
+    await expect(page.getByText(/20\.0 mL Pipetted/i).first()).toBeVisible();
 
     // Step B: Add Ammonia Buffer
     const bufferBtn = page.getByRole("button", { name: /Ammonia Buffer/i });
@@ -112,10 +112,10 @@ test.describe("CHEMLAB CC — Digital Laboratory Redesign", () => {
     await page.getByRole("button", { name: "BIS Compliance Report" }).click();
     await expect(page.getByText("Comprehensive Water Quality Analysis Report")).toBeVisible();
 
-    // 5. Guided Demonstration Mode Switch
+    // 5. Unified Guided Demonstration Mode Switch
     const demoModeBtn = page.getByRole("button", { name: /Demo/i }).first();
     await demoModeBtn.click();
-    await expect(page.getByText("ANIMATED DEMONSTRATION STAGE")).toBeVisible();
-    await expect(page.getByRole("button", { name: /Play Guided Demo/i })).toBeVisible();
+    await expect(page.getByText("AUTOMATED GUIDED DEMONSTRATION")).toBeVisible();
+    await expect(page.getByRole("button", { name: /Play Demo/i })).toBeVisible();
   });
 });

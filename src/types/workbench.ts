@@ -39,3 +39,4 @@ export interface NotebookEntry {
   trialNumber?: number;
   notes?: string;
 }
+

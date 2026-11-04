@@ -51,3 +51,4 @@ While Phase 1 established a working Next.js foundation, verified unit calculatio
      - Live reaction equations and ionic equilibria.
      - Apparatus specs and safety notes.
      - Formula breakdown when entering observations.
+

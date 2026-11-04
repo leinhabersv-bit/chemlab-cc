@@ -53,10 +53,10 @@ export const BuretteStandV2: React.FC<BuretteStandV2Props> = ({
   return (
     <div className={`relative flex flex-col items-center select-none ${className}`}>
       {/* Top Reading HUD */}
-      <div className="flex items-center gap-2 mb-2 px-3 py-1 bg-slate-900/90 border border-slate-700/80 rounded-lg shadow-md font-mono text-xs">
-        <span className="text-slate-400">Burette:</span>
-        <strong className="text-cyan-400 text-sm">{clampedVol.toFixed(2)} mL</strong>
-        <span className="text-[10px] text-slate-500">/ {maxVolume} mL</span>
+      <div className="flex items-center gap-2 mb-2 px-3.5 py-1.5 bg-bench-900 border border-bench-750 rounded-xl shadow-md font-mono text-xs">
+        <span className="text-enamel-400">Burette:</span>
+        <strong className="text-instrument-sky text-sm font-bold">{clampedVol.toFixed(2)} mL</strong>
+        <span className="text-[10px] text-enamel-500">/ {maxVolume} mL</span>
       </div>
 
       {/* SVG Stand + Burette Assembly */}
@@ -203,10 +203,10 @@ export const BuretteStandV2: React.FC<BuretteStandV2Props> = ({
 
       {/* Stopcock Physical Action Controller */}
       {!readOnly && (
-        <div className="flex flex-col gap-2 w-full max-w-[200px] mt-2 bg-slate-900/90 p-2.5 rounded-xl border border-slate-800 shadow-lg">
-          <div className="flex items-center justify-between text-[10px] font-mono text-slate-400">
-            <span>STOPCOCK:</span>
-            <span className={isHoldingStopcock ? "text-amber-400 font-bold animate-pulse" : "text-slate-400"}>
+        <div className="flex flex-col gap-2 w-full max-w-[210px] mt-2 bg-bench-900 p-3 rounded-2xl border border-bench-750 shadow-xl">
+          <div className="flex items-center justify-between text-[10px] font-mono text-enamel-400">
+            <span>STOPCOCK VALVE:</span>
+            <span className={isHoldingStopcock ? "text-instrument-amber font-bold animate-pulse" : "text-enamel-500"}>
               {isHoldingStopcock ? "FLOWING..." : "CLOSED"}
             </span>
           </div>
@@ -218,34 +218,34 @@ export const BuretteStandV2: React.FC<BuretteStandV2Props> = ({
             onMouseLeave={() => setIsHoldingStopcock(false)}
             onTouchStart={() => setIsHoldingStopcock(true)}
             onTouchEnd={() => setIsHoldingStopcock(false)}
-            className={`w-full py-2 px-3 rounded-lg font-mono text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow ${
+            className={`w-full py-2.5 px-3 rounded-xl font-mono text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow ${
               isHoldingStopcock
-                ? "bg-amber-500 text-slate-950 scale-[0.98] ring-2 ring-amber-400"
-                : "bg-cyan-600 hover:bg-cyan-500 active:scale-95 text-white"
+                ? "bg-instrument-amber text-slate-950 scale-[0.98] ring-2 ring-amber-400"
+                : "bg-bench-800 hover:bg-bench-750 border border-bench-700 text-instrument-amber active:scale-95"
             }`}
           >
-            <span>{isHoldingStopcock ? "🌊 Dispensing..." : "💧 Press & Hold to Stream"}</span>
+            <span>{isHoldingStopcock ? "Dispensing Titrant..." : "Press & Hold Stopcock"}</span>
           </button>
 
           {/* Quick Drop & Flow Slider */}
-          <div className="grid grid-cols-2 gap-1.5 pt-1 border-t border-slate-800">
+          <div className="grid grid-cols-2 gap-1.5 pt-1.5 border-t border-bench-800">
             <button
               onClick={() => onDispenseAmount(0.05)}
-              className="py-1 px-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded text-[10px] font-mono transition-colors"
-              title="Dispense exact single drop"
+              className="py-1.5 px-2 bg-bench-850 hover:bg-bench-800 text-enamel-200 border border-bench-750 rounded-lg text-[10px] font-mono transition-colors active:scale-95"
+              title="Dispense exact single drop (0.05 mL)"
             >
               +0.05 mL Drop
             </button>
             <button
               onClick={() => onDispenseAmount(1.0)}
-              className="py-1 px-2 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded text-[10px] font-mono transition-colors"
+              className="py-1.5 px-2 bg-bench-850 hover:bg-bench-800 text-enamel-200 border border-bench-750 rounded-lg text-[10px] font-mono transition-colors active:scale-95"
               title="Dispense 1.0 mL aliquot"
             >
               +1.0 mL Rapid
             </button>
           </div>
 
-          <div className="flex items-center justify-between text-[10px] font-mono text-slate-400 pt-1">
+          <div className="flex items-center justify-between text-[10px] font-mono text-enamel-400 pt-1">
             <span>Rate:</span>
             <div className="flex items-center gap-1">
               {[0.1, 0.2, 0.5].map((r) => (
@@ -253,7 +253,7 @@ export const BuretteStandV2: React.FC<BuretteStandV2Props> = ({
                   key={r}
                   onClick={() => setFlowRate(r)}
                   className={`px-1.5 py-0.5 rounded text-[9px] ${
-                    flowRate === r ? "bg-cyan-950 border border-cyan-600 text-cyan-300 font-bold" : "text-slate-500 hover:text-slate-300"
+                    flowRate === r ? "bg-bench-800 border border-instrument-amber text-instrument-amber font-bold" : "text-enamel-500 hover:text-enamel-300"
                   }`}
                 >
                   {r}mL
@@ -266,3 +266,4 @@ export const BuretteStandV2: React.FC<BuretteStandV2Props> = ({
     </div>
   );
 };
+

@@ -106,3 +106,4 @@ export interface SimulationContext {
   proceduralWarning: string | null;
   activeHint: string;
 }
+
