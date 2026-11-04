@@ -57,7 +57,9 @@ test("move actual apparatus, condition, fill, pour, discard and wash by hand", a
   await page
     .getByRole("button", { name: "Place flask under burette", exact: true })
     .click();
+  let selected = "pipette";
   async function drag(item: string, x: number, y: number) {
+    selected = item;
     const object = page.locator(`[data-apparatus="${item}"]`);
     await object.scrollIntoViewIfNeeded();
     const bounds = await object.boundingBox();
@@ -110,13 +112,54 @@ test("move actual apparatus, condition, fill, pour, discard and wash by hand", a
     expect(Math.abs(Number(moved[2]) - y)).toBeLessThan(2);
   }
   async function tilt() {
-    const slider = page.getByRole("slider", {
-      name: "Tilt selected apparatus",
-    });
-    await slider.focus();
-    await slider.press("Home");
-    await slider.press("End");
+    const grip = page.locator(`[data-tilt="${selected}"]`);
+    await grip.scrollIntoViewIfNeeded();
+    const bounds = await grip.boundingBox();
+    const scene = await page.locator(".edta-hands-on svg").boundingBox();
+    if (!bounds || !scene) throw new Error("Missing tilt grip");
+    const start = {
+      x: bounds.x + bounds.width / 2,
+      y: bounds.y + bounds.height / 2,
+    };
+    const end = { x: start.x + (60 * scene.width) / 900, y: start.y };
+    const client = testInfo.project.name.includes("Mobile")
+      ? await page.context().newCDPSession(page)
+      : null;
+    if (client) {
+      await client.send("Input.dispatchTouchEvent", {
+        type: "touchStart",
+        touchPoints: [start],
+      });
+      await client.send("Input.dispatchTouchEvent", {
+        type: "touchMove",
+        touchPoints: [end],
+      });
+    } else {
+      await page.mouse.move(start.x, start.y);
+      await page.mouse.down();
+      await page.mouse.move(end.x, end.y, { steps: 6 });
+    }
+    await expect(page.getByTestId("pour-stream")).toBeVisible();
+    await expect(
+      page.locator(`[data-apparatus="${selected}"]`),
+    ).not.toHaveAttribute("transform", /rotate\(0 /);
+    if (selected === "wash" || selected === "buffer")
+      await page.screenshot({
+        path: testInfo.outputPath(`${selected}-flow.png`),
+        fullPage: true,
+      });
+    if (client) {
+      await client.send("Input.dispatchTouchEvent", {
+        type: "touchEnd",
+        touchPoints: [],
+      });
+      await client.detach();
+    } else await page.mouse.up();
+    await expect(page.getByTestId("pour-stream")).toHaveCount(0);
   }
+  await expect(
+    page.getByRole("slider", { name: "Tilt selected apparatus" }),
+  ).toHaveCount(0);
   await drag("edta", 490, 160);
   await tilt();
   await page.getByLabel("Rinse or fill").selectOption("fill");
@@ -131,10 +174,10 @@ test("move actual apparatus, condition, fill, pour, discard and wash by hand", a
     .getByRole("button", { name: "Record initial meniscus", exact: true })
     .click();
   await page.getByLabel("Rinse or fill").selectOption("rinse");
-  await drag("pipette", 170, 510);
+  await drag("pipette", 170, 330);
   await page.getByLabel("Rinse or fill").selectOption("fill");
-  await drag("pipette", 180, 500);
-  await drag("pipette", 490, 410);
+  await drag("pipette", 180, 340);
+  await drag("pipette", 490, 260);
   await tilt();
   await expect(
     page.getByText("20.00 mL in flask", { exact: true }),

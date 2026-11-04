@@ -9,13 +9,21 @@ Original ZIP and reference PDF were preserved. Implementation branch: `implement
 ## Final verification
 
 | Check | Result | Scope |
+
 |---|---|---|
+
 | Unit tests | 24 passed across 4 files | Scientific functions, deterministic four-trial replay, 420 ppm fixture, transfer conservation per reagent, impossible actions, flow, overshoot, duplicate recording, concordance and legacy reducer regressions |
+
 | Production build | Passed | Next 15.5.29, React 19, Node 24.19.0; includes TypeScript validation; 15 pages generated |
+
 | Browser tests | 8 passed, 2.1 minutes | Full practice workflow, full demonstration, entry/challenge/keyboard checks, and pipette drag; each on 1440px desktop and 390px emulated mobile Chromium |
+
 | Dependency audit | 0 reported vulnerabilities | Final npm audit after unused Zod removal, Vitest 5.1.0 update and PostCSS 8.5.32 override |
+
 | Accessibility | 0 automatic WCAG A/AA violations in four initial-view scans | Homepage and initial bench, desktop/mobile; axe-core 4.14.0; some SVG contrast/ARIA checks remain marked for manual review |
+
 | Local rendering sample | Median frame interval approximately 16.7 ms | Unthrottled local Chromium, 120 frames per initial view; not a real-device or field performance benchmark |
+
 | Horizontal overflow | None in tested initial views and completed practice journeys | Observation table intentionally scrolls within its container on mobile |
 
 The first browser run exposed an ambiguous test selector matching Next's route announcement and the lab warning. The selector was corrected; final runs pass. The attempted premature reading is deliberately rejected in each practice test, so those reports include one rejected action. Demonstration finishes with zero rejected actions.
@@ -25,13 +33,21 @@ The deterministic unit-test fixture uses EDTA capacity 1 mg CaCO3/mL and unknown
 ## Evidence files
 
 - `browser-results.json`: final eight-test machine-readable result.
+
 - `desktop-walkthrough.webm`, `mobile-walkthrough.webm`: actual complete practice recordings.
+
 - `browser-evidence/`: complete traces, videos, screenshots and observation reports for all final tests.
+
 - `before-desktop.png`: live original application before implementation.
+
 - `after-desktop.png`: completed practice in the new laboratory.
+
 - `after-mobile.png`: completed demonstration in the new mobile laboratory.
+
 - `home-1440.png`, `home-390.png`: new entry experience.
+
 - `accessibility-performance.json`: measured initial-view checks and their limits.
+
 - `dependency-audit.json`: original six-advisory audit; `dependency-audit-final.json`: final zero-advisory audit.
 
 Playwright videos are automated browser walkthroughs, not human usability studies. The raw full-page mobile practice screenshot contains the sticky scene at the scroll position reached during report download; the standalone mobile screenshot uses the completed demonstration at the top of the page.
@@ -58,7 +74,7 @@ The demo now starts paused, with Next step as its primary control. Each press pe
 
 Verification after this update: production build passed; two focused browser journeys passed (desktop/mobile). They check that step mode does not advance by itself, slow autoplay advances, pause stops it, buffer/EBT explanations appear, and manual stepping completes four accepted trials. Scientific engine is unchanged. Earlier practice, unit and dependency results remain applicable; the complete eight-test suite was not rerun for this UI-only update. See demo-update-results.json and demo-explanation.png.
 
-## Follow-up: hands-on manipulation and demo recovery — 5 November 2026
+## Follow-up: hands-on manipulation and demo recovery â€” 5 November 2026
 
 Practice and Challenge now let users drag the actual flask, pipette, sample and reagent bottles with mouse or touch. Arrow keys also move focused objects. Rinse/Fill selects conditioning or aspiration; the tilt slider transfers measured liquid after apparatus is positioned at the receiving vessel. Moving the flask off its stand closes flow and stops stirring. At waste, tilting empties it; tilting the wash bottle over it performs a separate rinse. Dirty glassware cannot receive a fresh aliquot until rinsed. The burette remains clamped; transfers use fixed teaching quantities rather than continuous fluid physics.
 
@@ -67,3 +83,13 @@ The demo could repeatedly attempt a rejected reading after an overshot manual tr
 Verification: 26 unit tests passed, including the overshoot regression and dirty-flask/movement checks. Production build passed. Full practice, step demonstration and slow autoplay completed on desktop and emulated mobile Chromium; autoplay took approximately 4.5 minutes per device and ended with four accepted trials and zero rejected actions. The first run had eight passing tests and two failed manual-interaction checks: an over-strict coordinate assertion and touch scrolling interrupting drag. Both were corrected. After the final build, all four entry/manual interaction checks passed, including actual touch events for moving, conditioning, filling, pouring, discarding and washing. Autoplay was not repeated after the final touch CSS and feedback-text changes; its scheduler and science logic were unchanged.
 
 Evidence: autoplay-full-run-results.json preserves the initial run, including its two failures; manual-controls-results.json records the final four passing checks. Corresponding traces, videos and screenshots are under browser-evidence/manual-demo-initial and browser-evidence/manual-controls-final. The earlier eight-test browser-results.json and accessibility/performance report are historical baseline evidence, not fresh audits of the new hands-on view. No deployment or Git push was performed.
+
+## Direct vessel tilting and animated flow - 5 November 2026
+
+The tilt slider was removed. Drag the body to position apparatus; drag its neck or pipette bulb sideways to rotate around the pouring opening. Crossing 45 degrees triggers the validated measured action. Accepted pouring, filling and rinsing show a stream, moving dashes and a splash; rejected actions do not create a stream. Releasing or cancelling the gesture stops the stream and restores the upright vessel. Streams also stop automatically after a short measured dose. Keyboard arrows move, Shift + arrows tilt and Escape stops. Liquid-level transitions and reduced-motion styling are included.
+
+The quantity is committed once at the tilt threshold; holding longer does not continuously dispense liquid. This is an animated measured-dose interaction, not fluid physics. Existing contextual buttons remain available.
+
+Production build and four focused desktop/touch browser checks passed. The tests drag actual necks, verify rotation and visible streams, check release stops flow, confirm the slider is absent, and complete conditioning, filling, sample/buffer/indicator delivery, emptying and washing. Screenshots include buffer-flow.png and wash-flow.png; videos and traces are in browser-evidence/direct-tilt-final. The engine and demo scheduler were unchanged, so their earlier unit/full-demo evidence was not rerun for this renderer update.
+
+At the user's explicit request, the verified implementation was pushed to GitHub on implementation/edta-vertical-slice (initial commit 617f50e), followed by this interaction update. No merge to main or production deployment was requested or performed.

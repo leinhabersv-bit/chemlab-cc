@@ -7,6 +7,7 @@ import {
   type KeyboardEvent,
 } from "react";
 import {
+  edtaReducer,
   observe,
   reading,
   volume,
@@ -26,6 +27,8 @@ const initialPositions: Record<Item, Point> = {
   edta: { x: 730, y: 510 },
   wash: { x: 820, y: 510 },
 };
+const mouthY = (item: Item) =>
+  item === "pipette" ? 127 : item === "flask" ? -146 : -119;
 const names: Record<Item, string> = {
   flask: "Conical flask",
   pipette: "Pipette",
@@ -49,12 +52,57 @@ export function HandsOnBench({
   const [positions, setPositions] = useState(initialPositions);
   const [selected, setSelected] = useState<Item>("pipette");
   const [angle, setAngle] = useState(0);
+  const [flow, setFlow] = useState<{
+    from: Point;
+    to: Point;
+    colour: string;
+    rinse: boolean;
+  } | null>(null);
+  const flowTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const stopFlow = () => {
+    if (flowTimer.current) clearTimeout(flowTimer.current);
+    setFlow(null);
+  };
+  useEffect(
+    () => () => {
+      if (flowTimer.current) clearTimeout(flowTimer.current);
+    },
+    [],
+  );
+  const animate = (
+    command: EdtaCommand,
+    from: Point,
+    to: Point,
+    rinse = false,
+  ) => {
+    const next = edtaReducer(s, command);
+    send(command);
+    if (next.warning) return;
+    stopFlow();
+    setFlow({
+      from,
+      to,
+      colour:
+        selected === "indicator"
+          ? "#8d345f"
+          : selected === "flask"
+            ? o.colourHex
+            : "#389eb9",
+      rinse,
+    });
+    flowTimer.current = setTimeout(() => setFlow(null), 1400);
+  };
   const [message, setMessage] = useState(
-    "Drag the actual glassware. Dip the pipette in the sample; place bottles over the flask and tilt to pour.",
+    "Drag the vessel body to move it. Drag its neck sideways to tilt and pour. Release to stop.",
   );
   const [purpose, setPurpose] = useState<"rinse" | "fill">("rinse");
   const svg = useRef<SVGSVGElement>(null);
-  const drag = useRef<{ item: Item; start: Point; origin: Point } | null>(null);
+  const drag = useRef<{
+    item: Item;
+    start: Point;
+    origin: Point;
+    tilt: boolean;
+  } | null>(null);
   const o = observe(s);
   useEffect(() => {
     if (s.positioned)
@@ -79,6 +127,7 @@ export function HandsOnBench({
   const choose = (item: Item) => {
     setSelected(item);
     setAngle(0);
+    stopFlow();
     if (item === "sample") select("pipette");
     else if (item === "edta") select("burette");
     else if (item === "wash") select("flask");
@@ -96,11 +145,20 @@ export function HandsOnBench({
             : "Flask moved off the stirrer. Flow and stirring are stopped.",
       );
     }
-    if (item === "pipette" && near(p, positions.sample, 105)) {
-      send(
+    if (
+      item === "pipette" &&
+      near(
+        { x: p.x, y: p.y + 127 },
+        { x: positions.sample.x, y: positions.sample.y - 50 },
+        70,
+      )
+    ) {
+      animate(
         purpose === "rinse"
           ? { type: "rinse", vessel: "pipette" }
           : { type: "transfer", from: s.sample, to: "pipette", volumeMl: 20 },
+        { x: positions.sample.x, y: positions.sample.y - 50 },
+        { x: p.x, y: p.y + 25 },
       );
       setMessage(
         purpose === "rinse"
@@ -113,7 +171,17 @@ export function HandsOnBench({
     e.preventDefault();
     e.stopPropagation();
     choose(item);
-    drag.current = { item, start: point(e), origin: positions[item] };
+    drag.current = {
+      item,
+      start: point(e),
+      origin: positions[item],
+      tilt: (e.target as Element).closest("[data-tilt]") !== null,
+    };
+    setMessage(
+      drag.current.tilt
+        ? "Drag sideways past 45 degrees to pour. Release to stop."
+        : "Move the vessel above its target, then drag its neck to tilt.",
+    );
     e.currentTarget.setPointerCapture(e.pointerId);
     if (item === "flask") send({ type: "position", underBurette: false });
   };
@@ -121,6 +189,10 @@ export function HandsOnBench({
     const d = drag.current;
     if (!d) return;
     const p = point(e);
+    if (d.tilt) {
+      pour(Math.min(100, Math.abs(p.x - d.start.x) * 1.5));
+      return;
+    }
     move(d.item, {
       x: d.origin.x + p.x - d.start.x,
       y: d.origin.y + p.y - d.start.y,
@@ -129,6 +201,12 @@ export function HandsOnBench({
   const up = (e: PointerEvent<SVGGElement>) => {
     const d = drag.current;
     if (!d) return;
+    if (d.tilt) {
+      drag.current = null;
+      setAngle(0);
+      stopFlow();
+      return;
+    }
     const p = point(e);
     const end = move(d.item, {
       x: d.origin.x + p.x - d.start.x,
@@ -138,6 +216,19 @@ export function HandsOnBench({
     settled(d.item, end);
   };
   const keyboard = (item: Item, e: KeyboardEvent<SVGGElement>) => {
+    if (e.key === "Escape") {
+      e.preventDefault();
+      setAngle(0);
+      stopFlow();
+      return;
+    }
+    if (e.shiftKey && (e.key === "ArrowRight" || e.key === "ArrowLeft")) {
+      e.preventDefault();
+      pour(
+        Math.max(0, Math.min(100, angle + (e.key === "ArrowRight" ? 15 : -15))),
+      );
+      return;
+    }
     const delta: Record<string, Point> = {
       ArrowLeft: { x: -15, y: 0 },
       ArrowRight: { x: 15, y: 0 },
@@ -162,16 +253,19 @@ export function HandsOnBench({
   const pour = (degrees: number) => {
     const crossed = angle < 45 && degrees >= 45;
     setAngle(degrees);
+    if (degrees < 45) stopFlow();
     if (!crossed) return;
     const p = positions[selected],
       f = positions.flask;
+    const spout = { x: p.x, y: p.y + mouthY(selected) };
+    const receiving = { x: f.x, y: f.y - 30 };
     if (selected === "flask") {
       if (!near(p, { x: 120, y: 340 }, 105)) {
         setMessage("Move the flask into the waste area before emptying.");
         return;
       }
       // Emptying and washing are separate actions.
-      send({ type: "discard" });
+      animate({ type: "discard" }, spout, { x: 120, y: 350 });
       setMessage(
         "Flask emptied. Move the wash bottle over it and tilt to rinse.",
       );
@@ -182,7 +276,7 @@ export function HandsOnBench({
         setMessage("Move the EDTA bottle to the burette mouth before tilting.");
         return;
       }
-      send(
+      animate(
         purpose === "rinse"
           ? { type: "rinse", vessel: "burette" }
           : {
@@ -191,6 +285,9 @@ export function HandsOnBench({
               to: "burette",
               volumeMl: 50 - volume(s.vessels.burette),
             },
+        spout,
+        { x: 490, y: 70 },
+        purpose === "rinse",
       );
       setMessage(
         purpose === "rinse"
@@ -206,11 +303,13 @@ export function HandsOnBench({
         );
         return;
       }
-      send({ type: "clean" });
+      animate({ type: "clean" }, spout, receiving, true);
       setMessage("Flask rinsed with water at waste.");
       return;
     }
-    if (!near(p, { x: f.x, y: f.y - 85 }, 115)) {
+    if (
+      !near(p, { x: f.x, y: f.y - (selected === "pipette" ? 250 : 85) }, 115)
+    ) {
       setMessage(
         "Bring the selected vessel over the flask opening before pouring.",
       );
@@ -222,12 +321,17 @@ export function HandsOnBench({
       );
       return;
     }
-    send({
-      type: "transfer",
-      from: selected,
-      to: "flask",
-      volumeMl: selected === "pipette" ? 20 : selected === "buffer" ? 4 : 0.05,
-    });
+    animate(
+      {
+        type: "transfer",
+        from: selected,
+        to: "flask",
+        volumeMl:
+          selected === "pipette" ? 20 : selected === "buffer" ? 4 : 0.05,
+      },
+      spout,
+      receiving,
+    );
     setMessage(
       selected === "indicator"
         ? "One EBT drop added. Return upright before the next drop."
@@ -246,12 +350,14 @@ export function HandsOnBench({
             ? "EBT"
             : `Move ${names[item]}`,
     "data-apparatus": item,
-    transform: `translate(${positions[item].x} ${positions[item].y}) rotate(${selected === item ? angle : 0})`,
+    transform: `translate(${positions[item].x} ${positions[item].y}) rotate(${selected === item ? angle : 0} 0 ${mouthY(item)})`,
     onPointerDown: (e: PointerEvent<SVGGElement>) => down(item, e),
     onPointerMove: moving,
     onPointerUp: up,
     onPointerCancel: () => {
       drag.current = null;
+      setAngle(0);
+      stopFlow();
     },
     onKeyDown: (e: KeyboardEvent<SVGGElement>) => keyboard(item, e),
     onFocus: () => choose(item),
@@ -416,13 +522,23 @@ export function HandsOnBench({
           STIRRER / FLASK POSITION
         </text>
         <g {...props("flask")}>
+          <title>Drag body to move; drag neck sideways to tilt</title>
           <path
             d="M-14 -146H14V-105L67 -11Q71 0 57 3H-57Q-71 0 -67 -11L-14 -105Z"
             fill="url(#hand-glass)"
             stroke="#648a7b"
             strokeWidth="2"
           />
-          <g clipPath="url(#hand-flask)">
+          <rect
+            data-tilt="flask"
+            x="-23"
+            y="-156"
+            width="46"
+            height="60"
+            fill="transparent"
+            className="edta-tilt-grip"
+          />
+          <g clipPath="url(#hand-flask)" pointerEvents="none">
             <rect
               x="-70"
               y={-Math.min(volume(s.vessels.flask) * 1.2, 140)}
@@ -449,6 +565,7 @@ export function HandsOnBench({
         {(["sample", "buffer", "indicator", "edta", "wash"] as const).map(
           (item) => (
             <g key={item} {...props(item)}>
+              <title>Drag body to move; drag neck sideways to tilt</title>
               <rect
                 x="-27"
                 y="-100"
@@ -466,10 +583,12 @@ export function HandsOnBench({
                 strokeWidth="2"
               />
               <rect
-                x="-18"
+                data-tilt={item}
+                className="edta-tilt-grip"
+                x="-22"
                 y="-119"
-                width="36"
-                height="24"
+                width="44"
+                height="30"
                 rx="4"
                 fill={item === "indicator" ? "#393d39" : "#335d4b"}
               />
@@ -523,7 +642,15 @@ export function HandsOnBench({
         )}
         <g {...props("pipette")}>
           <rect x="-24" y="-105" width="48" height="220" fill="transparent" />
-          <ellipse cx="0" cy="-90" rx="17" ry="24" fill="#b26245" />
+          <ellipse
+            data-tilt="pipette"
+            className="edta-tilt-grip"
+            cx="0"
+            cy="-90"
+            rx="22"
+            ry="27"
+            fill="#b26245"
+          />
           <path
             d="M-4 -65V-15Q-16 -8 -13 17Q-12 29 -4 34V110L0 127L4 110V34Q12 29 13 17Q16 -8 4 -15V-65Z"
             fill="url(#hand-glass)"
@@ -541,25 +668,65 @@ export function HandsOnBench({
             Pipette {volume(s.vessels.pipette).toFixed(0)} mL
           </text>
         </g>
+        {flow && (
+          <g
+            data-testid="pour-stream"
+            pointerEvents="none"
+            aria-label={
+              flow.rinse ? "Rinsing liquid flowing" : "Liquid pouring"
+            }
+          >
+            <path
+              d={`M${flow.from.x} ${flow.from.y} Q${flow.to.x} ${flow.from.y} ${flow.to.x} ${flow.to.y}`}
+              fill="none"
+              stroke={flow.colour}
+              strokeWidth="6"
+              opacity=".35"
+            />
+            <path
+              className="edta-stream"
+              d={`M${flow.from.x} ${flow.from.y} Q${flow.to.x} ${flow.from.y} ${flow.to.x} ${flow.to.y}`}
+              fill="none"
+              stroke={flow.colour}
+              strokeWidth="3"
+              strokeDasharray="7 5"
+            />
+            <ellipse
+              className="edta-pour-ripple"
+              cx={flow.to.x}
+              cy={flow.to.y}
+              rx="16"
+              ry="5"
+              fill="none"
+              stroke={flow.colour}
+              strokeWidth="2"
+            />
+            {flow.rinse && (
+              <path
+                className="edta-stream"
+                d={
+                  selected === "edta"
+                    ? "M490 330 Q300 290 120 350"
+                    : `M${flow.to.x} ${flow.to.y} Q180 300 120 350`
+                }
+                fill="none"
+                stroke={flow.colour}
+                strokeWidth="3"
+                strokeDasharray="5 7"
+              />
+            )}
+          </g>
+        )}
       </svg>
       <div className="edta-hand-controls">
-        <label>
-          {names[selected]} tilt{" "}
-          <input
-            aria-label="Tilt selected apparatus"
-            type="range"
-            min="0"
-            max="90"
-            step="5"
-            value={angle}
-            onChange={(e) => pour(Number(e.target.value))}
-          />
-          <output>{angle}°</output>
-        </label>
+        <strong>
+          {names[selected]}: {Math.round(angle)}&deg;
+        </strong>
         <p role="status">{s.warning ?? message}</p>
         <small>
-          Move with mouse/touch, or focus an object and use arrow keys. Enter
-          selects it. Tilt past 45° to pour; return upright before repeating.
+          Drag the body to move. Drag the neck or pipette bulb sideways to tilt.
+          Release to stop. Keyboard: arrows move, Shift + arrows tilt, Escape
+          stops.
         </small>
       </div>
       <div className="edta-observation">

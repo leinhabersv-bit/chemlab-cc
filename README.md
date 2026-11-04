@@ -39,7 +39,7 @@ Playwright starts the production build on port 3100. Do not run a different appl
 
 1. Inspect the glassware and place the flask under the burette.
 2. Select the burette. Rinse with EDTA, fill to zero, clear the air bubbles into waste, and record the initial meniscus.
-3. Select the pipette. Rinse with the current sample, aspirate 20 mL, and transfer to the flask. In Practice and Challenge, drag the actual pipette into the sample (Rinse, then Fill), move it above the flask, and use the tilt slider to drain. Keyboard-accessible controls remain available.
+3. Select the pipette. Rinse with the current sample, aspirate 20 mL, and transfer to the flask. In Practice and Challenge, drag the actual pipette into the sample (Rinse, then Fill), move it above the flask, and drag its bulb sideways to tilt and drain. Keyboard-accessible controls remain available.
 4. Select the buffer. Pour 4 mL into the flask. Select EBT and add three separate drops.
 5. Inspect the flask and start the stirrer.
 6. Select the burette. Open the stopcock with the slider. At violet, close it and use individual drops until steel blue.
@@ -77,12 +77,12 @@ Next remains 15.5.29 and React remains 19 from the lockfile. Vitest was updated 
 
 ## Deploy
 
-This task did not publish, push, or change production. To deploy, use a Node.js 24 environment that supports Next.js, install with `npm ci`, build with `npm run build`, and run `npm start` behind your usual HTTPS proxy or host routing. On a managed Next.js host, use the same install/build commands and Node version. Validate the deployed URL with the full browser journey before promoting it. No old `.vercel` project binding is included in the source archive.
+The implementation branch was pushed to GitHub at the user's request. Production was not deployed or merged. To deploy, use a Node.js 24 environment that supports Next.js, install with `npm ci`, build with `npm run build`, and run `npm start` behind your usual HTTPS proxy or host routing. On a managed Next.js host, use the same install/build commands and Node version. Validate the deployed URL with the full browser journey before promoting it. No old `.vercel` project binding is included in the source archive.
 
 ## Remaining scope
 
-- Renderer is an original 2D SVG laboratory illustration, not a photorealistic 3D lab. Glide-level cinematic motion, fluid transfer animation and camera movement remain unfinished.
-- Practice and Challenge support moving the flask, pipette and reagent bottles, with tilt-triggered measured transfers and rinsing. The burette stays clamped. Transfers use fixed teaching quantities; continuous free pouring and fluid physics remain outside this slice.
+- Renderer is an original 2D SVG laboratory illustration, not a photorealistic 3D lab. Glide-level cinematic motion and camera movement remain unfinished.
+- Practice and Challenge support moving the flask, pipette and reagent bottles, with direct neck-drag tilting, animated liquid streams and measured transfers and rinsing. The burette stays clamped. Transfers use fixed teaching quantities; continuous free pouring and fluid physics remain outside this slice.
 - Challenge feedback is basic; no achievement system, saved progression, or classroom management.
 - Chloride, sulfate, EC/TDS and pH need independent measured-data models, calibration/stabilization, procedure tests and full journeys.
 - Experiments 2–10 remain reference screens, not playable simulations.
@@ -90,3 +90,7 @@ This task did not publish, push, or change production. To deploy, use a Node.js 
 
 Original archive and laboratory manual remain unchanged. Working branch: `implementation/edta-vertical-slice`, based on `d9deeec8ab5b3d5c4c607de5903ff8a29bb75c10`.
 
+
+### Direct tilt and visible flow
+
+Drag a vessel's body to move it. Grab its neck (the pipette bulb) and drag sideways to tilt it; no tilt slider is needed. Place bottles above the receiving vessel first. For the pipette, dip its tip into the sample, then position the tip above the flask. Tilting past 45 degrees performs one measured transfer and shows a short liquid stream and splash. Release to stop the stream and return upright; tilt again for the next indicator drop. Rinsing also shows liquid moving into glassware and draining to waste. The quantity transfers once at the threshold; this remains a measured-dose teaching interaction, not continuous fluid physics. Keyboard users can move with arrows, tilt with Shift + arrows, and stop with Escape.

@@ -673,3 +673,35 @@
 .edta-hands-on .edta-scene {
   touch-action: none;
 }
+
+.edta-tilt-grip {
+  cursor: ew-resize;
+}
+.edta-hands-on svg rect {
+  transition:
+    y 1s linear,
+    height 1s linear;
+}
+.edta-pour-ripple {
+  animation: edta-ripple 0.6s ease-out infinite;
+  transform-box: fill-box;
+  transform-origin: center;
+}
+@keyframes edta-ripple {
+  from {
+    transform: scale(0.5);
+    opacity: 1;
+  }
+  to {
+    transform: scale(1.5);
+    opacity: 0.2;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .edta-pour-ripple {
+    animation: none;
+  }
+  .edta-hands-on svg rect {
+    transition: none;
+  }
+}
