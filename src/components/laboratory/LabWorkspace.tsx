@@ -10,6 +10,7 @@ import { EquipmentDrawer } from "./EquipmentDrawer";
 import { ContextualInspector } from "./ContextualInspector";
 import { ObservationNotebook } from "./ObservationNotebook";
 import { DemoController } from "./DemoController";
+import { EdtaLab } from "./EdtaLab";
 
 interface LabWorkspaceProps {
   experiment: ExperimentMetadata;
@@ -110,7 +111,7 @@ export const LabWorkspace: React.FC<LabWorkspaceProps> = ({ experiment }) => {
           <div className="flex items-center bg-bench-950 p-0.5 rounded-lg border border-bench-800">
             <button
               onClick={() => setMode("practice")}
-              className={`px-2.5 py-1 rounded-md text-[11px] font-semibold transition-all ${
+              className={`px-2 py-1 rounded-md text-[11px] font-semibold transition-all ${
                 mode === "practice" ? "bg-bench-800 border border-bench-700 text-instrument-amber font-bold" : "text-enamel-400 hover:text-white"
               }`}
             >
@@ -118,11 +119,28 @@ export const LabWorkspace: React.FC<LabWorkspaceProps> = ({ experiment }) => {
             </button>
             <button
               onClick={() => setMode("demo")}
-              className={`px-2.5 py-1 rounded-md text-[11px] font-semibold transition-all ${
+              className={`px-2 py-1 rounded-md text-[11px] font-semibold transition-all ${
                 mode === "demo" ? "bg-bench-800 border border-bench-700 text-instrument-phosphor font-bold" : "text-enamel-400 hover:text-white"
               }`}
             >
               Demo
+            </button>
+            <button
+              onClick={() => setMode("challenge")}
+              className={`px-2 py-1 rounded-md text-[11px] font-semibold transition-all ${
+                mode === "challenge" ? "bg-rose-950 border border-rose-700 text-rose-300 font-bold" : "text-enamel-400 hover:text-white"
+              }`}
+            >
+              Challenge
+            </button>
+            <button
+              onClick={() => setMode("hands-on")}
+              className={`px-2 py-1 rounded-md text-[11px] font-semibold transition-all hidden sm:inline-block ${
+                mode === "hands-on" ? "bg-sky-950 border border-sky-700 text-instrument-sky font-bold" : "text-enamel-400 hover:text-white"
+              }`}
+              title="Hands-On 2D Glassware Drag & Tilt Bench"
+            >
+              Hands-On 2D
             </button>
           </div>
 
@@ -188,23 +206,46 @@ export const LabWorkspace: React.FC<LabWorkspaceProps> = ({ experiment }) => {
           onToggle={toggleDrawer}
         />
 
-        {/* Center Stage: Physical Lab Bench */}
+        {/* Center Stage: Physical Lab Bench / Hands-On Bench */}
         <main className="flex-1 flex flex-col p-3 sm:p-4 overflow-y-auto pb-16 gap-3">
-          {/* If Demo Mode, display Demo Controller at the top of the bench */}
-          {mode === "demo" && (
-            <DemoController
-              subpart={subpart}
-              simulationState={simulationState}
-              onAction={handleAction}
-              onSwitchSubpart={handleSwitchSubpart}
-            />
-          )}
+          {mode === "hands-on" ? (
+            <div className="flex-1 w-full rounded-2xl overflow-hidden border border-bench-800 bg-white text-slate-900 shadow-2xl">
+              <EdtaLab />
+            </div>
+          ) : (
+            <>
+              {/* If Challenge Mode, show technique banner */}
+              {mode === "challenge" && (
+                <div className="w-full bg-rose-950/70 border border-rose-800 rounded-xl p-3 flex items-center justify-between font-mono text-xs shadow-lg">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-rose-500 animate-ping" />
+                    <span className="font-bold text-rose-300">CHALLENGE MODE ACTIVE</span>
+                    <span className="text-enamel-400 hidden sm:inline">• Hints concealed. Judge steel-blue endpoint manually.</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-enamel-400">Technique Score:</span>
+                    <strong className="text-instrument-phosphor text-sm font-bold">100 / 100</strong>
+                  </div>
+                </div>
+              )}
 
-          <LabBench
-            subpart={subpart}
-            simulationState={simulationState}
-            onAction={handleAction}
-          />
+              {/* If Demo Mode, display Demo Controller at the top of the bench */}
+              {mode === "demo" && (
+                <DemoController
+                  subpart={subpart}
+                  simulationState={simulationState}
+                  onAction={handleAction}
+                  onSwitchSubpart={handleSwitchSubpart}
+                />
+              )}
+
+              <LabBench
+                subpart={subpart}
+                simulationState={simulationState}
+                onAction={handleAction}
+              />
+            </>
+          )}
         </main>
 
         {/* Right Contextual Inspector */}

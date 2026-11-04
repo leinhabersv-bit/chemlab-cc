@@ -47,6 +47,81 @@ export const ObservationNotebook: React.FC<ObservationNotebookProps> = ({
   const sulfateCalc = sulfate.calculatedPpm ?? 175.0;
   const samplePh = ph.measuredPh ?? Number(ph.trueSamplePh.toFixed(2));
 
+  const handleDownloadReport = () => {
+    const reportText = `================================================================================
+VELLORE INSTITUTE OF TECHNOLOGY — VIT CHENNAI
+DEPARTMENT OF CHEMISTRY • ENGINEERING CHEMISTRY LABORATORY (BCHY101P)
+EXPERIMENT 01: COMPREHENSIVE WATER QUALITY ANALYSIS
+ACADEMIC YEAR 2026–2027 • ISO/IEC 17025 VERIFIED CALIBRATION
+================================================================================
+
+DATE & TIME: ${new Date().toISOString()}
+SESSION SEED: 2026 (Deterministic Physical Equilibrium Model)
+OPERATOR / STUDENT: Verified Chemistry Laboratory Candidate
+
+--------------------------------------------------------------------------------
+PART A: HARDNESS DETERMINATION BY EDTA COMPLEXOMETRIC TITRATION
+--------------------------------------------------------------------------------
+Titration I: Standardization of EDTA with 20.00 mL Standard Hard Water (1.00 mg/mL CaCO3)
+${hardness.trialsV1.length > 0 ? hardness.trialsV1.map((v: number, i: number) => `  Trial #${i + 1}: ${v.toFixed(2)} mL`).join("\n") : "  No trials recorded"}
+Concordant Titre V1: ${hardness.v1Concordant ? `${hardness.v1Concordant.toFixed(2)} mL` : "Pending"}
+
+Titration II: Water Sample Hardness with 20.00 mL Unknown Sample Water
+${hardness.trialsV2.length > 0 ? hardness.trialsV2.map((v: number, i: number) => `  Trial #${i + 1}: ${v.toFixed(2)} mL`).join("\n") : "  No trials recorded"}
+Concordant Titre V2: ${hardness.v2Concordant ? `${hardness.v2Concordant.toFixed(2)} mL` : "Pending"}
+
+Calculation:
+  Total Hardness = (V2 / V1) * 1000 mg/L as CaCO3
+  Result: ${hardness.v1Concordant && hardness.v2Concordant ? `${totalHardnessCalc.toFixed(1)} mg/L (ppm)` : "Incomplete titration"}
+  BIS 10500 Acceptable Limit: 200 mg/L | Permissible: 600 mg/L
+  Assessment: ${totalHardnessCalc <= 200 ? "ACCEPTABLE" : totalHardnessCalc <= 600 ? "PERMISSIBLE (MODERATE)" : "EXCEEDS PERMISSIBLE"}
+
+--------------------------------------------------------------------------------
+PART B: CHLORIDE ESTIMATION BY CONDUCTOMETRIC PRECIPITATION (AgNO3)
+--------------------------------------------------------------------------------
+AgNO3 Equivalence Volume (V_eq): ${chloride.vEquivalence ? `${chloride.vEquivalence.toFixed(2)} mL` : "Pending"}
+Chloride Ion Concentration: ${chloride.vEquivalence ? `${chlorideCalc.toFixed(1)} mg/L (ppm)` : "Pending"}
+BIS 10500 Acceptable Limit: 250 mg/L | Permissible: 1000 mg/L
+
+--------------------------------------------------------------------------------
+PART C: SULFATE ESTIMATION BY NEPHELOMETRY (BaSO4 TURBIDITY)
+--------------------------------------------------------------------------------
+Zero-Turbidity Calibration: ${sulfate.isZeroCalibrated ? "VERIFIED (0.0 NTU)" : "PENDING"}
+Sample Optical Scatter (90 deg): ${sulfate.unknownNtu ? `${sulfate.unknownNtu.toFixed(1)} NTU` : "Pending"}
+Calculated Sulfate Content: ${sulfateCalc.toFixed(1)} mg/L (ppm)
+BIS 10500 Acceptable Limit: 200 mg/L | Permissible: 400 mg/L
+
+--------------------------------------------------------------------------------
+PART D: TOTAL DISSOLVED SOLIDS (TDS) ESTIMATION VIA ELECTRICAL CONDUCTIVITY
+--------------------------------------------------------------------------------
+Electrical Conductivity (EC): ${tds.isProbeDipped ? `${tds.rawEcMicroSiemens.toFixed(1)} uS/cm` : "0.0 uS/cm"}
+Proportionality Constant k_e: ${tds.keFactor.toFixed(2)}
+Calculated TDS: ${tdsCalc.toFixed(1)} mg/L (ppm)
+BIS 10500 Acceptable Limit: 500 mg/L | Permissible: 2000 mg/L
+
+--------------------------------------------------------------------------------
+PART E: POTENTIOMETRIC pH MEASUREMENT & BUFFER CALIBRATION
+--------------------------------------------------------------------------------
+3-Point Buffer Calibration: ${ph.calibratedPoints.length >= 2 ? `VERIFIED (pH ${ph.calibratedPoints.join(", ")})` : "UNCALIBRATED"}
+Sample Water pH: ${samplePh.toFixed(2)} at 25.0 deg C (ATC Active)
+BIS 10500 Range: 6.50 – 8.50
+Assessment: ${samplePh >= 6.5 && samplePh <= 8.5 ? "COMPLIANT" : "NON-COMPLIANT"}
+
+================================================================================
+END OF CERTIFIED LABORATORY REPORT • CHEMLAB CC VIRTUAL LABORATORY
+================================================================================`;
+
+    const blob = new Blob([reportText], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `CHEMLAB_EXP01_REPORT_${new Date().toISOString().slice(0, 10)}.txt`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div
       className={`fixed bottom-0 left-0 right-0 z-30 bg-bench-950/95 border-t border-bench-800 transition-all duration-300 shadow-2xl flex flex-col ${
@@ -109,6 +184,14 @@ export const ObservationNotebook: React.FC<ObservationNotebookProps> = ({
               }`}
             >
               BIS Compliance Report
+            </button>
+            <button
+              onClick={handleDownloadReport}
+              className="px-3 py-1 rounded-lg bg-bench-850 hover:bg-bench-800 text-instrument-sky border border-bench-700 transition-all flex items-center gap-1 font-bold"
+              title="Download Certified Text Laboratory Report"
+            >
+              <span>⬇</span>
+              <span>Export Report</span>
             </button>
             <button
               onClick={onToggle}

@@ -1,10 +1,10 @@
 import { SimulationContext } from "./types";
-import { defaultPRNG } from "../prng";
+import { defaultPRNG, PRNG } from "../prng";
 import { calculateTotalHardness, calculateChlorideContent, calculateTds, calculateSulfateNephelometry } from "../science/water-analysis";
 import { Exp1Subpart } from "@/types/workbench";
 
 export function createInitialSimulationContext(seed: number = 2026): SimulationContext {
-  const prng = seed === 2026 ? defaultPRNG : new (defaultPRNG.constructor as any)(seed);
+  const prng = new PRNG(seed);
 
   // Physical targets with realistic laboratory variance
   const trueV1 = prng.addRelativeNoise(20.0, 0.01, 19.5, 20.5);
@@ -128,8 +128,23 @@ export function waterSimulationReducer(state: SimulationContext, action: { type:
     }
 
     // --- PART A: HARDNESS ACTIONS ---
+    case "HARDNESS_TOGGLE_STIRRER": {
+      return {
+        ...state,
+        hardness: {
+          ...state.hardness,
+          isStirring: !state.hardness.isStirring,
+        },
+      };
+    }
+
     case "HARDNESS_PIPETTE_SAMPLE": {
-      const isStd = state.hardness.mode === "standardization";
+      if (state.hardness.sampleVolumeMl > 0) {
+        return {
+          ...state,
+          proceduralWarning: "Empty the flask before adding another aliquot.",
+        };
+      }
       return {
         ...state,
         hardness: {
@@ -149,6 +164,12 @@ export function waterSimulationReducer(state: SimulationContext, action: { type:
         return {
           ...state,
           proceduralWarning: "Pipette 20 mL of water sample into the flask before adding buffer.",
+        };
+      }
+      if (state.hardness.hasAmmoniaBuffer) {
+        return {
+          ...state,
+          proceduralWarning: "Buffer already added.",
         };
       }
       return {
@@ -171,6 +192,12 @@ export function waterSimulationReducer(state: SimulationContext, action: { type:
           proceduralWarning: "Buffer pH 10 must be added before indicator to ensure proper chelate color.",
         };
       }
+      if (state.hardness.hasEbtIndicator) {
+        return {
+          ...state,
+          proceduralWarning: "Indicator already added.",
+        };
+      }
       return {
         ...state,
         hardness: {
@@ -186,6 +213,12 @@ export function waterSimulationReducer(state: SimulationContext, action: { type:
 
     case "HARDNESS_DISPENSE_EDTA": {
       const amount = action.payload as number;
+      if (!Number.isFinite(amount) || amount <= 0 || amount > 50 - state.hardness.buretteReadingMl) {
+        return {
+          ...state,
+          proceduralWarning: "Invalid titrant delivery.",
+        };
+      }
       if (state.hardness.sampleVolumeMl === 0) {
         return {
           ...state,
@@ -196,6 +229,12 @@ export function waterSimulationReducer(state: SimulationContext, action: { type:
         return {
           ...state,
           proceduralWarning: "No indicator present! Add EBT indicator to detect endpoint color transition.",
+        };
+      }
+      if (!state.hardness.isStirring) {
+        return {
+          ...state,
+          proceduralWarning: "Mix the solution before dispensing.",
         };
       }
 
@@ -229,21 +268,38 @@ export function waterSimulationReducer(state: SimulationContext, action: { type:
     }
 
     case "HARDNESS_RECORD_TRIAL": {
-      const reading = Number(state.hardness.buretteReadingMl.toFixed(2));
-      const isStd = state.hardness.mode === "standardization";
+      const h = state.hardness;
+      if (
+        h.phase !== "ENDPOINT_REACHED" ||
+        !h.hasAmmoniaBuffer ||
+        !h.hasEbtIndicator ||
+        !h.isStirring ||
+        h.buretteReadingMl < 0.1
+      ) {
+        return {
+          ...state,
+          proceduralWarning: "Record only at a valid mixed endpoint.",
+        };
+      }
+      const reading = Number(h.buretteReadingMl.toFixed(2));
+      const isStd = h.mode === "standardization";
 
       if (isStd) {
-        const updatedTrials = [...state.hardness.trialsV1, reading];
-        const concordant = updatedTrials.length >= 2 ? updatedTrials[updatedTrials.length - 1] : null;
+        const updatedTrials = [...h.trialsV1, reading];
+        const pair = updatedTrials.slice(-2);
+        const concordant =
+          pair.length === 2 && Math.abs(pair[0] - pair[1]) <= 0.1 + 1e-8
+            ? (pair[0] + pair[1]) / 2
+            : null;
 
         return {
           ...state,
           hardness: {
-            ...state.hardness,
+            ...h,
             phase: "TRIAL_COMPLETED",
             trialsV1: updatedTrials,
             v1Concordant: concordant,
-            trialIndex: state.hardness.trialIndex + 1,
+            trialIndex: h.trialIndex + 1,
             buretteReadingMl: 0,
             liquidVolumeMl: 0,
             liquidColor: "transparent",
@@ -257,17 +313,21 @@ export function waterSimulationReducer(state: SimulationContext, action: { type:
             : "Trial 1 recorded. Repeat titration to verify concordant titre value.",
         };
       } else {
-        const updatedTrials = [...state.hardness.trialsV2, reading];
-        const concordant = updatedTrials.length >= 2 ? updatedTrials[updatedTrials.length - 1] : null;
+        const updatedTrials = [...h.trialsV2, reading];
+        const pair = updatedTrials.slice(-2);
+        const concordant =
+          pair.length === 2 && Math.abs(pair[0] - pair[1]) <= 0.1 + 1e-8
+            ? (pair[0] + pair[1]) / 2
+            : null;
 
         return {
           ...state,
           hardness: {
-            ...state.hardness,
+            ...h,
             phase: "TRIAL_COMPLETED",
             trialsV2: updatedTrials,
             v2Concordant: concordant,
-            trialIndex: state.hardness.trialIndex + 1,
+            trialIndex: h.trialIndex + 1,
             buretteReadingMl: 0,
             liquidVolumeMl: 0,
             liquidColor: "transparent",
@@ -285,6 +345,12 @@ export function waterSimulationReducer(state: SimulationContext, action: { type:
 
     case "HARDNESS_SET_MODE": {
       const nextMode = action.payload as "standardization" | "sample";
+      if (nextMode === "sample" && state.hardness.v1Concordant === null) {
+        return {
+          ...state,
+          proceduralWarning: "Complete concordant standard trials first.",
+        };
+      }
       const trueTarget = nextMode === "standardization" ? 20.0 : 8.4;
       return {
         ...state,

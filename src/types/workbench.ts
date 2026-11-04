@@ -1,4 +1,4 @@
-export type LabMode = "practice" | "demo";
+export type LabMode = "practice" | "demo" | "challenge" | "hands-on";
 
 export type Exp1Subpart = "hardness" | "chloride" | "sulfate" | "tds" | "ph";
 

@@ -1,0 +1,675 @@
+.edta-lab {
+  --ink: #173c32;
+  --muted: #52685c;
+  --paper: #f3f2e9;
+  --line: #cad2c5;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: Arial, sans-serif;
+  min-height: 100vh;
+  padding: 0 clamp(16px, 4vw, 72px) 24px;
+}
+.edta-lab * {
+  box-sizing: border-box;
+}
+.edta-lab button,
+.edta-lab input,
+.edta-lab a {
+  touch-action: manipulation;
+}
+.edta-lab button {
+  min-height: 44px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 10px 14px;
+  background: #fbfcf4;
+  color: var(--ink);
+  font-size: 13px;
+  cursor: pointer;
+  transition:
+    background 0.18s,
+    transform 0.18s;
+}
+.edta-lab button:hover {
+  background: #e0e7d5;
+}
+.edta-lab button:active {
+  transform: translateY(1px);
+}
+.edta-lab button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.edta-lab :focus-visible {
+  outline: 3px solid #ad6337;
+  outline-offset: 3px;
+}
+.edta-header {
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--line);
+  gap: 16px;
+}
+.edta-brand {
+  font-family: Georgia, serif;
+  font-size: 34px;
+  display: flex;
+  gap: 14px;
+  align-items: center;
+}
+.edta-brand span {
+  font:
+    10px Arial,
+    sans-serif;
+  letter-spacing: 2px;
+  max-width: 110px;
+  line-height: 1.5;
+}
+.edta-course,
+.edta-eyebrow {
+  font-size: 10px;
+  letter-spacing: 2px;
+  font-weight: 700;
+}
+.edta-count {
+  border-radius: 50%;
+  background: #e3e9d8;
+  padding: 3px 6px;
+  margin-left: 5px;
+}
+.edta-title {
+  padding: 38px 0 28px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+}
+.edta-title h1 {
+  font:
+    clamp(32px, 3.6vw, 52px)/1.12 Georgia,
+    serif;
+  letter-spacing: -1.8px;
+  margin: 12px 0;
+}
+.edta-title p:not(.edta-eyebrow) {
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+.edta-modes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  flex-shrink: 0;
+}
+.edta-modes button {
+  text-transform: capitalize;
+  border: 0;
+  background: transparent;
+}
+.edta-modes button[aria-pressed="true"] {
+  background: var(--ink);
+  color: #fafbef;
+}
+.edta-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 280px;
+  gap: 24px;
+  align-items: start;
+}
+.edta-stage {
+  position: relative;
+  border: 1px solid #c5d0c2;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #dbe4d7;
+}
+.edta-stage-label {
+  position: absolute;
+  z-index: 2;
+  top: 20px;
+  left: 22px;
+  right: 22px;
+  display: flex;
+  justify-content: space-between;
+  font-size: 10px;
+  letter-spacing: 1px;
+  gap: 15px;
+}
+.edta-stage-label span:last-child {
+  letter-spacing: 0;
+}
+.edta-scene {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.edta-hotspots {
+  position: absolute;
+  inset: 0 0 48px;
+  pointer-events: none;
+}
+.edta-lab .edta-hotspot {
+  position: absolute;
+  pointer-events: auto;
+  min-height: 44px;
+  padding: 6px 10px;
+  background: #fafdf0ed;
+  box-shadow: 0 4px 15px #26473412;
+  border: 1px solid #abc0aa;
+  border-radius: 7px;
+  font-size: 11px;
+  white-space: nowrap;
+}
+.edta-hotspot.selected {
+  outline: 2px solid #9c623f;
+}
+.edta-hotspot b {
+  display: block;
+  font-size: 16px;
+  font-weight: 400;
+  margin-top: 2px;
+}
+.edta-burette {
+  left: 60%;
+  top: 26%;
+}
+.edta-sample {
+  left: 12%;
+  top: 84%;
+}
+.edta-buffer {
+  left: 25.5%;
+  top: 84%;
+}
+.edta-indicator {
+  left: 34%;
+  top: 84%;
+}
+.edta-pipette {
+  left: 70%;
+  top: 49%;
+  touch-action: none !important;
+}
+.edta-flask {
+  left: 47%;
+  top: 67%;
+  min-width: 100px;
+  min-height: 70px !important;
+  background: #ffffffb8 !important;
+}
+.edta-observation {
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 20px;
+  background: #f8faef;
+  font-size: 12px;
+  flex-wrap: wrap;
+}
+.edta-observation span:nth-child(2) {
+  text-transform: capitalize;
+  font-weight: 700;
+}
+.edta-swatch {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  border: 1px solid #648679;
+}
+.edta-controls {
+  padding: 8px 0;
+}
+.edta-controls h2 {
+  font:
+    28px/1.2 Georgia,
+    serif;
+  margin: 12px 0 18px;
+}
+.edta-controls p {
+  font-size: 13px;
+  line-height: 1.65;
+  color: var(--muted);
+  margin: 12px 0;
+}
+.edta-controls > .edta-eyebrow {
+  font-size: 9px;
+}
+.edta-controls > button {
+  width: 100%;
+  margin-bottom: 8px;
+  text-align: left;
+}
+.edta-lab .edta-primary {
+  background: var(--ink);
+  color: #f6f8ed;
+  border-color: var(--ink);
+}
+.edta-lab .edta-primary:hover {
+  background: #2c5d4a;
+}
+.edta-lab .edta-text-button {
+  border: 0;
+  background: transparent;
+  text-decoration: underline;
+  font-size: 12px;
+}
+.edta-controls label {
+  display: block;
+  font-size: 12px;
+  line-height: 1.5;
+  margin: 12px 0;
+}
+.edta-controls input[type="number"] {
+  display: block;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: #fffef7;
+  color: var(--ink);
+  padding: 12px;
+  width: 100%;
+  margin-top: 8px;
+  font-size: 16px;
+}
+.edta-reading {
+  border-bottom: 1px solid var(--line);
+  padding: 0 0 15px;
+  margin-bottom: 15px;
+}
+.edta-reading span {
+  display: block;
+  font-size: 9px;
+  letter-spacing: 2px;
+}
+.edta-reading output {
+  font:
+    40px Georgia,
+    serif;
+  display: block;
+  margin-top: 5px;
+}
+.edta-valve span {
+  float: right;
+}
+.edta-valve input {
+  width: 100%;
+  accent-color: #245a48;
+  min-height: 36px;
+}
+.edta-button-row {
+  display: flex;
+  gap: 6px;
+}
+.edta-button-row button {
+  flex: 1;
+  padding: 8px;
+}
+.edta-warning:empty {
+  display: none;
+}
+.edta-warning {
+  border-left: 3px solid #a04d2b;
+  background: #f4e5d3;
+  padding: 12px;
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 12px 0;
+  color: #773a20;
+}
+.edta-guidance {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 23px 0;
+  border-bottom: 1px solid var(--line);
+}
+.edta-guidance p:last-child {
+  font-size: 14px;
+  line-height: 1.6;
+  margin-top: 6px;
+  max-width: 800px;
+}
+.edta-guidance button {
+  flex-shrink: 0;
+  background: transparent;
+}
+.edta-progress {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  padding: 28px 0;
+  flex-wrap: wrap;
+}
+.edta-progress span {
+  display: block;
+  font-size: 9px;
+  letter-spacing: 1.4px;
+  margin-bottom: 9px;
+}
+.edta-progress b {
+  font:
+    30px Georgia,
+    serif;
+}
+.edta-progress small {
+  font:
+    12px Arial,
+    sans-serif;
+}
+.edta-notebook {
+  border-top: 1px solid var(--line);
+  padding: 28px 0;
+}
+.edta-notebook-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+.edta-notebook h2 {
+  font:
+    32px Georgia,
+    serif;
+  margin: 8px 0 20px;
+}
+.edta-notebook p {
+  font-size: 13px;
+  line-height: 1.8;
+  margin-top: 20px;
+}
+.edta-table-wrap {
+  overflow: auto;
+}
+.edta-notebook table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 600px;
+  font-size: 13px;
+  text-align: left;
+}
+.edta-notebook th,
+.edta-notebook td {
+  padding: 13px 10px;
+  border-bottom: 1px solid var(--line);
+}
+.edta-notebook caption {
+  text-align: left;
+  color: var(--muted);
+  padding: 10px;
+  font-size: 12px;
+}
+.edta-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  border-top: 1px solid var(--line);
+  padding-top: 20px;
+  font-size: 10px;
+  color: var(--muted);
+}
+.edta-footer a {
+  text-decoration: underline;
+}
+.edta-stream {
+  animation: edta-flow 0.6s linear infinite;
+}
+.edta-stir {
+  transform-origin: 490px 503px;
+  animation: edta-mix 0.5s linear infinite;
+}
+@keyframes edta-flow {
+  to {
+    stroke-dashoffset: -24;
+  }
+}
+@keyframes edta-mix {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (min-width: 1500px) {
+  .edta-lab {
+    padding-left: max(5vw, calc((100vw - 1500px) / 2));
+    padding-right: max(5vw, calc((100vw - 1500px) / 2));
+  }
+}
+@media (max-width: 1000px) {
+  .edta-layout {
+    grid-template-columns: minmax(0, 1fr) 240px;
+    gap: 16px;
+  }
+  .edta-title {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .edta-course {
+    display: none;
+  }
+  .edta-stage-label span:last-child {
+    display: none;
+  }
+  .edta-hotspot {
+    font-size: 10px !important;
+  }
+  .edta-buffer {
+    left: 24%;
+  }
+  .edta-indicator {
+    left: 35%;
+  }
+}
+@media (max-width: 720px) {
+  .edta-header {
+    height: 68px;
+  }
+  .edta-title {
+    padding: 24px 0 20px;
+  }
+  .edta-title h1 {
+    font-size: 35px;
+    letter-spacing: -1px;
+  }
+  .edta-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .edta-stage {
+    width: 100%;
+    overflow: visible;
+  }
+  .edta-scene {
+    border-radius: 12px 12px 0 0;
+  }
+  .edta-stage-label {
+    font-size: 8px;
+    left: 12px;
+    top: 12px;
+  }
+  .edta-hotspots {
+    bottom: 68px;
+  }
+  .edta-lab .edta-hotspot {
+    font-size: 9px !important;
+    padding: 5px;
+    min-height: 44px;
+  }
+  .edta-burette {
+    left: 60%;
+    top: 22%;
+  }
+  .edta-hotspot b {
+    font-size: 14px;
+  }
+  .edta-pipette {
+    left: 72%;
+    top: 49%;
+    max-width: 27%;
+    white-space: normal !important;
+  }
+  .edta-sample {
+    left: 6%;
+    top: 82%;
+    max-width: 24%;
+    white-space: normal !important;
+  }
+  .edta-buffer {
+    left: 30%;
+    top: 82%;
+  }
+  .edta-indicator {
+    left: 47%;
+    top: 82%;
+  }
+  .edta-flask {
+    left: 47%;
+    top: 59%;
+    min-width: 78px;
+    min-height: 52px !important;
+  }
+  .edta-observation {
+    min-height: 68px;
+    gap: 10px;
+    font-size: 11px;
+    padding: 12px;
+  }
+  .edta-controls {
+    width: 100%;
+    padding-top: 25px;
+  }
+  .edta-controls > button {
+    min-height: 46px;
+  }
+  .edta-guidance {
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .edta-guidance button {
+    font-size: 11px;
+    max-width: 90px;
+  }
+  .edta-progress {
+    gap: 20px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+  .edta-progress > button {
+    grid-column: 1/-1;
+  }
+  .edta-progress b {
+    font-size: 26px;
+  }
+  .edta-notebook-title {
+    align-items: flex-start;
+  }
+  .edta-notebook h2 {
+    font-size: 26px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .edta-lab * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+/* Keep the physical scene visible while operating the controls on a phone. */
+@media (max-width: 720px) {
+  .edta-stage {
+    position: sticky;
+    top: 0;
+    z-index: 5;
+    box-shadow: 0 8px 20px #24423418;
+  }
+  .edta-lab .edta-hotspot {
+    min-width: 44px;
+  }
+}
+
+.edta-demo-explanation {
+  border-left: 3px solid #50735a;
+  background: #e8eddf;
+  padding: 14px 16px;
+  margin: 16px 0;
+  border-radius: 0 6px 6px 0;
+}
+.edta-demo-explanation h3 {
+  font-size: 13px;
+  font-weight: 700;
+}
+.edta-controls .edta-demo-explanation p {
+  color: #284635;
+  margin-bottom: 0;
+}
+.edta-movable {
+  cursor: grab;
+  touch-action: none;
+  outline: none;
+}
+.edta-movable:active {
+  cursor: grabbing;
+}
+.edta-movable:focus-visible {
+  filter: drop-shadow(0 0 5px #995f2f);
+}
+.edta-hand-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  background: #f8faef;
+  font-size: 12px;
+}
+.edta-hand-toolbar select {
+  color: #173c32;
+  background: #fffef5;
+  padding: 10px;
+  margin-left: 10px;
+  border: 1px solid #96ae97;
+  border-radius: 5px;
+}
+.edta-hand-controls {
+  padding: 14px 18px;
+  background: #f8faef;
+  font-size: 13px;
+}
+.edta-hand-controls label {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.edta-hand-controls input {
+  min-width: 80px;
+  flex: 1;
+  accent-color: #245a48;
+  height: 44px;
+}
+.edta-hand-controls p {
+  margin: 8px 0;
+  min-height: 40px;
+  line-height: 1.5;
+}
+.edta-hand-controls small {
+  color: #52685c;
+  line-height: 1.5;
+}
+@media (max-width: 720px) {
+  .edta-stage.edta-hands-on {
+    position: relative;
+  }
+  .edta-hand-toolbar {
+    font-size: 11px;
+  }
+}
+
+/* Keep touch gestures on the SVG bench from becoming page scrolls. */
+.edta-hands-on .edta-scene {
+  touch-action: none;
+}
