@@ -48,13 +48,13 @@ test.describe("CHEMLAB CC — Digital Laboratory Redesign", () => {
     await expect(page.getByText(/20\.0 mL Pipetted/i).first()).toBeVisible();
 
     // Step B: Add Ammonia Buffer
-    const bufferBtn = page.getByRole("button", { name: /Ammonia Buffer/i });
+    const bufferBtn = page.getByRole("button", { name: /Ammonia Buffer/i }).first();
     await expect(bufferBtn).toBeVisible();
     await bufferBtn.click();
     await expect(page.getByText(/Buffer Added/i)).toBeVisible();
 
     // Step C: Add EBT Indicator
-    const indicatorBtn = page.getByRole("button", { name: /EBT Indicator/i });
+    const indicatorBtn = page.getByRole("button", { name: /EBT Indicator/i }).first();
     await expect(indicatorBtn).toBeVisible();
     await indicatorBtn.click();
     await expect(page.getByText("✓ Indicator Added (Wine Red Complex)")).toBeVisible();

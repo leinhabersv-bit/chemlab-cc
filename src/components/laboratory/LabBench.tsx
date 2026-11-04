@@ -6,6 +6,8 @@ import { SimulationContext } from "@/lib/simulation/types";
 import { BuretteStandV2 } from "../apparatus/v2/BuretteStandV2";
 import { FlaskStirrerV2 } from "../apparatus/v2/FlaskStirrerV2";
 import { PipetteStationV2 } from "../apparatus/v2/PipetteStationV2";
+import { BenchtopReagentRack } from "../apparatus/v2/BenchtopReagentRack";
+import { LiveCurveMonitor } from "./LiveCurveMonitor";
 import { ConductivityMeter } from "../apparatus/ConductivityMeter";
 import { Nephelometer } from "../apparatus/Nephelometer";
 import { PHMeter } from "../apparatus/PHMeter";
@@ -69,11 +71,22 @@ export const LabBench: React.FC<LabBenchProps> = ({
         </span>
       </div>
 
-      {/* CENTERPIECE 1: HARDNESS TITRATION BENCH (Pipette + Burette + Stirrer) */}
+      {/* CENTERPIECE 1: HARDNESS TITRATION BENCH (Reagents + Pipette + Burette + Stirrer + Telemetry) */}
       {subpart === "hardness" && (
-        <div className="relative z-10 flex flex-col lg:flex-row items-center justify-center gap-8 lg:gap-12 mt-6 w-full max-w-4xl">
-          {/* Direct Pipette Station */}
-          <div className="flex flex-col items-center">
+        <div className="relative z-10 flex flex-col xl:flex-row items-center justify-between gap-6 xl:gap-8 mt-6 w-full max-w-6xl px-2">
+          {/* Left Column: Reagent Rack & Pipette Station */}
+          <div className="flex flex-col sm:flex-row xl:flex-col items-center gap-4">
+            <BenchtopReagentRack
+              sampleAdded={hardness.sampleVolumeMl > 0}
+              bufferAdded={hardness.hasAmmoniaBuffer}
+              indicatorAdded={hardness.hasEbtIndicator}
+              onAddSample={() => {
+                onAction("HARDNESS_PIPETTE_SAMPLE");
+                setPipetteVol(20);
+              }}
+              onAddBuffer={() => onAction("HARDNESS_ADD_BUFFER")}
+              onAddIndicator={() => onAction("HARDNESS_ADD_INDICATOR")}
+            />
             <PipetteStationV2
               volumeAspirated={hardness.sampleVolumeMl > 0 ? 20 : pipetteVol}
               isFilled={hardness.sampleVolumeMl > 0 || pipetteVol === 20}
@@ -85,7 +98,7 @@ export const LabBench: React.FC<LabBenchProps> = ({
             />
           </div>
 
-          {/* Clamped Burette directly over Flask & Stirrer */}
+          {/* Center Column: Clamped Burette directly over Flask & Stirrer */}
           <div className="flex flex-col items-center gap-0">
             {/* Burette Assembly Clamped Above */}
             <div className="relative z-20">
@@ -125,12 +138,20 @@ export const LabBench: React.FC<LabBenchProps> = ({
               </button>
             </div>
           </div>
+
+          {/* Right Column: Live Titration Telemetry Curve */}
+          <div className="flex flex-col items-center">
+            <LiveCurveMonitor
+              subpart={subpart}
+              simulationState={simulationState}
+            />
+          </div>
         </div>
       )}
 
       {/* CENTERPIECE 2: CHLORIDE CONDUCTOMETRY BENCH */}
       {subpart === "chloride" && (
-        <div className="relative z-10 flex flex-col lg:flex-row items-center justify-around gap-8 w-full max-w-4xl px-4 mt-4">
+        <div className="relative z-10 flex flex-col xl:flex-row items-center justify-between gap-8 w-full max-w-5xl px-4 mt-4">
           {/* Burette with AgNO3 */}
           <div className="flex flex-col items-center">
             <BuretteStandV2
@@ -165,103 +186,138 @@ export const LabBench: React.FC<LabBenchProps> = ({
               </button>
             </div>
           </div>
+
+          {/* Live Conductometric V-Curve */}
+          <div className="flex flex-col items-center">
+            <LiveCurveMonitor
+              subpart={subpart}
+              simulationState={simulationState}
+            />
+          </div>
         </div>
       )}
 
       {/* CENTERPIECE 3: SULFATE NEPHELOMETER BENCH */}
       {subpart === "sulfate" && (
-        <div className="relative z-10 flex flex-col items-center gap-6 max-w-xl w-full mt-4">
-          <Nephelometer
-            turbidityNtu={
-              sulfate.selectedFlaskId === 7
-                ? sulfate.unknownNtu ?? 0.0
-                : sulfate.measuredTurbidityNtu[sulfate.selectedFlaskId] ?? 0.0
-            }
-            sampleLabel={
-              sulfate.selectedFlaskId === 7
-                ? "Flask 7 (Unknown Water Sample)"
-                : `Flask ${sulfate.selectedFlaskId} (${(sulfate.selectedFlaskId - 1) * 50} ppm)`
-            }
-            isCalibrated={sulfate.isZeroCalibrated}
-            onZeroAdjust={() => onAction("SULFATE_ZERO_CALIBRATE")}
-          />
+        <div className="relative z-10 flex flex-col xl:flex-row items-center justify-around gap-8 w-full max-w-4xl px-4 mt-4">
+          <div className="flex flex-col items-center gap-6 max-w-md w-full">
+            <Nephelometer
+              turbidityNtu={
+                sulfate.selectedFlaskId === 7
+                  ? sulfate.unknownNtu ?? 0.0
+                  : sulfate.measuredTurbidityNtu[sulfate.selectedFlaskId] ?? 0.0
+              }
+              sampleLabel={
+                sulfate.selectedFlaskId === 7
+                  ? "Flask 7 (Unknown Water Sample)"
+                  : `Flask ${sulfate.selectedFlaskId} (${(sulfate.selectedFlaskId - 1) * 50} ppm)`
+              }
+              isCalibrated={sulfate.isZeroCalibrated}
+              onZeroAdjust={() => onAction("SULFATE_ZERO_CALIBRATE")}
+            />
 
-          <div className="flex items-center gap-3">
-            <button
-              onClick={() => onAction("SULFATE_MEASURE_UNKNOWN")}
-              disabled={!sulfate.isZeroCalibrated}
-              className={`px-5 py-2.5 rounded-xl font-mono text-xs font-bold transition-all ${
-                sulfate.isZeroCalibrated
-                  ? "bg-instrument-amber hover:bg-amber-500 text-slate-950 shadow-lg"
-                  : "bg-bench-850 text-enamel-500 border border-bench-800 cursor-not-allowed"
-              }`}
-            >
-              📊 Measure Unknown Water Sample
-            </button>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => onAction("SULFATE_MEASURE_UNKNOWN")}
+                disabled={!sulfate.isZeroCalibrated}
+                className={`px-5 py-2.5 rounded-xl font-mono text-xs font-bold transition-all ${
+                  sulfate.isZeroCalibrated
+                    ? "bg-instrument-amber hover:bg-amber-500 text-slate-950 shadow-lg"
+                    : "bg-bench-850 text-enamel-500 border border-bench-800 cursor-not-allowed"
+                }`}
+              >
+                📊 Measure Unknown Water Sample
+              </button>
+            </div>
+          </div>
+
+          <div className="flex flex-col items-center">
+            <LiveCurveMonitor
+              subpart={subpart}
+              simulationState={simulationState}
+            />
           </div>
         </div>
       )}
 
       {/* CENTERPIECE 4: TDS ESTIMATION BENCH */}
       {subpart === "tds" && (
-        <div className="relative z-10 flex flex-col items-center gap-6 max-w-xl w-full mt-4">
-          <ConductivityMeter
-            readingValue={tds.isProbeDipped ? tds.rawEcMicroSiemens : 0}
-            unit="µS/cm"
-            cellConstant={1.0}
-            isPowered={true}
-            isProbeDipped={tds.isProbeDipped}
-            onTogglePower={() => onAction("TDS_DIP_PROBE", !tds.isProbeDipped)}
-          />
-
-          <div className="w-full bg-bench-900 border border-bench-750 p-4 rounded-xl flex flex-col gap-2 font-mono text-xs shadow-md">
-            <div className="flex justify-between items-center">
-              <span>Proportionality Constant kₑ:</span>
-              <strong className="text-instrument-sky text-sm">{tds.keFactor.toFixed(2)}</strong>
-            </div>
-            <input
-              type="range"
-              min="0.55"
-              max="0.85"
-              step="0.01"
-              value={tds.keFactor}
-              onChange={(e) => onAction("TDS_SET_KE", parseFloat(e.target.value))}
-              className="w-full accent-instrument-amber"
+        <div className="relative z-10 flex flex-col xl:flex-row items-center justify-around gap-8 w-full max-w-4xl px-4 mt-4">
+          <div className="flex flex-col items-center gap-6 max-w-md w-full">
+            <ConductivityMeter
+              readingValue={tds.isProbeDipped ? tds.rawEcMicroSiemens : 0}
+              unit="µS/cm"
+              cellConstant={1.0}
+              isPowered={true}
+              isProbeDipped={tds.isProbeDipped}
+              onTogglePower={() => onAction("TDS_DIP_PROBE", !tds.isProbeDipped)}
             />
-            <div className="flex justify-between text-[10px] text-enamel-400">
-              <span>0.55 (Low salinity)</span>
-              <span className="text-instrument-phosphor font-bold">0.70 (Standard Natural Waters)</span>
-              <span>0.85 (High sulfate/salt)</span>
+
+            <div className="w-full bg-bench-900 border border-bench-750 p-4 rounded-xl flex flex-col gap-2 font-mono text-xs shadow-md">
+              <div className="flex justify-between items-center">
+                <span>Proportionality Constant kₑ:</span>
+                <strong className="text-instrument-sky text-sm">{tds.keFactor.toFixed(2)}</strong>
+              </div>
+              <input
+                type="range"
+                min="0.55"
+                max="0.85"
+                step="0.01"
+                value={tds.keFactor}
+                onChange={(e) => onAction("TDS_SET_KE", parseFloat(e.target.value))}
+                className="w-full accent-instrument-amber"
+              />
+              <div className="flex justify-between text-[10px] text-enamel-400">
+                <span>0.55 (Low salinity)</span>
+                <span className="text-instrument-phosphor font-bold">0.70 (Standard Natural Waters)</span>
+                <span>0.85 (High sulfate/salt)</span>
+              </div>
             </div>
+          </div>
+
+          <div className="flex flex-col items-center">
+            <LiveCurveMonitor
+              subpart={subpart}
+              simulationState={simulationState}
+            />
           </div>
         </div>
       )}
 
       {/* CENTERPIECE 5: pH MEASUREMENT BENCH */}
       {subpart === "ph" && (
-        <div className="relative z-10 flex flex-col items-center gap-6 max-w-xl w-full mt-4">
-          <PHMeter
-            phValue={ph.measuredPh ?? 0.0}
-            temperatureC={ph.temperatureC}
-            isCalibrated={ph.calibratedPoints.length >= 2}
-            calibrationPoints={ph.calibratedPoints}
-            onCalibratePoint={(pt) => onAction("PH_CALIBRATE_POINT", pt)}
-          />
+        <div className="relative z-10 flex flex-col xl:flex-row items-center justify-around gap-8 w-full max-w-4xl px-4 mt-4">
+          <div className="flex flex-col items-center gap-6 max-w-md w-full">
+            <PHMeter
+              phValue={ph.measuredPh ?? 0.0}
+              temperatureC={ph.temperatureC}
+              isCalibrated={ph.calibratedPoints.length >= 2}
+              calibrationPoints={ph.calibratedPoints}
+              onCalibratePoint={(pt) => onAction("PH_CALIBRATE_POINT", pt)}
+            />
 
-          <div className="flex items-center gap-2">
-            {(["buffer4", "buffer7", "buffer9", "sample"] as const).map((tgt) => (
-              <button
-                key={tgt}
-                onClick={() => onAction("PH_SET_ELECTRODE", tgt)}
-                className={`px-3 py-1.5 rounded-lg font-mono text-xs transition-all ${
-                  ph.electrodeState === tgt
-                    ? "bg-instrument-amber text-slate-950 font-bold shadow-md"
-                    : "bg-bench-850 hover:bg-bench-800 text-enamel-300 border border-bench-700"
-                }`}
-              >
-                {tgt === "sample" ? "Water Sample" : `Buffer ${tgt.replace("buffer", "")}`}
-              </button>
-            ))}
+            <div className="flex items-center gap-2">
+              {(["buffer4", "buffer7", "buffer9", "sample"] as const).map((tgt) => (
+                <button
+                  key={tgt}
+                  onClick={() => onAction("PH_SET_ELECTRODE", tgt)}
+                  className={`px-3 py-1.5 rounded-lg font-mono text-xs transition-all ${
+                    ph.electrodeState === tgt
+                      ? "bg-instrument-amber text-slate-950 font-bold shadow-md"
+                      : "bg-bench-850 hover:bg-bench-800 text-enamel-300 border border-bench-700"
+                  }`}
+                >
+                  {tgt === "sample" ? "Water Sample" : `Buffer ${tgt.replace("buffer", "")}`}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex flex-col items-center">
+            <LiveCurveMonitor
+              subpart={subpart}
+              simulationState={simulationState}
+            />
           </div>
         </div>
       )}

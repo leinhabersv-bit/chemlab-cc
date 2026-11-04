@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { labAudio } from "@/lib/audio/lab-audio";
 
 interface PHMeterProps {
   phValue: number;
@@ -61,8 +62,11 @@ export const PHMeter: React.FC<PHMeterProps> = ({
               return (
                 <button
                   key={point}
-                  onClick={() => onCalibratePoint(point)}
-                  className={`py-1 px-1.5 rounded font-mono text-xs font-medium transition-all ${
+                  onClick={() => {
+                    labAudio.playBeep(Math.round(800 + point * 120));
+                    onCalibratePoint(point);
+                  }}
+                  className={`py-1 px-1.5 rounded font-mono text-xs font-medium transition-all active:scale-95 ${
                     isDone
                       ? "bg-emerald-950/80 border border-emerald-600 text-emerald-300"
                       : "bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300"

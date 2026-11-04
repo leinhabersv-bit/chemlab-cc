@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useRef, useState, useEffect } from "react";
+import { labAudio } from "@/lib/audio/lab-audio";
 
 interface BuretteStandV2Props {
   volumeDispensed: number; // in mL, 0 to 50
@@ -36,6 +37,7 @@ export const BuretteStandV2: React.FC<BuretteStandV2Props> = ({
     if (isHoldingStopcock && !readOnly) {
       holdIntervalRef.current = setInterval(() => {
         onDispenseAmount(flowRate);
+        labAudio.playDrop();
       }, 100);
     } else {
       if (holdIntervalRef.current) {
@@ -213,10 +215,16 @@ export const BuretteStandV2: React.FC<BuretteStandV2Props> = ({
 
           {/* Hold to Stream Primary Interaction */}
           <button
-            onMouseDown={() => setIsHoldingStopcock(true)}
+            onMouseDown={() => {
+              labAudio.playStopcockClick();
+              setIsHoldingStopcock(true);
+            }}
             onMouseUp={() => setIsHoldingStopcock(false)}
             onMouseLeave={() => setIsHoldingStopcock(false)}
-            onTouchStart={() => setIsHoldingStopcock(true)}
+            onTouchStart={() => {
+              labAudio.playStopcockClick();
+              setIsHoldingStopcock(true);
+            }}
             onTouchEnd={() => setIsHoldingStopcock(false)}
             className={`w-full py-2.5 px-3 rounded-xl font-mono text-xs font-bold transition-all flex items-center justify-center gap-1.5 shadow ${
               isHoldingStopcock
@@ -230,14 +238,22 @@ export const BuretteStandV2: React.FC<BuretteStandV2Props> = ({
           {/* Quick Drop & Flow Slider */}
           <div className="grid grid-cols-2 gap-1.5 pt-1.5 border-t border-bench-800">
             <button
-              onClick={() => onDispenseAmount(0.05)}
+              onClick={() => {
+                labAudio.playStopcockClick();
+                labAudio.playDrop();
+                onDispenseAmount(0.05);
+              }}
               className="py-1.5 px-2 bg-bench-850 hover:bg-bench-800 text-enamel-200 border border-bench-750 rounded-lg text-[10px] font-mono transition-colors active:scale-95"
               title="Dispense exact single drop (0.05 mL)"
             >
               +0.05 mL Drop
             </button>
             <button
-              onClick={() => onDispenseAmount(1.0)}
+              onClick={() => {
+                labAudio.playStopcockClick();
+                labAudio.playDrop();
+                onDispenseAmount(1.0);
+              }}
               className="py-1.5 px-2 bg-bench-850 hover:bg-bench-800 text-enamel-200 border border-bench-750 rounded-lg text-[10px] font-mono transition-colors active:scale-95"
               title="Dispense 1.0 mL aliquot"
             >

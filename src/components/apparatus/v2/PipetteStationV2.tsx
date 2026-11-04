@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { labAudio } from "@/lib/audio/lab-audio";
 
 interface PipetteStationV2Props {
   volumeAspirated: number; // 0 to 20 mL
@@ -55,7 +56,16 @@ export const PipetteStationV2: React.FC<PipetteStationV2Props> = ({
           <g
             transform={bulbPressed ? "scale(0.95 0.9) translate(2, 4)" : ""}
             className="cursor-pointer transition-transform"
-            onClick={!disabled && !isFilled ? onAspirate : undefined}
+            onClick={
+              !disabled && !isFilled
+                ? () => {
+                    setBulbPressed(true);
+                    labAudio.playSuction();
+                    setTimeout(() => setBulbPressed(false), 200);
+                    onAspirate();
+                  }
+                : undefined
+            }
           >
             <ellipse cx="40" cy="22" rx="14" ry="16" fill="#dc2626" stroke="#991b1b" strokeWidth="1.5" />
             <rect x="36" y="36" width="8" height="8" rx="2" fill="#991b1b" />
@@ -142,6 +152,7 @@ export const PipetteStationV2: React.FC<PipetteStationV2Props> = ({
           <button
             onClick={() => {
               setBulbPressed(true);
+              labAudio.playSuction();
               setTimeout(() => setBulbPressed(false), 200);
               onAspirate();
             }}
@@ -156,7 +167,10 @@ export const PipetteStationV2: React.FC<PipetteStationV2Props> = ({
           </button>
         ) : (
           <button
-            onClick={onTransfer}
+            onClick={() => {
+              labAudio.playDrop();
+              onTransfer();
+            }}
             disabled={disabled || isTransferring}
             className="w-full py-2.5 px-3 rounded-xl font-bold bg-instrument-sky hover:bg-sky-400 text-slate-950 transition-all flex items-center justify-center gap-2 active:scale-95 shadow-sky-950/40"
           >
@@ -167,3 +181,4 @@ export const PipetteStationV2: React.FC<PipetteStationV2Props> = ({
     </div>
   );
 };
+

@@ -1,6 +1,7 @@
 "use client";
 
-import React from "react";
+import React, { useEffect } from "react";
+import { labAudio } from "@/lib/audio/lab-audio";
 
 interface FlaskStirrerV2Props {
   fillVolumeMl: number; // e.g. 20 to 60 mL
@@ -21,6 +22,23 @@ export const FlaskStirrerV2: React.FC<FlaskStirrerV2Props> = ({
   onToggleStirrer,
   className = "",
 }) => {
+  // Synchronize magnetic stirrer audio hum with stirring state
+  useEffect(() => {
+    if (isStirring) {
+      labAudio.startStirrerHum();
+    } else {
+      labAudio.stopStirrerHum();
+    }
+    return () => {
+      labAudio.stopStirrerHum();
+    };
+  }, [isStirring]);
+
+  const handleToggle = () => {
+    labAudio.playStopcockClick();
+    onToggleStirrer?.();
+  };
+
   // Clamped volume percentage: 0 to 100
   const clampedVol = Math.min(Math.max(fillVolumeMl, 0), maxFlaskVolume);
   // Liquid height in SVG: flask base y = 145, flask neck y = 55. Height spans ~90px
@@ -99,7 +117,7 @@ export const FlaskStirrerV2: React.FC<FlaskStirrerV2Props> = ({
             stroke={isStirring ? "#10b981" : "#475569"}
             strokeWidth="1"
             className="cursor-pointer"
-            onClick={onToggleStirrer}
+            onClick={handleToggle}
           />
           <text
             x="153"
@@ -109,7 +127,7 @@ export const FlaskStirrerV2: React.FC<FlaskStirrerV2Props> = ({
             fontFamily="monospace"
             textAnchor="middle"
             className="cursor-pointer"
-            onClick={onToggleStirrer}
+            onClick={handleToggle}
           >
             {isStirring ? "ON" : "OFF"}
           </text>
@@ -199,7 +217,7 @@ export const FlaskStirrerV2: React.FC<FlaskStirrerV2Props> = ({
           Flask: <strong className="text-instrument-sky font-bold">{clampedVol.toFixed(1)} mL</strong>
         </span>
         <button
-          onClick={onToggleStirrer}
+          onClick={handleToggle}
           className={`text-[10px] px-2 py-0.5 rounded-md border font-bold transition-colors ${
             isStirring
               ? "bg-emerald-950 border-emerald-700 text-instrument-phosphor"

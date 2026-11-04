@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { labAudio } from "@/lib/audio/lab-audio";
 
 interface NephelometerProps {
   turbidityNtu: number;
@@ -88,16 +89,22 @@ export const Nephelometer: React.FC<NephelometerProps> = ({
       <div className="grid grid-cols-2 gap-2 mt-3 text-xs">
         {onZeroAdjust && (
           <button
-            onClick={onZeroAdjust}
-            className="py-1.5 px-3 bg-amber-950/60 hover:bg-amber-900 border border-amber-800/80 text-amber-300 rounded font-mono transition-colors"
+            onClick={() => {
+              labAudio.playBeep(1400);
+              onZeroAdjust();
+            }}
+            className="py-1.5 px-3 bg-amber-950/60 hover:bg-amber-900 border border-amber-800/80 text-amber-300 rounded font-mono transition-colors active:scale-95"
           >
             Zero Set (Blank)
           </button>
         )}
         {onToggleLamp && (
           <button
-            onClick={onToggleLamp}
-            className="py-1.5 px-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded font-mono text-slate-300 transition-colors"
+            onClick={() => {
+              labAudio.playStopcockClick();
+              onToggleLamp();
+            }}
+            className="py-1.5 px-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded font-mono text-slate-300 transition-colors active:scale-95"
           >
             {isLampOn ? "Tungsten Lamp OFF" : "Tungsten Lamp ON"}
           </button>

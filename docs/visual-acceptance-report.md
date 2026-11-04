@@ -45,10 +45,12 @@ The rebuilt product experience completely dismantles the old visual language and
   - Standard slate boxes with cyan accent buttons and emoji drawer headers (`🧰`, `🔬`, `📓`).
 - **After (`screenshots/after/03_exp1_practice_1440px.png`):**
   - **Integrated 3-Pane Digital Laboratory Workstation:**
-    - Left: Reagent shelf & volumetric transfer station.
-    - Center Stage: Physical laboratory bench with retort stand holding a 50 mL Class-A burette with fluid meniscus, Class-A bulb pipette, and 250 mL flask on heavy-duty magnetic stirrer with fluid vortex.
-    - Right: Real-time Contextual Chemical Inspector with live ionic dissociation HUD (`[Ca-EBT]²⁺ → [Ca-EDTA]²⁻`).
-    - Bottom: Hardcover graph-paper laboratory logbook.
+    - Left: Benchtop Reagent Rack with direct-click Class-A volumetric flask (Std Hard Water), ammonia buffer dropper bottle (pH 10), and amber EBT indicator dropper.
+    - Volumetric Transfer Station: Class-A bulb pipette with rubber filler bulb, rising meniscus, calibration ring mark, and drop delivery into flask.
+    - Center Stage: Physical laboratory bench with retort stand holding a 50 mL Class-A burette with fluid meniscus and tactile rotary stopcock valve, and 250 mL flask on heavy-duty magnetic stirrer with fluid vortex and continuous stoichiometric color transition (wine red to steel blue).
+    - Right: Real-time Contextual Chemical Inspector with live ionic dissociation HUD (`[Ca-EBT]²⁺ → [Ca-EDTA]²⁻`), plus Benchtop Live Curve Telemetry Oscilloscope plotting real-time sigmoidal $p\text{Ca}$ curve with tracking marker dot.
+    - Bottom: Hardcover graph-paper laboratory logbook with concordant trials, calibration plots, calculation grader, and BIS water quality report.
+    - Offline Web Audio API Synthesizer: Zero-network procedural audio feedback for glass clinks, bulb suction, drop impacts, 65 Hz stirrer hum, stopcock valve clicks, and digital meter beeps.
 
 ### 2.4 Viewport 4: Experiment 1 Demonstration Workbench Desktop (1440px)
 - **Before (`screenshots/before/04_exp1_demo_1440px.png`):**
@@ -87,3 +89,4 @@ The rebuilt product experience completely dismantles the old visual language and
      - Mobile (390px): 2 passed
 5. **Visual Evidence:**
    - Saved 12 comparative screenshots in `screenshots/before/` and `screenshots/after/`.
+

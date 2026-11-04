@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { labAudio } from "@/lib/audio/lab-audio";
 
 interface ConductivityMeterProps {
   readingValue: number; // in µS/cm or mS/cm
@@ -66,7 +67,10 @@ export const ConductivityMeter: React.FC<ConductivityMeterProps> = ({
       {/* Hardware Details & Controls */}
       <div className="grid grid-cols-2 gap-2 mt-3 text-xs">
         <button
-          onClick={onTogglePower}
+          onClick={() => {
+            labAudio.playBeep(isPowered ? 600 : 1200);
+            onTogglePower?.();
+          }}
           className={`py-1.5 px-3 rounded font-mono font-medium transition-all ${
             isPowered
               ? "bg-rose-950/60 hover:bg-rose-900 text-rose-300 border border-rose-800/60"
@@ -78,7 +82,10 @@ export const ConductivityMeter: React.FC<ConductivityMeterProps> = ({
 
         {onCalibrate && (
           <button
-            onClick={onCalibrate}
+            onClick={() => {
+              labAudio.playBeep(1800);
+              onCalibrate?.();
+            }}
             className="py-1.5 px-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded font-mono text-slate-300 transition-colors"
           >
             Calibrate (0.1M KCl)
