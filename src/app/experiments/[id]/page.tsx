@@ -1,7 +1,7 @@
 import React from "react";
 import { notFound } from "next/navigation";
 import { EXPERIMENTS_REGISTRY } from "@/data/experiments-registry";
-import { LabWorkspace } from "@/components/laboratory/LabWorkspace";
+import { EdtaLab } from "@/components/laboratory/EdtaLab";
 import { ExperimentShell } from "@/components/experiment/ExperimentShell";
 import type { Metadata } from "next";
 
@@ -41,7 +41,7 @@ export default async function ExperimentPage({
 
   // Purpose-built digital laboratory workspace for Experiment 1
   if (experiment.id === "exp-1") {
-    return <LabWorkspace experiment={experiment} />;
+    return <EdtaLab />;
   }
 
   return <ExperimentShell experiment={experiment} />;

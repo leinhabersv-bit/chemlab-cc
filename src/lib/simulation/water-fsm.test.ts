@@ -71,10 +71,11 @@ describe("Authoritative Simulation Engine & FSM (Experiment 1)", () => {
       state = waterSimulationReducer(state, { type: "HARDNESS_ADD_BUFFER" });
       state = waterSimulationReducer(state, { type: "HARDNESS_ADD_INDICATOR" });
 
-      // Dispense 20.2 mL to reach endpoint
+      // Dispense the seeded endpoint for this reducer fixture.
+      const endpoint = state.hardness.trueEndpointMl;
       state = waterSimulationReducer(state, {
         type: "HARDNESS_DISPENSE_EDTA",
-        payload: 20.2,
+        payload: endpoint,
       });
 
       expect(state.hardness.phase).toBe("ENDPOINT_REACHED");
@@ -83,7 +84,7 @@ describe("Authoritative Simulation Engine & FSM (Experiment 1)", () => {
       // Record reading for trial 1
       state = waterSimulationReducer(state, { type: "HARDNESS_RECORD_TRIAL" });
       expect(state.hardness.trialsV1).toHaveLength(1);
-      expect(state.hardness.trialsV1[0]).toBe(20.2);
+      expect(state.hardness.trialsV1[0]).toBe(Number(endpoint.toFixed(2)));
       expect(state.hardness.liquidVolumeMl).toBe(0); // Reset for trial 2
     });
   });

@@ -1,10 +1,10 @@
 import { SimulationContext } from "./types";
-import { defaultPRNG } from "../prng";
+import { defaultPRNG, PRNG } from "../prng";
 import { calculateTotalHardness, calculateChlorideContent, calculateTds, calculateSulfateNephelometry } from "../science/water-analysis";
 import { Exp1Subpart } from "@/types/workbench";
 
 export function createInitialSimulationContext(seed: number = 2026): SimulationContext {
-  const prng = seed === 2026 ? defaultPRNG : new (defaultPRNG.constructor as any)(seed);
+  const prng = new PRNG(seed);
 
   // Physical targets with realistic laboratory variance
   const trueV1 = prng.addRelativeNoise(20.0, 0.01, 19.5, 20.5);
@@ -102,8 +102,8 @@ export function calculateHardnessLiquidColor(
   // Steel Blue: rgb(40, 115, 175)
   if (ratio < 0.94) {
     return { color: "rgba(136, 18, 38, 0.92)", progress };
-  } else if (ratio <= 1.02) {
-    const t = (ratio - 0.94) / 0.08;
+  } else if (ratio < 1) {
+    const t = (ratio - 0.94) / 0.06;
     const r = Math.round(136 + (40 - 136) * t);
     const g = Math.round(18 + (115 - 18) * t);
     const b = Math.round(38 + (175 - 38) * t);
@@ -128,7 +128,10 @@ export function waterSimulationReducer(state: SimulationContext, action: { type:
     }
 
     // --- PART A: HARDNESS ACTIONS ---
+    case "HARDNESS_TOGGLE_STIRRER":
+      return { ...state, hardness: { ...state.hardness, isStirring: !state.hardness.isStirring } };
     case "HARDNESS_PIPETTE_SAMPLE": {
+      if (state.hardness.sampleVolumeMl > 0) return { ...state, proceduralWarning: "Empty the flask before adding another aliquot." };
       const isStd = state.hardness.mode === "standardization";
       return {
         ...state,
@@ -145,6 +148,7 @@ export function waterSimulationReducer(state: SimulationContext, action: { type:
     }
 
     case "HARDNESS_ADD_BUFFER": {
+      if (state.hardness.hasAmmoniaBuffer) return { ...state, proceduralWarning: "Buffer already added." };
       if (state.hardness.sampleVolumeMl === 0) {
         return {
           ...state,
@@ -165,6 +169,7 @@ export function waterSimulationReducer(state: SimulationContext, action: { type:
     }
 
     case "HARDNESS_ADD_INDICATOR": {
+      if (state.hardness.hasEbtIndicator) return { ...state, proceduralWarning: "Indicator already added." };
       if (!state.hardness.hasAmmoniaBuffer) {
         return {
           ...state,
@@ -186,6 +191,8 @@ export function waterSimulationReducer(state: SimulationContext, action: { type:
 
     case "HARDNESS_DISPENSE_EDTA": {
       const amount = action.payload as number;
+      if (!Number.isFinite(amount) || amount <= 0 || amount > 50 - state.hardness.buretteReadingMl) return { ...state, proceduralWarning: "Invalid EDTA volume or insufficient burette contents." };
+      if (!state.hardness.isStirring) return { ...state, proceduralWarning: "Mix the solution before dispensing." };
       if (state.hardness.sampleVolumeMl === 0) {
         return {
           ...state,
@@ -229,12 +236,15 @@ export function waterSimulationReducer(state: SimulationContext, action: { type:
     }
 
     case "HARDNESS_RECORD_TRIAL": {
+      const h = state.hardness;
+      if (h.phase !== "ENDPOINT_REACHED" || !h.hasAmmoniaBuffer || !h.hasEbtIndicator || !h.isStirring || h.buretteReadingMl - h.trueEndpointMl > 0.1 + 1e-8) return { ...state, proceduralWarning: "A valid mixed endpoint within 0.10 mL excess is required." };
       const reading = Number(state.hardness.buretteReadingMl.toFixed(2));
       const isStd = state.hardness.mode === "standardization";
 
       if (isStd) {
         const updatedTrials = [...state.hardness.trialsV1, reading];
-        const concordant = updatedTrials.length >= 2 ? updatedTrials[updatedTrials.length - 1] : null;
+        const pair = updatedTrials.slice(-2);
+        const concordant = pair.length === 2 && Math.abs(pair[0] - pair[1]) <= 0.1 + 1e-8 ? (pair[0] + pair[1]) / 2 : null;
 
         return {
           ...state,
@@ -258,7 +268,8 @@ export function waterSimulationReducer(state: SimulationContext, action: { type:
         };
       } else {
         const updatedTrials = [...state.hardness.trialsV2, reading];
-        const concordant = updatedTrials.length >= 2 ? updatedTrials[updatedTrials.length - 1] : null;
+        const pair = updatedTrials.slice(-2);
+        const concordant = pair.length === 2 && Math.abs(pair[0] - pair[1]) <= 0.1 + 1e-8 ? (pair[0] + pair[1]) / 2 : null;
 
         return {
           ...state,
@@ -285,6 +296,7 @@ export function waterSimulationReducer(state: SimulationContext, action: { type:
 
     case "HARDNESS_SET_MODE": {
       const nextMode = action.payload as "standardization" | "sample";
+      if (nextMode === "sample" && state.hardness.v1Concordant === null) return { ...state, proceduralWarning: "Complete concordant standardization first." };
       const trueTarget = nextMode === "standardization" ? 20.0 : 8.4;
       return {
         ...state,
@@ -297,7 +309,7 @@ export function waterSimulationReducer(state: SimulationContext, action: { type:
           hasAmmoniaBuffer: false,
           hasEbtIndicator: false,
           buretteReadingMl: 0,
-          trueEndpointMl: defaultPRNG.addRelativeNoise(trueTarget, 0.015),
+          trueEndpointMl: trueTarget, // Legacy teaching target; the playable EDTA route uses the seeded physical core.
           liquidVolumeMl: 0,
           liquidColor: "transparent",
           reactionProgressPercent: 0,

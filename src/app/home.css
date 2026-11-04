@@ -1,0 +1,164 @@
+.home-hero {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  min-height: 700px;
+  gap: 20px;
+}
+.home-copy {
+  padding: 60px 0;
+}
+.home-copy h1 {
+  font:
+    clamp(60px, 7.7vw, 112px)/0.98 Georgia,
+    serif;
+  letter-spacing: -5px;
+  margin: 25px 0 30px;
+}
+.home-copy > p:not(.edta-eyebrow) {
+  font-size: 17px;
+  line-height: 1.8;
+  color: #52685c;
+}
+.home-enter {
+  display: inline-flex;
+  align-items: center;
+  gap: 40px;
+  background: #173c32;
+  color: #faf9ed;
+  padding: 20px 25px;
+  border-radius: 5px;
+  margin-top: 30px;
+  font-size: 14px;
+  transition: background 0.2s;
+}
+.home-enter:hover {
+  background: #325f49;
+}
+.home-enter span {
+  font-size: 25px;
+}
+.home-note {
+  display: block;
+  font-size: 10px;
+  line-height: 1.6;
+  max-width: 350px;
+  color: #52685c;
+  margin-top: 18px;
+}
+.home-object {
+  position: relative;
+  animation: home-arrive 1s ease-out;
+}
+.home-object svg {
+  width: 100%;
+  display: block;
+}
+.home-annotation {
+  position: absolute;
+  top: 34%;
+  right: 0;
+  font:
+    20px Georgia,
+    serif;
+  line-height: 1.5;
+}
+.home-annotation small {
+  font:
+    10px Arial,
+    sans-serif;
+}
+.home-directory {
+  padding: 60px 0 80px;
+  border-top: 1px solid #cad2c5;
+}
+.home-directory h2 {
+  font:
+    42px Georgia,
+    serif;
+  margin: 15px 0 35px;
+}
+.home-experiment {
+  display: grid;
+  grid-template-columns: 40px 1fr 280px 20px;
+  align-items: center;
+  gap: 20px;
+  border-bottom: 1px solid #cad2c5;
+  padding: 24px 0;
+  transition: background 0.2s;
+}
+.home-experiment:hover {
+  background: #e6e9dc;
+}
+.home-experiment strong {
+  font:
+    23px Georgia,
+    serif;
+}
+.home-experiment small {
+  font-size: 11px;
+  color: #52685c;
+}
+.home-experiment > span {
+  font-size: 12px;
+}
+@keyframes home-arrive {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (max-width: 800px) {
+  .home-hero {
+    grid-template-columns: 1fr;
+    gap: 0;
+    min-height: 0;
+  }
+  .home-copy {
+    padding: 50px 0 10px;
+  }
+  .home-copy h1 {
+    font-size: 72px;
+    letter-spacing: -3px;
+  }
+  .home-object {
+    max-width: 500px;
+    margin: auto;
+    width: 100%;
+  }
+  .home-annotation {
+    font-size: 16px;
+  }
+  .home-experiment {
+    grid-template-columns: 25px 1fr 20px;
+    gap: 10px;
+  }
+  .home-experiment small {
+    grid-column: 2;
+  }
+  .home-experiment > span:last-child {
+    grid-column: 3;
+    grid-row: 1;
+  }
+  .home-experiment strong {
+    font-size: 20px;
+  }
+  .home-directory {
+    padding: 35px 0;
+  }
+  .home-directory h2 {
+    font-size: 34px;
+  }
+  .home-lab .edta-header > a:last-child {
+    font-size: 11px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .home-object {
+    animation: none;
+  }
+}

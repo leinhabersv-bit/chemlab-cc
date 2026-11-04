@@ -9,6 +9,8 @@ export const Navbar: React.FC = () => {
   const pathname = usePathname();
   const [stationMenuOpen, setStationMenuOpen] = useState(false);
 
+  if (pathname === '/' || pathname === '/experiments/exp-1') return null;
+
   return (
     <header className="sticky top-0 z-50 bg-bench-950/95 backdrop-blur-md border-b border-bench-800 text-enamel-100 font-mono text-xs">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">

@@ -1,41 +1,34 @@
-import { defineConfig, devices } from "@playwright/test";
-
+import { defineConfig } from "@playwright/test";
 export default defineConfig({
   testDir: "./tests",
   fullyParallel: true,
-  forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
-  workers: 4,
-  reporter: "list",
+  workers: 2,
+  retries: 0,
+  reporter: [["list"], ["json", { outputFile: "test-results/results.json" }]],
   use: {
-    baseURL: "http://localhost:3000",
-    trace: "on-first-retry",
+    baseURL: "http://127.0.0.1:3100",
+    trace: "on",
+    video: "on",
+    screenshot: "only-on-failure",
   },
   projects: [
     {
-      name: "Desktop Chrome (1440px)",
-      use: {
-        ...devices["Desktop Chrome"],
-        viewport: { width: 1440, height: 900 },
-      },
+      name: "Desktop Chromium",
+      use: { browserName: "chromium", viewport: { width: 1440, height: 1000 } },
     },
     {
-      name: "Tablet (768px)",
+      name: "Mobile Chromium",
       use: {
-        viewport: { width: 768, height: 1024 },
-      },
-    },
-    {
-      name: "Mobile (390px)",
-      use: {
-        ...devices["iPhone 12"],
+        browserName: "chromium",
         viewport: { width: 390, height: 844 },
+        isMobile: true,
+        hasTouch: true,
       },
     },
   ],
   webServer: {
-    command: "npm run start",
-    url: "http://localhost:3000",
+    command: "npm run start -- --hostname 127.0.0.1 --port 3100",
+    url: "http://127.0.0.1:3100",
     reuseExistingServer: !process.env.CI,
     timeout: 120000,
   },

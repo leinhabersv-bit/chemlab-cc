@@ -10,6 +10,7 @@ import { EquipmentDrawer } from "./EquipmentDrawer";
 import { ContextualInspector } from "./ContextualInspector";
 import { ObservationNotebook } from "./ObservationNotebook";
 import { DemoController } from "./DemoController";
+import { EdtaLab } from "./EdtaLab";
 
 interface LabWorkspaceProps {
   experiment: ExperimentMetadata;
@@ -17,7 +18,7 @@ interface LabWorkspaceProps {
 
 export const LabWorkspace: React.FC<LabWorkspaceProps> = ({ experiment }) => {
   const [mode, setMode] = useState<LabMode>("practice");
-  const [subpart, setSubpart] = useState<Exp1Subpart>("hardness");
+  const [subpart, setSubpart] = useState<Exp1Subpart>("chloride");
 
   // Authoritative simulation context managed by FSM
   const [simulationState, dispatch] = useReducer(
@@ -59,6 +60,8 @@ export const LabWorkspace: React.FC<LabWorkspaceProps> = ({ experiment }) => {
     setSubpart(sp);
     dispatch({ type: "SWITCH_SUBPART", payload: sp });
   };
+
+  if (subpart === 'hardness') return <EdtaLab />;
 
   return (
     <div className="flex flex-col h-[calc(100vh-4rem)] overflow-hidden bg-bench-950 text-enamel-100 font-sans">
@@ -192,12 +195,7 @@ export const LabWorkspace: React.FC<LabWorkspaceProps> = ({ experiment }) => {
         <main className="flex-1 flex flex-col p-3 sm:p-4 overflow-y-auto pb-16 gap-3">
           {/* If Demo Mode, display Demo Controller at the top of the bench */}
           {mode === "demo" && (
-            <DemoController
-              subpart={subpart}
-              simulationState={simulationState}
-              onAction={handleAction}
-              onSwitchSubpart={handleSwitchSubpart}
-            />
+            <Link href="/experiments/exp-1">Open the verified EDTA demonstration →</Link>
           )}
 
           <LabBench
