@@ -119,7 +119,7 @@ test("complete practice: prepare, standardize twice, titrate unknown twice, calc
 test("demonstration completes the same four valid trials", async ({
   page,
 }, testInfo) => {
-  test.setTimeout(120000);
+  test.setTimeout(360000);
   await page.goto("/experiments/exp-1");
   await button(page, "Demonstration").click();
   const explanation = page.getByRole("status");

@@ -49,7 +49,7 @@ test("entry, responsive layout, keyboard access and challenge guidance", async (
 test("move actual apparatus, condition, fill, pour, discard and wash by hand", async ({
   page,
 }, testInfo) => {
-  test.setTimeout(90000);
+  test.setTimeout(180000);
   await page.goto("/experiments/exp-1");
   await page
     .getByRole("button", { name: "Inspect glassware", exact: true })

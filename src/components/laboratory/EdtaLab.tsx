@@ -16,6 +16,9 @@ import {
 } from "@/lib/simulation/edta";
 import "./edta.css";
 import { HandsOnBench } from "./HandsOnBench";
+import { ThreeLabBench3D } from "@/components/apparatus/ThreeLabBench3D";
+import { LiveReactionHUD } from "@/components/laboratory/LiveReactionHUD";
+import { labAudio } from "@/lib/audio/lab-audio";
 
 type Tool = "bench" | "burette" | "pipette" | "buffer" | "indicator" | "flask";
 type Mode = "practice" | "demo" | "challenge";
@@ -153,7 +156,21 @@ export function EdtaLab() {
   const v1 = concordant(s, "standard"),
     v2 = concordant(s, "unknown");
   const send = (command: EdtaCommand) => {
-    if (mode !== "demo") dispatch(command);
+    if (mode !== "demo") {
+      if (command.type === "transfer") {
+        labAudio.playLiquidPour();
+      } else if (command.type === "drop") {
+        labAudio.playDrop();
+      } else if (command.type === "stir") {
+        if (command.on) labAudio.startStirrerHum();
+        else labAudio.stopStirrerHum();
+      } else if (command.type === "inspect" || command.type === "position") {
+        labAudio.playGlassClink();
+      } else if (command.type === "record") {
+        labAudio.playEndpointChime();
+      }
+      dispatch(command);
+    }
   };
   const choose = (selected: Tool) => {
     if (mode === "demo") return;
@@ -185,6 +202,12 @@ export function EdtaLab() {
       () => {
         if (command) {
           const next = edtaReducer(s, command);
+          if (command.type === "transfer") labAudio.playLiquidPour();
+          else if (command.type === "drop" || command.type === "valve") labAudio.playDrop();
+          else if (command.type === "stir") {
+            if (command.on) labAudio.startStirrerHum();
+            else labAudio.stopStirrerHum();
+          } else if (command.type === "record") labAudio.playEndpointChime();
           dispatch(command);
           if (next.warning) setPlaying(false);
         } else setPlaying(false);
@@ -268,128 +291,172 @@ export function EdtaLab() {
         </div>
       </div>
       <div className="edta-layout">
-        {mode !== "demo" ? (
-          <HandsOnBench
-            key={s.config.seed}
-            s={s}
-            send={send}
-            select={setTool}
-          />
-        ) : (
-          <section
-            className="edta-stage"
-            aria-label="Interactive chemistry bench"
-          >
-            <div className="edta-stage-label">
-              <span>
-                01 /{" "}
-                {s.sample === "standard"
-                  ? "STANDARDIZE THE EDTA"
-                  : "ANALYZE UNKNOWN WATER"}
-              </span>
-              <span>
-                20 mL aliquot ·{" "}
-                {s.trials.filter((t) => t.sample === s.sample).length} trials
-                recorded
-              </span>
-            </div>
-            <svg
-              className="edta-scene"
-              viewBox="0 0 900 630"
-              role="img"
-              aria-label={`Laboratory scene. Flask: ${o.colour}, ${volume(s.vessels.flask).toFixed(2)} mL. Burette: ${reading(s).toFixed(2)} mL.`}
-            >
-              <defs>
-                <linearGradient id="room" x2="0.8" y2="1">
-                  <stop stopColor="#f6f4e9" />
-                  <stop offset="1" stopColor="#d8e1d7" />
-                </linearGradient>
-                <linearGradient id="glass">
-                  <stop stopColor="#ffffff" stopOpacity=".7" />
-                  <stop offset=".25" stopColor="#d3eeee" stopOpacity=".12" />
-                  <stop offset=".7" stopColor="#ffffff" stopOpacity=".08" />
-                  <stop offset="1" stopColor="#779f9c" stopOpacity=".45" />
-                </linearGradient>
-                <linearGradient id="metal">
-                  <stop stopColor="#526761" />
-                  <stop offset=".4" stopColor="#f4f6ef" />
-                  <stop offset=".6" stopColor="#c2cfc6" />
-                  <stop offset="1" stopColor="#6d8077" />
-                </linearGradient>
-                <linearGradient id="bench" x2="0" y2="1">
-                  <stop stopColor="#ebeee4" />
-                  <stop offset="1" stopColor="#bdcabe" />
-                </linearGradient>
-                <radialGradient id="shadow">
-                  <stop stopColor="#274035" stopOpacity=".3" />
-                  <stop offset="1" stopColor="#274035" stopOpacity="0" />
-                </radialGradient>
-                <clipPath id="flask-liquid">
-                  <path d="M476 364 L504 364 L504 405 L557 499 Q561 510 547 513 L433 513 Q419 510 423 499 L476 405 Z" />
-                </clipPath>
-              </defs>
-              <rect width="900" height="630" fill="url(#room)" />
-              <path d="M35 0H340L680 445H160Z" fill="#fffdf2" opacity=".58" />
-              <path
-                d="M60 40H340V315H60Z"
-                fill="#e4ebe0"
-                stroke="#c1cfc1"
-                strokeWidth="6"
+        <div className="flex flex-col gap-4">
+          {/* Interactive Bench: Hands-On Glassware (Practice/Challenge) or 3D Digital Twin (Demo) */}
+          {mode !== "demo" ? (
+            <>
+              <HandsOnBench
+                key={s.config.seed}
+                s={s}
+                send={send}
+                select={setTool}
               />
-              <path
-                d="M200 40V315M60 175H340"
-                stroke="#f8faf2"
-                strokeWidth="8"
-              />
-              <path d="M0 445H900V630H0Z" fill="url(#bench)" />
-              <path d="M0 580H900V630H0Z" fill="#a9bcae" />
-              <path d="M0 579H900" stroke="#fafff3" strokeWidth="3" />
-              <text
-                x="690"
-                y="100"
-                fontSize="64"
-                fill="#c0ccbf"
-                fontFamily="Georgia"
+              {/* Live Scientific & Thermodynamic Reaction HUD */}
+              <LiveReactionHUD s={s} activeTool={tool} />
+              <div className="flex flex-col gap-1.5 mt-2">
+                <div className="flex items-center justify-between px-1">
+                  <span className="text-[11px] font-mono font-bold text-instrument-sky flex items-center gap-1.5 uppercase tracking-wider">
+                    <span className="w-2 h-2 rounded-full bg-instrument-sky animate-pulse" />
+                    3D Digital Twin Apparatus • Real-Time Photometric Studio
+                  </span>
+                  <span className="text-[10px] font-mono text-enamel-400">
+                    MENISCUS: {reading(s).toFixed(2)} mL • MIXER: {s.stirring ? "800 RPM" : "STOPPED"}
+                  </span>
+                </div>
+                <ThreeLabBench3D
+                  s={s}
+                  onValveChange={(openness) => send({ type: "valve", openness })}
+                  onAddDrop={() => send({ type: "drop" })}
+                />
+              </div>
+            </>
+          ) : (
+            <>
+              {/* Live Scientific & Thermodynamic Reaction HUD */}
+              <LiveReactionHUD s={s} activeTool={tool} />
+              <div className="flex flex-col gap-1.5">
+                <div className="flex items-center justify-between px-1">
+                  <span className="text-[11px] font-mono font-bold text-instrument-sky flex items-center gap-1.5 uppercase tracking-wider">
+                    <span className="w-2 h-2 rounded-full bg-instrument-sky animate-pulse" />
+                    3D Digital Twin Apparatus • Real-Time Photometric Studio
+                  </span>
+                  <span className="text-[10px] font-mono text-enamel-400">
+                    MENISCUS: {reading(s).toFixed(2)} mL • MIXER: {s.stirring ? "800 RPM" : "STOPPED"}
+                  </span>
+                </div>
+                <ThreeLabBench3D
+                  s={s}
+                  onValveChange={(openness) => send({ type: "valve", openness })}
+                  onAddDrop={() => send({ type: "drop" })}
+                />
+              </div>
+              <section
+                className="edta-stage"
+                aria-label="Interactive chemistry bench"
               >
-                H₂O
-              </text>
-              <text
-                x="690"
-                y="128"
-                fontSize="12"
-                letterSpacing="3"
-                fill="#6f8372"
+              <div className="edta-stage-label">
+                <span>
+                  01 /{" "}
+                  {s.sample === "standard"
+                    ? "STANDARDIZE THE EDTA"
+                    : "ANALYZE UNKNOWN WATER"}
+                </span>
+                <span>
+                  20 mL aliquot ·{" "}
+                  {s.trials.filter((t) => t.sample === s.sample).length} trials
+                  recorded
+                </span>
+              </div>
+              <svg
+                className="edta-scene"
+                viewBox="0 0 900 630"
+                role="img"
+                aria-label={`Laboratory scene. Flask: ${o.colour}, ${volume(s.vessels.flask).toFixed(2)} mL. Burette: ${reading(s).toFixed(2)} mL.`}
               >
-                WATER ANALYSIS
-              </text>
-              <ellipse cx="490" cy="547" rx="150" ry="32" fill="url(#shadow)" />
-              <rect
-                x="371"
-                y="81"
-                width="12"
-                height="450"
-                rx="6"
-                fill="url(#metal)"
-              />
-              <path d="M350 523H445L461 546H332Z" fill="#718379" />
-              <rect
-                x="374"
-                y="147"
-                width="110"
-                height="10"
-                rx="4"
-                fill="url(#metal)"
-              />
-              <rect
-                x="477"
-                y="69"
-                width="26"
-                height="257"
-                rx="4"
-                fill="url(#glass)"
-                stroke="#7e9b94"
-                strokeWidth="2"
-              />
+                <defs>
+                  <linearGradient id="room" x2="0.8" y2="1">
+                    <stop stopColor="#141824" />
+                    <stop offset="1" stopColor="#0c0e14" />
+                  </linearGradient>
+                  <linearGradient id="glass">
+                    <stop stopColor="#ffffff" stopOpacity=".8" />
+                    <stop offset=".25" stopColor="#38bdf8" stopOpacity=".15" />
+                    <stop offset=".7" stopColor="#ffffff" stopOpacity=".1" />
+                    <stop offset="1" stopColor="#1e293b" stopOpacity=".6" />
+                  </linearGradient>
+                  <linearGradient id="metal">
+                    <stop stopColor="#334155" />
+                    <stop offset=".4" stopColor="#cbd5e1" />
+                    <stop offset=".6" stopColor="#64748b" />
+                    <stop offset="1" stopColor="#1e293b" />
+                  </linearGradient>
+                  <linearGradient id="bench" x2="0" y2="1">
+                    <stop stopColor="#1e2638" />
+                    <stop offset="1" stopColor="#10141e" />
+                  </linearGradient>
+                  <radialGradient id="shadow">
+                    <stop stopColor="#38bdf8" stopOpacity=".15" />
+                    <stop offset="1" stopColor="#0c0e14" stopOpacity="0" />
+                  </radialGradient>
+                  <clipPath id="flask-liquid">
+                    <path d="M476 364 L504 364 L504 405 L557 499 Q561 510 547 513 L433 513 Q419 510 423 499 L476 405 Z" />
+                  </clipPath>
+                </defs>
+                <rect width="900" height="630" fill="url(#room)" />
+                <path d="M35 0H340L680 445H160Z" fill="#38bdf8" opacity=".03" />
+                <path
+                  d="M60 40H340V315H60Z"
+                  fill="#141a26"
+                  stroke="#222d42"
+                  strokeWidth="4"
+                />
+                <path
+                  d="M200 40V315M60 175H340"
+                  stroke="#1c2436"
+                  strokeWidth="4"
+                />
+                <path d="M0 445H900V630H0Z" fill="url(#bench)" />
+                <path d="M0 580H900V630H0Z" fill="#0d111a" />
+                <path d="M0 579H900" stroke="#222b3d" strokeWidth="2" />
+                <text
+                  x="690"
+                  y="100"
+                  fontSize="64"
+                  fill="#1e293b"
+                  fontFamily="var(--font-mono), monospace"
+                  fontWeight="bold"
+                >
+                  H₂O
+                </text>
+                <text
+                  x="690"
+                  y="128"
+                  fontSize="12"
+                  letterSpacing="3"
+                  fill="#38bdf8"
+                  fontFamily="var(--font-mono), monospace"
+                  fontWeight="bold"
+                >
+                  WATER ANALYSIS
+                </text>
+                <ellipse cx="490" cy="547" rx="150" ry="32" fill="url(#shadow)" />
+                <rect
+                  x="371"
+                  y="81"
+                  width="12"
+                  height="450"
+                  rx="6"
+                  fill="url(#metal)"
+                />
+                <path d="M350 523H445L461 546H332Z" fill="#1e293b" />
+                <rect
+                  x="374"
+                  y="147"
+                  width="110"
+                  height="10"
+                  rx="4"
+                  fill="url(#metal)"
+                />
+                <rect
+                  x="477"
+                  y="69"
+                  width="26"
+                  height="257"
+                  rx="4"
+                  fill="url(#glass)"
+                  stroke="#475569"
+                  strokeWidth="2"
+                />
               {volume(s.vessels.burette) > 0 && (
                 <>
                   <rect
@@ -733,7 +800,9 @@ export function EdtaLab() {
               <span>{s.stirring ? "Mixing" : "Stirrer off"}</span>
             </div>
           </section>
+          </>
         )}
+        </div>
         <aside
           className="edta-controls"
           aria-label="Selected apparatus controls"

@@ -1,121 +1,89 @@
 ---
 name: audit
-description: Perform comprehensive audit of interface quality across accessibility, performance, theming, and responsive design. Generates detailed report of issues with severity ratings and recommendations.
+description: Run a full technical audit of a 3D, scroll-driven site covering WebGL performance, GPU cost, scroll and animation sync, accessibility, responsiveness, resilience, and anti-patterns. Produces a prioritized report. Does not fix.
 ---
 
-Run systematic quality checks and generate a comprehensive audit report with prioritized issues and actionable recommendations. Don't fix issues - document them for other commands to address.
+Systematically inspect an immersive site and produce an actionable report. Document, do not fix. Other workflows handle the repair.
 
-**First**: Use the frontend-design skill for design principles and anti-patterns.
+**Prerequisite**: Load the `immersive-3d-web` skill for the standards you are auditing against.
 
-## Diagnostic Scan
+## 1. Diagnostic scan
 
-Run comprehensive checks across multiple dimensions:
+### 3D rendering and GPU performance
+- Frame rate on target devices, frame-time spikes, jank during scroll.
+- Draw calls, triangle count, texture memory, shader complexity (loops, branching, heavy fragment math).
+- Individual meshes where `InstancedMesh` or `Points` should be used.
+- Pixel ratio uncapped. Shadow maps oversized. Post-processing passes at full resolution on weak devices.
+- Memory leaks: geometries, materials, textures, render targets never `dispose()`d. Event listeners never removed.
+- Render loop running when the tab is hidden or the canvas is offscreen.
 
-1. **Accessibility (A11y)** - Check for:
-   - **Contrast issues**: Text contrast ratios < 4.5:1 (or 7:1 for AAA)
-   - **Missing ARIA**: Interactive elements without proper roles, labels, or states
-   - **Keyboard navigation**: Missing focus indicators, illogical tab order, keyboard traps
-   - **Semantic HTML**: Improper heading hierarchy, missing landmarks, divs instead of buttons
-   - **Alt text**: Missing or poor image descriptions
-   - **Form issues**: Inputs without labels, poor error messaging, missing required indicators
+### Scroll, glide, and animation sync
+- Lenis, GSAP ticker, and the render loop out of sync (double loops, lag, jitter).
+- `ScrollTrigger` not refreshed after resize, font load, or content change.
+- Raw input applied to the scene without damping. Frame-rate dependent easing.
+- Scroll-jacking that removes native control. Broken anchor links and keyboard scrolling.
+- Animating layout properties (width, height, top, left) in the DOM.
+- Bounce or elastic easing.
 
-2. **Performance** - Check for:
-   - **Layout thrashing**: Reading/writing layout properties in loops
-   - **Expensive animations**: Animating layout properties (width, height, top, left) instead of transform/opacity
-   - **Missing optimization**: Images without lazy loading, unoptimized assets, missing will-change
-   - **Bundle size**: Unnecessary imports, unused dependencies
-   - **Render performance**: Unnecessary re-renders, missing memoization
+### Accessibility
+- Contrast of text over the 3D scene (no scrim, busy backgrounds).
+- Reduced motion ignored. No alternative for vestibular-sensitive users.
+- Content only present inside the canvas. Missing semantic HTML, heading order, landmarks, alt text.
+- Focus visibility, keyboard reachability, skip links, ARIA labels on custom controls.
+- Flashing or strobing effects.
 
-3. **Theming** - Check for:
-   - **Hard-coded colors**: Colors not using design tokens
-   - **Broken dark mode**: Missing dark mode variants, poor contrast in dark theme
-   - **Inconsistent tokens**: Using wrong tokens, mixing token types
-   - **Theme switching issues**: Values that don't update on theme change
+### Responsive and device support
+- Camera framing breaks on portrait or ultrawide. Hero overlaps text.
+- Touch: hover-only interactions, targets under 44px, canvas capturing scroll.
+- No quality tiers. Desktop-only effects on mobile.
+- Horizontal overflow, safe-area problems.
 
-4. **Responsive Design** - Check for:
-   - **Fixed widths**: Hard-coded widths that break on mobile
-   - **Touch targets**: Interactive elements < 44x44px
-   - **Horizontal scroll**: Content overflow on narrow viewports
-   - **Text scaling**: Layouts that break when text size increases
-   - **Missing breakpoints**: No mobile/tablet variants
+### Resilience
+- No WebGL fallback. Blank page on context loss. No `webglcontextlost` handling.
+- Unhandled storage or API failures. A single failed feature breaking the page.
+- Long load with no designed loader. Layout shift when fonts or canvas initialize.
+- Blocking scripts, oversized embedded assets, unpinned CDN versions.
 
-5. **Anti-Patterns (CRITICAL)** - Check against ALL the **DON'T** guidelines in the frontend-design skill. Look for AI slop tells (AI color palette, gradient text, glassmorphism, hero metrics, card grids, generic fonts) and general design anti-patterns (gray on color, nested cards, bounce easing, redundant copy).
+### Theming and tokens
+- Hard-coded colors in CSS and shaders that should come from tokens.
+- Scene palette and UI palette drifting apart. Broken light or dark variants.
 
-**CRITICAL**: This is an audit, not a fix. Document issues thoroughly with clear explanations of impact. Use other commands (normalize, optimize, harden, etc.) to fix issues after audit.
+### Anti-patterns (CRITICAL)
+Check against the `immersive-3d-web` avoid list: default gray materials, a lone spinning primitive, generic neon-on-black, gradient text everywhere, glassmorphism everywhere, identical card grids, disconnected effects, fade-up-only motion.
 
-## Generate Comprehensive Report
-
-Create a detailed audit report with the following structure:
+## 2. Report structure
 
 ### Anti-Patterns Verdict
-**Start here.** Pass/fail: Does this look AI-generated? List specific tells from the skill's Anti-Patterns section. Be brutally honest.
+Start here. Pass or fail: does this look like a generic AI or template 3D site? List the specific tells. Be blunt.
 
 ### Executive Summary
-- Total issues found (count by severity)
-- Most critical issues (top 3-5)
-- Overall quality score (if applicable)
-- Recommended next steps
+- Issue counts by severity.
+- Top 3 to 5 critical issues.
+- Overall quality rating and estimated frame budget status.
+- Recommended next steps.
 
-### Detailed Findings by Severity
+### Findings by severity
+For each finding give: **Location** (file, function, section), **Severity** (Critical, High, Medium, Low), **Category** (Performance, Motion, Accessibility, Responsive, Resilience, Theming, Design), **Description**, **Impact**, **Standard** (WCAG or best practice, if any), **Recommendation**, **Suggested workflow** (`/optimize`, `/harden`, `/adapt`, `/normalize`, `/polish`, etc.).
 
-For each issue, document:
-- **Location**: Where the issue occurs (component, file, line)
-- **Severity**: Critical / High / Medium / Low
-- **Category**: Accessibility / Performance / Theming / Responsive
-- **Description**: What the issue is
-- **Impact**: How it affects users
-- **WCAG/Standard**: Which standard it violates (if applicable)
-- **Recommendation**: How to fix it
-- **Suggested command**: Which command to use (e.g., `/normalize`, `/optimize`, `/harden`)
+- **Critical**: Blocks use or violates WCAG A (blank page without WebGL, unreadable text, scroll trap, crashes).
+- **High**: Serious usability, accessibility, or sustained frame drops.
+- **Medium**: Quality and efficiency issues.
+- **Low**: Minor inconsistencies and tuning.
 
-#### Critical Issues
-[Issues that block core functionality or violate WCAG A]
+### Systemic patterns
+Recurring problems, for example "No `dispose()` anywhere", "Every uniform driven from raw pointer values", "Hard-coded hex in 12 shaders".
 
-#### High-Severity Issues  
-[Significant usability/accessibility impact, WCAG AA violations]
+### What works
+Call out strong choices worth keeping and replicating.
 
-#### Medium-Severity Issues
-[Quality issues, WCAG AAA violations, performance concerns]
-
-#### Low-Severity Issues
-[Minor inconsistencies, optimization opportunities]
-
-### Patterns & Systemic Issues
-
-Identify recurring problems:
-- "Hard-coded colors appear in 15+ components, should use design tokens"
-- "Touch targets consistently too small (<44px) throughout mobile experience"
-- "Missing focus indicators on all custom interactive components"
-
-### Positive Findings
-
-Note what's working well:
-- Good practices to maintain
-- Exemplary implementations to replicate elsewhere
-
-### Recommendations by Priority
-
-Create actionable plan:
-1. **Immediate**: Critical blockers to fix first
-2. **Short-term**: High-severity issues (this sprint)
-3. **Medium-term**: Quality improvements (next sprint)
-4. **Long-term**: Nice-to-haves and optimizations
-
-### Suggested Commands for Fixes
-
-Map issues to appropriate commands:
-- "Use `/normalize` to align components with design system (addresses 23 theming issues)"
-- "Use `/optimize` to improve performance (addresses 12 performance issues)"
-- "Use `/harden` to improve i18n and text handling (addresses 8 edge cases)"
-
-**IMPORTANT**: Be thorough but actionable. Too many low-priority issues creates noise. Focus on what actually matters.
+### Prioritized plan
+Immediate, short-term, medium-term, long-term. Map each cluster to the right workflow.
 
 **NEVER**:
-- Report issues without explaining impact (why does this matter?)
-- Mix severity levels inconsistently
-- Skip positive findings (celebrate what works)
-- Provide generic recommendations (be specific and actionable)
-- Forget to prioritize (everything can't be critical)
-- Report false positives without verification
+- Report an issue without explaining its impact.
+- Mix severity levels inconsistently or call everything critical.
+- Skip the positives.
+- Give vague advice. Be specific.
+- Report unverified problems. Reproduce first.
 
-Remember: You're a quality auditor with exceptional attention to detail. Document systematically, prioritize ruthlessly, and provide clear paths to improvement. A good audit makes fixing easy.
+Be thorough but ruthless about priority. A good audit makes the fix obvious.

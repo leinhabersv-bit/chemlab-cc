@@ -144,6 +144,68 @@ class LabAudioEngine {
     osc.stop(now + 0.06);
   }
 
+  // Liquid stream pour sound
+  public playLiquidPour() {
+    if (this.isMuted) return;
+    const ctx = this.getContext();
+    if (!ctx) return;
+
+    const now = ctx.currentTime;
+    const bufferSize = Math.floor(ctx.sampleRate * 0.35);
+    const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) {
+      data[i] = (Math.random() * 2 - 1) * 0.4;
+    }
+
+    const noise = ctx.createBufferSource();
+    noise.buffer = buffer;
+
+    const filter = ctx.createBiquadFilter();
+    filter.type = "lowpass";
+    filter.frequency.setValueAtTime(650, now);
+    filter.frequency.linearRampToValueAtTime(450, now + 0.35);
+
+    const gain = ctx.createGain();
+    gain.gain.setValueAtTime(0.04, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+
+    noise.connect(filter);
+    filter.connect(gain);
+    gain.connect(ctx.destination);
+
+    noise.start(now);
+    noise.stop(now + 0.36);
+  }
+
+  // Harmonic chord chime for stoichiometric equivalence endpoint
+  public playEndpointChime() {
+    if (this.isMuted) return;
+    const ctx = this.getContext();
+    if (!ctx) return;
+
+    const now = ctx.currentTime;
+    // Major triad (C5, E5, G5, C6) celebratory scientific chime
+    const freqs = [523.25, 659.25, 783.99, 1046.5];
+    freqs.forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(freq, now + i * 0.04);
+
+      gain.gain.setValueAtTime(0.001, now);
+      gain.gain.setValueAtTime(0.035, now + i * 0.04);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.8 + i * 0.1);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start(now + i * 0.04);
+      osc.stop(now + 1.2);
+    });
+  }
+
   // Digital Meter Beep
   public playBeep(freq = 1200) {
     if (this.isMuted) return;

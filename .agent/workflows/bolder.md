@@ -1,127 +1,79 @@
 ---
 name: bolder
-description: Amplify safe or boring designs to make them more visually interesting and stimulating. Increases impact while maintaining usability.
+description: Push a safe or flat 3D site into something unforgettable: dramatic scale, hero-object depth, richer materials and lighting, cinematic camera, and confident type. Bold means distinctive, not more effects.
 ---
 
-Increase visual impact and personality in designs that are too safe, generic, or visually underwhelming, creating more engaging and memorable experiences.
+Take a timid or generic experience and make it memorable. Increase drama and personality while keeping it usable, performant, and coherent.
 
-## MANDATORY PREPARATION
+**Prerequisite**: Load the `immersive-3d-web` skill first.
 
-### Context Gathering (Do This First)
+## 1. Gather context (do this first)
 
-You cannot do a great job without having necessary context, such as target audience (critical), desired use-cases (critical), brand personality/tone, and everything else that a great human designer would need as well.
+Audience, purpose, brand personality, how far the brand can be pushed, and constraints (performance, accessibility, existing brand rules). If anything is only inferred, ask before building. Guessing produces generic "bold".
 
-Attempt to gather these from the current thread or codebase.
+## 2. Diagnose why it feels safe
 
-1. If you don't find *exact* information and have to infer from existing design and functionality, you MUST STOP and STOP and call the notify_user tool to clarify. whether you got it right.
-2. Otherwise, if you can't fully infer or your level of confidence is medium or lower, you MUST STOP and call the notify_user tool to clarify. clarifying questions first to complete your context.
+- **Flat 3D**: Default materials, one light, no depth, a plain background.
+- **Timid scale**: Hero object small, camera far, everything medium.
+- **No journey**: The scene does not change as you scroll.
+- **Generic type and color**: Default fonts, safe palette, equal visual weight.
+- **Predictable layout**: Centered, symmetric, card grid.
+- **No signature moment**.
 
-Do NOT proceed until you have answers. Guessing leads to generic AI slop.
+**WARNING, AI slop trap**: "Bolder" tempts toward cyan-purple gradients, neon on black, glass cards, gradient text. Those are the generic answer. Bold here means a point of view specific to the subject.
 
-### Use frontend-design skill
+## 3. Plan the amplification
 
-Use the frontend-design skill for design principles and anti-patterns. Do NOT proceed until it has executed and you know all DO's and DON'Ts.
+- **Focal point**: Pick one hero moment and make it extraordinary.
+- **Personality lane**: Elegant drama, industrial brutalism, organic surreal, playful toy-like, cold precision. Choose one.
+- **Risk budget**: Marketing can go further than a dashboard.
+- **Hierarchy**: Big gets bigger, small gets smaller.
 
----
+## 4. Amplify
 
-## Assess Current State
+### The 3D itself
+- **Scale and framing**: Fill the frame with the hero. Crop it, push the camera in, let it break out of its container and overlap the type.
+- **Materials**: Upgrade to physical materials with clearcoat, transmission, iridescence, or a custom fresnel shader. Tune roughness deliberately.
+- **Lighting**: Strong key, colored rim, contrast. Let shadows and falloff carry mood. Use a procedural environment for real reflections.
+- **Depth**: Foreground particles or debris, midground hero, background fog or gradient. Parallax between layers.
+- **Geometry**: Add displacement, noise, bevels, instanced fields, or a morph target. Avoid plain primitives.
+- **Camera drama**: Low angles, dolly pushes, orbit, and dives through the object. Vary focal length for tension.
 
-Analyze what makes the design feel too safe or boring:
+### Typography
+- Extreme scale jumps (3x to 5x), weight contrast (900 against 200), distinctive display faces, condensed or extended widths.
+- Let type overlap, sandwich between canvas layers, or mask the 3D object.
 
-1. **Identify weakness sources**:
-   - **Generic choices**: System fonts, basic colors, standard layouts
-   - **Timid scale**: Everything is medium-sized with no drama
-   - **Low contrast**: Everything has similar visual weight
-   - **Static**: No motion, no energy, no life
-   - **Predictable**: Standard patterns with no surprises
-   - **Flat hierarchy**: Nothing stands out or commands attention
+### Color
+- One dominant hue owns about 60%, with a sharp accent. Tint neutrals. Use OKLCH for even steps.
+- Shift the palette between sections along with the scene.
+- Avoid the purple-blue default and avoid timid desaturation.
 
-2. **Understand the context**:
-   - What's the brand personality? (How far can we push?)
-   - What's the purpose? (Marketing can be bolder than financial dashboards)
-   - Who's the audience? (What will resonate?)
-   - What are the constraints? (Brand guidelines, accessibility, performance)
+### Space and composition
+- Asymmetry, off-center hero, diagonal flow, full-bleed sections, generous emptiness (100 to 200px gaps).
+- Unexpected splits like 70/30 or 80/20.
 
-If any of these are unclear from the codebase, STOP and call the notify_user tool to clarify.
+### Texture and detail
+- Film grain, halftone, duotone, vignette, subtle chromatic aberration (only if it fits the concept).
+- Custom shapes and frames over generic rounded rectangles.
 
-**CRITICAL**: "Bolder" doesn't mean chaotic or garish. It means distinctive, memorable, and confident. Think intentional drama, not random chaos.
-
-**WARNING - AI SLOP TRAP**: When making things "bolder," AI defaults to the same tired tricks: cyan/purple gradients, glassmorphism, neon accents on dark backgrounds, gradient text on metrics. These are the OPPOSITE of bold—they're generic. Review ALL the DON'T guidelines in the frontend-design skill before proceeding. Bold means distinctive, not "more effects."
-
-## Plan Amplification
-
-Create a strategy to increase impact while maintaining coherence:
-
-- **Focal point**: What should be the hero moment? (Pick ONE, make it amazing)
-- **Personality direction**: Maximalist chaos? Elegant drama? Playful energy? Dark moody? Choose a lane.
-- **Risk budget**: How experimental can we be? Push boundaries within constraints.
-- **Hierarchy amplification**: Make big things BIGGER, small things smaller (increase contrast)
-
-**IMPORTANT**: Bold design must still be usable. Impact without function is just decoration.
-
-## Amplify the Design
-
-Systematically increase impact across these dimensions:
-
-### Typography Amplification
-- **Replace generic fonts**: Swap system fonts for distinctive choices (see frontend-design skill for inspiration)
-- **Extreme scale**: Create dramatic size jumps (3x-5x differences, not 1.5x)
-- **Weight contrast**: Pair 900 weights with 200 weights, not 600 with 400
-- **Unexpected choices**: Variable fonts, display fonts for headlines, condensed/extended widths, monospace as intentional accent (not as lazy "dev tool" default)
-
-### Color Intensification
-- **Increase saturation**: Shift to more vibrant, energetic colors (but not neon)
-- **Bold palette**: Introduce unexpected color combinations—avoid the purple-blue gradient AI slop
-- **Dominant color strategy**: Let one bold color own 60% of the design
-- **Sharp accents**: High-contrast accent colors that pop
-- **Tinted neutrals**: Replace pure grays with tinted grays that harmonize with your palette
-- **Rich gradients**: Intentional multi-stop gradients (not generic purple-to-blue)
-
-### Spatial Drama
-- **Extreme scale jumps**: Make important elements 3-5x larger than surroundings
-- **Break the grid**: Let hero elements escape containers and cross boundaries
-- **Asymmetric layouts**: Replace centered, balanced layouts with tension-filled asymmetry
-- **Generous space**: Use white space dramatically (100-200px gaps, not 20-40px)
-- **Overlap**: Layer elements intentionally for depth
-
-### Visual Effects
-- **Dramatic shadows**: Large, soft shadows for elevation (but not generic drop shadows on rounded rectangles)
-- **Background treatments**: Mesh patterns, noise textures, geometric patterns, intentional gradients (not purple-to-blue)
-- **Texture & depth**: Grain, halftone, duotone, layered elements—NOT glassmorphism (it's overused AI slop)
-- **Borders & frames**: Thick borders, decorative frames, custom shapes (not rounded rectangles with colored border on one side)
-- **Custom elements**: Illustrative elements, custom icons, decorative details that reinforce brand
-
-### Motion & Animation
-- **Entrance choreography**: Staggered, dramatic page load animations with 50-100ms delays
-- **Scroll effects**: Parallax, reveal animations, scroll-triggered sequences
-- **Micro-interactions**: Satisfying hover effects, click feedback, state changes
-- **Transitions**: Smooth, noticeable transitions using ease-out-quart/quint/expo (not bounce or elastic—they cheapen the effect)
-
-### Composition Boldness
-- **Hero moments**: Create clear focal points with dramatic treatment
-- **Diagonal flows**: Escape horizontal/vertical rigidity with diagonal arrangements
-- **Full-bleed elements**: Use full viewport width/height for impact
-- **Unexpected proportions**: Golden ratio? Throw it out. Try 70/30, 80/20 splits
+### Motion
+- Dramatic but orchestrated entrance. Scroll-scrubbed camera and uniform changes. Shader transitions. A signature moment.
+- Expo and quart easing. No bounce.
 
 **NEVER**:
-- Add effects randomly without purpose (chaos ≠ bold)
-- Sacrifice readability for aesthetics (body text must be readable)
-- Make everything bold (then nothing is bold - need contrast)
-- Ignore accessibility (bold design must still meet WCAG standards)
-- Overwhelm with motion (animation fatigue is real)
-- Copy trendy aesthetics blindly (bold means distinctive, not derivative)
+- Add effects randomly. Chaos is not bold.
+- Sacrifice readability. Body text stays clean over a scrim if needed.
+- Make everything loud. Contrast needs quiet areas.
+- Ignore performance. Bold at 20fps is a failure.
+- Ignore accessibility and reduced motion.
+- Copy a trend blindly.
 
-## Verify Quality
+## 5. Verify
 
-Ensure amplification maintains usability and coherence:
+- **Slop test**: Would someone say "an AI made this bolder" instantly? If yes, start over.
+- Memorable: What is the one thing a visitor will describe afterward?
+- Functional: Can they still read, navigate, and act?
+- Coherent: Do scene, UI, color, and type feel like one world?
+- Performant and accessible: 60fps, reduced-motion path, contrast.
 
-- **NOT AI slop**: Does this look like every other AI-generated "bold" design? If yes, start over.
-- **Still functional**: Can users accomplish tasks without distraction?
-- **Coherent**: Does everything feel intentional and unified?
-- **Memorable**: Will users remember this experience?
-- **Performant**: Do all these effects run smoothly?
-- **Accessible**: Does it still meet accessibility standards?
-
-**The test**: If you showed this to someone and said "AI made this bolder," would they believe you immediately? If yes, you've failed. Bold means distinctive, not "more AI effects."
-
-Remember: Bold design is confident design. It takes risks, makes statements, and creates memorable experiences. But bold without strategy is just loud. Be intentional, be dramatic, be unforgettable.
+Bold is confident, specific, and controlled. Make it unforgettable.

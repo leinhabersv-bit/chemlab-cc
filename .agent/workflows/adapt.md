@@ -1,190 +1,78 @@
 ---
 name: adapt
-description: Adapt designs to work across different screen sizes, devices, contexts, or platforms. Ensures consistent experience across varied environments.
+description: Adapt an immersive 3D site to every device, input, GPU tier, and context without losing the wow. Re-stages the scene, camera path, and UI per context instead of shrinking it.
 ---
 
-Adapt existing designs to work effectively across different contexts - different screen sizes, devices, platforms, or use cases.
+Take a 3D, scroll-driven experience and make it feel native on every device. A phone is not a small desktop. A low-end laptop is not a gaming rig. Re-stage the experience for each one.
 
-## Assess Adaptation Challenge
+**Prerequisite**: Load the `immersive-3d-web` skill first so you know the glide, camera, and performance rules.
 
-Understand what needs adaptation and why:
+## 1. Assess the context gap
 
-1. **Identify the source context**:
-   - What was it designed for originally? (Desktop web? Mobile app?)
-   - What assumptions were made? (Large screen? Mouse input? Fast connection?)
-   - What works well in current context?
+- **Source context**: What was this built for? (Desktop, mouse, discrete GPU, fast network?)
+- **Targets**: Phone portrait, phone landscape, tablet, laptop with integrated graphics, 4K and ultrawide, TV, reduced-motion users, no-WebGL browsers, print.
+- **Inputs**: Touch, mouse, keyboard, gamepad, device tilt, screen reader.
+- **Constraints**: GPU tier, thermal throttling, battery, data cost.
 
-2. **Understand target context**:
-   - **Device**: Mobile, tablet, desktop, TV, watch, print?
-   - **Input method**: Touch, mouse, keyboard, voice, gamepad?
-   - **Screen constraints**: Size, resolution, orientation?
-   - **Connection**: Fast wifi, slow 3G, offline?
-   - **Usage context**: On-the-go vs desk, quick glance vs focused reading?
-   - **User expectations**: What do users expect on this platform?
+**CRITICAL**: Adaptation is re-composition. If the hero object is dead center on desktop and hidden behind the headline on mobile, the design failed.
 
-3. **Identify adaptation challenges**:
-   - What won't fit? (Content, navigation, features)
-   - What won't work? (Hover states on touch, tiny touch targets)
-   - What's inappropriate? (Desktop patterns on mobile, mobile patterns on desktop)
+## 2. Re-stage the 3D per viewport
 
-**CRITICAL**: Adaptation is not just scaling - it's rethinking the experience for the new context.
+- **Camera**: Adjust FOV and distance by aspect ratio so the hero object always fits. Portrait gets a narrower subject and a higher camera. Compute framing from aspect, never hard-code one position.
+- **Hero placement**: Desktop can place the object off-center beside the text. Mobile stacks it: object in the upper half, text in the lower half, or the object behind a scrimmed text block.
+- **Camera path**: Simplify the journey on small screens. Fewer waypoints, shorter travel, less roll. Keep the signature moment, cut secondary beats.
+- **Scene density**: Reduce particles, instances, and geometry segments on small screens. Keep the hero at full quality.
+- **Orientation change**: Handle `resize` and `orientationchange` by recomputing camera, renderer size, pixel ratio, and ScrollTrigger positions (`ScrollTrigger.refresh()`).
 
-## Plan Adaptation Strategy
+## 3. Quality tiers (auto-detect)
 
-Create context-appropriate strategy:
+Sample frame time for the first 1 to 2 seconds, then pick a tier. Allow the tier to step down at runtime if frames drop.
 
-### Mobile Adaptation (Desktop → Mobile)
+| Tier | Pixel ratio | Effects | Particles | Shadows / post |
+|---|---|---|---|---|
+| High | up to 2 | Full shaders, transmission, bloom | 100% | On |
+| Medium | 1.5 | Simplified materials, light bloom | 50% | Off or baked |
+| Low | 1 | Matte materials, no post | 15% | Off |
+| Fallback | n/a | Static designed hero, no canvas | 0 | n/a |
 
-**Layout Strategy**:
-- Single column instead of multi-column
-- Vertical stacking instead of side-by-side
-- Full-width components instead of fixed widths
-- Bottom navigation instead of top/side navigation
+Tell the user which tier is active only in a debug overlay, never in the UI.
 
-**Interaction Strategy**:
-- Touch targets 44x44px minimum (not hover-dependent)
-- Swipe gestures where appropriate (lists, carousels)
-- Bottom sheets instead of dropdowns
-- Thumbs-first design (controls within thumb reach)
-- Larger tap areas with more spacing
+## 4. Input adaptation
 
-**Content Strategy**:
-- Progressive disclosure (don't show everything at once)
-- Prioritize primary content (secondary content in tabs/accordions)
-- Shorter text (more concise)
-- Larger text (16px minimum)
+- **Touch**: Replace cursor effects and hover tilts with drag-to-rotate and tap states. Touch targets 44x44px minimum. Controls in thumb reach. Do not hijack vertical scroll with the canvas.
+- **Mouse**: Parallax, magnetic buttons, custom cursor, hover reveals.
+- **Keyboard**: Every control reachable and visible on focus. Provide section jump keys or a skip link.
+- **Device tilt** (optional, mobile): Gyro parallax with permission handling and a graceful off state.
+- **Scroll feel**: Lenis on desktop and touch can feel different. Test `syncTouch` behavior and keep native momentum on touch if the glide feels laggy.
 
-**Navigation Strategy**:
-- Hamburger menu or bottom navigation
-- Reduce navigation complexity
-- Sticky headers for context
-- Back button in navigation flow
+## 5. Layout adaptation
 
-### Tablet Adaptation (Hybrid Approach)
+- Single column on mobile, asymmetric multi-column on desktop. Use CSS Grid, `clamp()`, and container queries.
+- Display type scales fluidly but never drops below readable sizes. Keep body text at 16px or larger on mobile.
+- Keep a consistent information architecture across devices. Same content order, adapted presentation.
+- Respect safe areas (`env(safe-area-inset-*)`) for notched phones.
+- Wide content (tables, code) scrolls inside its own container.
 
-**Layout Strategy**:
-- Two-column layouts (not single or three-column)
-- Side panels for secondary content
-- Master-detail views (list + detail)
-- Adaptive based on orientation (portrait vs landscape)
+## 6. Other contexts
 
-**Interaction Strategy**:
-- Support both touch and pointer
-- Touch targets 44x44px but allow denser layouts than phone
-- Side navigation drawers
-- Multi-column forms where appropriate
-
-### Desktop Adaptation (Mobile → Desktop)
-
-**Layout Strategy**:
-- Multi-column layouts (use horizontal space)
-- Side navigation always visible
-- Multiple information panels simultaneously
-- Fixed widths with max-width constraints (don't stretch to 4K)
-
-**Interaction Strategy**:
-- Hover states for additional information
-- Keyboard shortcuts
-- Right-click context menus
-- Drag and drop where helpful
-- Multi-select with Shift/Cmd
-
-**Content Strategy**:
-- Show more information upfront (less progressive disclosure)
-- Data tables with many columns
-- Richer visualizations
-- More detailed descriptions
-
-### Print Adaptation (Screen → Print)
-
-**Layout Strategy**:
-- Page breaks at logical points
-- Remove navigation, footer, interactive elements
-- Black and white (or limited color)
-- Proper margins for binding
-
-**Content Strategy**:
-- Expand shortened content (show full URLs, hidden sections)
-- Add page numbers, headers, footers
-- Include metadata (print date, page title)
-- Convert charts to print-friendly versions
-
-### Email Adaptation (Web → Email)
-
-**Layout Strategy**:
-- Narrow width (600px max)
-- Single column only
-- Inline CSS (no external stylesheets)
-- Table-based layouts (for email client compatibility)
-
-**Interaction Strategy**:
-- Large, obvious CTAs (buttons not text links)
-- No hover states (not reliable)
-- Deep links to web app for complex interactions
-
-## Implement Adaptations
-
-Apply changes systematically:
-
-### Responsive Breakpoints
-
-Choose appropriate breakpoints:
-- Mobile: 320px-767px
-- Tablet: 768px-1023px
-- Desktop: 1024px+
-- Or content-driven breakpoints (where design breaks)
-
-### Layout Adaptation Techniques
-
-- **CSS Grid/Flexbox**: Reflow layouts automatically
-- **Container Queries**: Adapt based on container, not viewport
-- **`clamp()`**: Fluid sizing between min and max
-- **Media queries**: Different styles for different contexts
-- **Display properties**: Show/hide elements per context
-
-### Touch Adaptation
-
-- Increase touch target sizes (44x44px minimum)
-- Add more spacing between interactive elements
-- Remove hover-dependent interactions
-- Add touch feedback (ripples, highlights)
-- Consider thumb zones (easier to reach bottom than top)
-
-### Content Adaptation
-
-- Use `display: none` sparingly (still downloads)
-- Progressive enhancement (core content first, enhancements on larger screens)
-- Lazy loading for off-screen content
-- Responsive images (`srcset`, `picture` element)
-
-### Navigation Adaptation
-
-- Transform complex nav to hamburger/drawer on mobile
-- Bottom nav bar for mobile apps
-- Persistent side navigation on desktop
-- Breadcrumbs on smaller screens for context
-
-**IMPORTANT**: Test on real devices, not just browser DevTools. Device emulation is helpful but not perfect.
+- **Reduced motion**: Replace the scroll film with a static scene or a slow idle drift. Remove parallax, cursor effects, and large camera moves.
+- **No WebGL**: Show a designed fallback hero (CSS gradient, inline SVG, or pre-rendered still) with all content intact.
+- **Print**: Hide the canvas, expand collapsed content, show URLs, use black on white.
+- **Low bandwidth / Save-Data**: Skip optional effects and heavy procedural textures.
+- **Email / social share**: Provide an `og:image` still of the hero.
 
 **NEVER**:
-- Hide core functionality on mobile (if it matters, make it work)
-- Assume desktop = powerful device (consider accessibility, older machines)
-- Use different information architecture across contexts (confusing)
-- Break user expectations for platform (mobile users expect mobile patterns)
-- Forget landscape orientation on mobile/tablet
-- Use generic breakpoints blindly (use content-driven breakpoints)
-- Ignore touch on desktop (many desktop devices have touch)
+- Ship the desktop camera path to mobile unchanged.
+- Hide core functionality on small screens. Adapt it.
+- Assume the user's GPU is powerful.
+- Use blind breakpoints. Break where the composition breaks.
+- Forget landscape on phones and tablets.
+- Let the canvas block scroll or taps on touch devices.
 
-## Verify Adaptations
+## 7. Verify
 
-Test thoroughly across contexts:
-
-- **Real devices**: Test on actual phones, tablets, desktops
-- **Different orientations**: Portrait and landscape
-- **Different browsers**: Safari, Chrome, Firefox, Edge
-- **Different OS**: iOS, Android, Windows, macOS
-- **Different input methods**: Touch, mouse, keyboard
-- **Edge cases**: Very small screens (320px), very large screens (4K)
-- **Slow connections**: Test on throttled network
-
-Remember: You're a cross-platform design expert. Make experiences that feel native to each context while maintaining brand and functionality consistency. Adapt intentionally, test thoroughly.
+- Test on a real mid-range phone, a real low-end laptop, and a high-DPI desktop.
+- Test portrait, landscape, rotate mid-scroll, and resize live.
+- Test touch, mouse, and keyboard-only.
+- Test reduced motion on, WebGL disabled, and a throttled CPU.
+- Confirm the hero is framed, readable, and responsive to input in every case.

@@ -1,453 +1,694 @@
+/* CHEMLAB CC — DIGITAL LABORATORY ELEVATED STYLESHEET */
 .edta-lab {
-  --ink: #173c32;
-  --muted: #52685c;
-  --paper: #f3f2e9;
-  --line: #cad2c5;
+  --ink: #f4f6fa;
+  --muted: #94a3b8;
+  --paper: #0a0c10;
+  --surface: #12151e;
+  --surface-alt: #181d2a;
+  --line: #222938;
+  --line-strong: #333d52;
+  --accent: #f59e0b;
+  --accent-glow: rgba(245, 158, 11, 0.25);
+  --phosphor: #22c55e;
+  --sky: #38bdf8;
   background: var(--paper);
   color: var(--ink);
-  font-family: Arial, sans-serif;
+  font-family: var(--font-sans), Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   min-height: 100vh;
-  padding: 0 clamp(16px, 4vw, 72px) 24px;
+  padding: 0 clamp(16px, 3vw, 48px) 32px;
+  background-image: 
+    radial-gradient(ellipse at top, rgba(56, 189, 248, 0.04) 0%, transparent 60%),
+    radial-gradient(circle at 80% 20%, rgba(245, 158, 11, 0.03) 0%, transparent 40%);
 }
+
 .edta-lab * {
   box-sizing: border-box;
 }
+
 .edta-lab button,
 .edta-lab input,
 .edta-lab a {
   touch-action: manipulation;
 }
+
 .edta-lab button {
-  min-height: 44px;
+  min-height: 42px;
   border: 1px solid var(--line);
-  border-radius: 6px;
-  padding: 10px 14px;
-  background: #fbfcf4;
+  border-radius: 8px;
+  padding: 8px 14px;
+  background: var(--surface);
   color: var(--ink);
   font-size: 13px;
+  font-weight: 500;
   cursor: pointer;
-  transition:
-    background 0.18s,
-    transform 0.18s;
+  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
-.edta-lab button:hover {
-  background: #e0e7d5;
+
+.edta-lab button:hover:not(:disabled) {
+  background: var(--surface-alt);
+  border-color: var(--line-strong);
+  color: #ffffff;
+  transform: translateY(-1px);
 }
-.edta-lab button:active {
-  transform: translateY(1px);
+
+.edta-lab button:active:not(:disabled) {
+  transform: translateY(0);
 }
+
 .edta-lab button:disabled {
-  opacity: 0.5;
+  opacity: 0.4;
   cursor: not-allowed;
+  transform: none !important;
 }
+
 .edta-lab :focus-visible {
-  outline: 3px solid #ad6337;
-  outline-offset: 3px;
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
+
+/* Header */
 .edta-header {
-  height: 80px;
+  height: 72px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   border-bottom: 1px solid var(--line);
   gap: 16px;
 }
+
 .edta-brand {
-  font-family: Georgia, serif;
-  font-size: 34px;
+  font-family: var(--font-mono), "JetBrains Mono", monospace;
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
   display: flex;
-  gap: 14px;
+  gap: 12px;
   align-items: center;
+  color: #ffffff;
+  text-decoration: none;
 }
+
 .edta-brand span {
-  font:
-    10px Arial,
-    sans-serif;
-  letter-spacing: 2px;
-  max-width: 110px;
-  line-height: 1.5;
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  color: var(--muted);
+  line-height: 1.4;
 }
+
 .edta-course,
 .edta-eyebrow {
+  font-family: var(--font-mono), monospace;
   font-size: 10px;
-  letter-spacing: 2px;
+  letter-spacing: 1.5px;
   font-weight: 700;
+  text-transform: uppercase;
+  color: var(--accent);
 }
+
+.edta-header a:last-child {
+  color: var(--muted);
+  text-decoration: none;
+  font-size: 13px;
+  transition: color 0.15s;
+}
+
+.edta-header a:last-child:hover {
+  color: var(--ink);
+}
+
 .edta-count {
-  border-radius: 50%;
-  background: #e3e9d8;
-  padding: 3px 6px;
-  margin-left: 5px;
+  border-radius: 9999px;
+  background: rgba(245, 158, 11, 0.15);
+  color: var(--accent);
+  padding: 2px 7px;
+  margin-left: 6px;
+  font-size: 11px;
+  font-family: var(--font-mono), monospace;
 }
+
+/* Page Title & Mode bar */
 .edta-title {
-  padding: 38px 0 28px;
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
   gap: 24px;
+  padding: 32px 0 24px;
 }
+
 .edta-title h1 {
-  font:
-    clamp(32px, 3.6vw, 52px)/1.12 Georgia,
-    serif;
-  letter-spacing: -1.8px;
-  margin: 12px 0;
+  font-size: clamp(32px, 4.5vw, 52px);
+  font-weight: 800;
+  letter-spacing: -1.2px;
+  line-height: 1.05;
+  margin: 8px 0 0;
+  color: #ffffff;
 }
-.edta-title p:not(.edta-eyebrow) {
-  font-size: 14px;
-  color: var(--muted);
-  line-height: 1.5;
-}
+
 .edta-modes {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
-  flex-shrink: 0;
+  background: #0f131c;
+  padding: 3px;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  gap: 3px;
+  max-width: 100%;
 }
+
 .edta-modes button {
-  text-transform: capitalize;
-  border: 0;
   background: transparent;
+  border: 0;
+  min-height: 34px;
+  padding: 6px 14px;
+  border-radius: 7px;
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 600;
+  flex: 1 1 auto;
+  white-space: nowrap;
 }
-.edta-modes button[aria-pressed="true"] {
-  background: var(--ink);
-  color: #fafbef;
+
+.edta-modes button:hover {
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.04);
 }
+
+.edta-modes button.selected {
+  background: var(--surface-alt);
+  color: #ffffff;
+  border: 1px solid var(--line-strong);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+}
+
+/* Main Layout */
 .edta-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 280px;
+  grid-template-columns: minmax(0, 1fr) 340px;
   gap: 24px;
   align-items: start;
 }
+
+@media (min-width: 1400px) {
+  .edta-layout {
+    grid-template-columns: minmax(0, 1fr) 380px;
+  }
+}
+
+/* Main Stage / Bench */
 .edta-stage {
   position: relative;
-  border: 1px solid #c5d0c2;
-  border-radius: 12px;
+  border-radius: 16px;
   overflow: hidden;
-  background: #dbe4d7;
+  border: 1px solid var(--line);
+  background: #0e1118;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.45);
 }
+
 .edta-stage-label {
   position: absolute;
-  z-index: 2;
-  top: 20px;
-  left: 22px;
-  right: 22px;
+  top: 14px;
+  left: 16px;
   display: flex;
-  justify-content: space-between;
+  gap: 12px;
   font-size: 10px;
-  letter-spacing: 1px;
-  gap: 15px;
-}
-.edta-stage-label span:last-child {
-  letter-spacing: 0;
-}
-.edta-scene {
-  display: block;
-  width: 100%;
-  height: auto;
-}
-.edta-hotspots {
-  position: absolute;
-  inset: 0 0 48px;
+  font-family: var(--font-mono), monospace;
+  color: var(--muted);
+  z-index: 10;
   pointer-events: none;
 }
+
+.edta-stage-label b {
+  color: var(--accent);
+}
+
+.edta-scene {
+  width: 100%;
+  height: auto;
+  aspect-ratio: 900 / 630;
+  display: block;
+  background: radial-gradient(circle at center 40%, #151a24 0%, #0c0e14 100%);
+  touch-action: none !important;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.edta-movable {
+  touch-action: none !important;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.edta-hotspots {
+  position: absolute;
+  inset: 0 0 54px;
+  pointer-events: none;
+}
+
 .edta-lab .edta-hotspot {
   position: absolute;
   pointer-events: auto;
-  min-height: 44px;
-  padding: 6px 10px;
-  background: #fafdf0ed;
-  box-shadow: 0 4px 15px #26473412;
-  border: 1px solid #abc0aa;
-  border-radius: 7px;
+  min-height: 38px;
+  padding: 6px 12px;
+  background: rgba(18, 22, 32, 0.88);
+  backdrop-filter: blur(8px);
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
   font-size: 11px;
+  font-family: var(--font-mono), monospace;
+  color: var(--ink);
   white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
 }
+
+.edta-hotspot:hover {
+  background: rgba(28, 34, 48, 0.95);
+  border-color: var(--sky);
+}
+
 .edta-hotspot.selected {
-  outline: 2px solid #9c623f;
+  outline: 2px solid var(--accent);
+  border-color: var(--accent);
+  background: rgba(245, 158, 11, 0.12);
+  color: #ffffff;
 }
+
 .edta-hotspot b {
   display: block;
-  font-size: 16px;
-  font-weight: 400;
-  margin-top: 2px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--phosphor);
+  margin-top: 1px;
 }
-.edta-burette {
-  left: 60%;
-  top: 26%;
-}
-.edta-sample {
-  left: 12%;
-  top: 84%;
-}
-.edta-buffer {
-  left: 25.5%;
-  top: 84%;
-}
-.edta-indicator {
-  left: 34%;
-  top: 84%;
-}
-.edta-pipette {
-  left: 70%;
-  top: 49%;
-  touch-action: none !important;
-}
+
+.edta-burette { left: 58%; top: 24%; }
+.edta-sample { left: 10%; top: 82%; }
+.edta-buffer { left: 23%; top: 82%; }
+.edta-indicator { left: 34%; top: 82%; }
+.edta-pipette { left: 69%; top: 46%; touch-action: none !important; }
 .edta-flask {
-  left: 47%;
-  top: 67%;
-  min-width: 100px;
-  min-height: 70px !important;
-  background: #ffffffb8 !important;
+  left: 46%;
+  top: 65%;
+  min-width: 110px;
+  min-height: 72px !important;
+  background: rgba(18, 22, 32, 0.75) !important;
+  border-color: var(--line-strong) !important;
 }
+
+/* Observation bar */
 .edta-observation {
-  min-height: 48px;
+  min-height: 52px;
   display: flex;
   align-items: center;
   gap: 16px;
   padding: 10px 20px;
-  background: #f8faef;
+  background: #11151f;
+  border-top: 1px solid var(--line);
   font-size: 12px;
+  font-family: var(--font-mono), monospace;
+  color: var(--muted);
   flex-wrap: wrap;
 }
+
 .edta-observation span:nth-child(2) {
   text-transform: capitalize;
   font-weight: 700;
+  color: #ffffff;
 }
+
 .edta-swatch {
-  width: 13px;
-  height: 13px;
+  width: 14px;
+  height: 14px;
   border-radius: 50%;
-  border: 1px solid #648679;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
 }
+
+/* Control Inspector */
 .edta-controls {
-  padding: 8px 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
 }
+
 .edta-controls h2 {
-  font:
-    28px/1.2 Georgia,
-    serif;
-  margin: 12px 0 18px;
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.4px;
+  margin: 8px 0 14px;
+  color: #ffffff;
 }
+
 .edta-controls p {
   font-size: 13px;
-  line-height: 1.65;
+  line-height: 1.6;
   color: var(--muted);
-  margin: 12px 0;
+  margin: 10px 0;
 }
-.edta-controls > .edta-eyebrow {
-  font-size: 9px;
-}
+
 .edta-controls > button {
   width: 100%;
   margin-bottom: 8px;
   text-align: left;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
+
 .edta-lab .edta-primary {
-  background: var(--ink);
-  color: #f6f8ed;
-  border-color: var(--ink);
+  background: var(--accent);
+  color: #0b0d13;
+  border-color: var(--accent);
+  font-weight: 700;
 }
-.edta-lab .edta-primary:hover {
-  background: #2c5d4a;
+
+.edta-lab .edta-primary:hover:not(:disabled) {
+  background: #d97706;
+  border-color: #d97706;
+  color: #000000;
 }
+
 .edta-lab .edta-text-button {
   border: 0;
   background: transparent;
+  color: var(--sky);
   text-decoration: underline;
   font-size: 12px;
+  box-shadow: none;
+  min-height: 32px;
+  padding: 4px 8px;
 }
+
+.edta-lab .edta-text-button:hover {
+  color: #ffffff;
+  background: transparent;
+  transform: none;
+}
+
 .edta-controls label {
   display: block;
   font-size: 12px;
   line-height: 1.5;
   margin: 12px 0;
+  color: var(--muted);
+  font-family: var(--font-mono), monospace;
 }
+
 .edta-controls input[type="number"] {
   display: block;
   border: 1px solid var(--line);
-  border-radius: 5px;
-  background: #fffef7;
-  color: var(--ink);
-  padding: 12px;
+  border-radius: 8px;
+  background: #0f131d;
+  color: #ffffff;
+  padding: 10px 14px;
   width: 100%;
-  margin-top: 8px;
+  margin-top: 6px;
   font-size: 16px;
+  font-family: var(--font-mono), monospace;
+  outline: none;
+  transition: border-color 0.15s;
 }
+
+.edta-controls input[type="number"]:focus {
+  border-color: var(--accent);
+}
+
 .edta-reading {
   border-bottom: 1px solid var(--line);
-  padding: 0 0 15px;
-  margin-bottom: 15px;
+  padding: 0 0 14px;
+  margin-bottom: 14px;
 }
+
 .edta-reading span {
   display: block;
   font-size: 9px;
-  letter-spacing: 2px;
+  letter-spacing: 1.5px;
+  font-family: var(--font-mono), monospace;
+  color: var(--muted);
 }
+
 .edta-reading output {
-  font:
-    40px Georgia,
-    serif;
+  font-family: var(--font-mono), monospace;
+  font-size: 36px;
+  font-weight: 800;
+  color: var(--phosphor);
   display: block;
-  margin-top: 5px;
+  margin-top: 2px;
+  letter-spacing: -1px;
 }
+
 .edta-valve span {
   float: right;
+  color: var(--accent);
+  font-weight: 700;
 }
+
 .edta-valve input {
   width: 100%;
-  accent-color: #245a48;
-  min-height: 36px;
+  accent-color: var(--accent);
+  min-height: 32px;
+  cursor: pointer;
 }
+
 .edta-button-row {
   display: flex;
-  gap: 6px;
+  gap: 8px;
+  margin-top: 4px;
 }
+
 .edta-button-row button {
   flex: 1;
-  padding: 8px;
+  text-align: center;
 }
+
 .edta-warning:empty {
   display: none;
 }
+
 .edta-warning {
-  border-left: 3px solid #a04d2b;
-  background: #f4e5d3;
-  padding: 12px;
-  font-size: 13px;
+  border-left: 3px solid var(--accent);
+  background: rgba(245, 158, 11, 0.1);
+  padding: 12px 14px;
+  font-size: 12px;
   line-height: 1.5;
   margin: 12px 0;
-  color: #773a20;
+  color: #fbbf24;
+  border-radius: 0 8px 8px 0;
 }
+
+.edta-demo-explanation {
+  background: rgba(56, 189, 248, 0.08);
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  border-radius: 10px;
+  padding: 14px;
+  margin: 12px 0;
+}
+
+.edta-demo-explanation h3 {
+  font-size: 12px;
+  font-family: var(--font-mono), monospace;
+  color: var(--sky);
+  margin: 0 0 6px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.edta-demo-explanation p {
+  color: var(--ink);
+  font-size: 12px;
+  margin: 0;
+  line-height: 1.6;
+}
+
+/* Guidance bar */
 .edta-guidance {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 24px;
-  padding: 23px 0;
+  padding: 24px 0;
   border-bottom: 1px solid var(--line);
+  margin-top: 24px;
 }
+
 .edta-guidance p:last-child {
   font-size: 14px;
   line-height: 1.6;
   margin-top: 6px;
   max-width: 800px;
+  color: var(--ink);
 }
+
 .edta-guidance button {
   flex-shrink: 0;
   background: transparent;
+  border-color: var(--line-strong);
 }
+
+/* Progress bar */
 .edta-progress {
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 24px;
   padding: 28px 0;
+  border-bottom: 1px solid var(--line);
   flex-wrap: wrap;
 }
+
 .edta-progress span {
   display: block;
   font-size: 9px;
-  letter-spacing: 1.4px;
-  margin-bottom: 9px;
+  letter-spacing: 1.5px;
+  font-family: var(--font-mono), monospace;
+  color: var(--muted);
+  margin-bottom: 6px;
 }
+
 .edta-progress b {
-  font:
-    30px Georgia,
-    serif;
+  font-family: var(--font-mono), monospace;
+  font-size: 28px;
+  font-weight: 800;
+  color: #ffffff;
 }
+
 .edta-progress small {
-  font:
-    12px Arial,
-    sans-serif;
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 500;
 }
+
+/* Notebook */
 .edta-notebook {
-  border-top: 1px solid var(--line);
-  padding: 28px 0;
+  padding: 32px 0;
+  border-bottom: 1px solid var(--line);
 }
+
 .edta-notebook-title {
   display: flex;
   justify-content: space-between;
   align-items: center;
   gap: 16px;
+  margin-bottom: 20px;
 }
+
 .edta-notebook h2 {
-  font:
-    32px Georgia,
-    serif;
-  margin: 8px 0 20px;
+  font-size: 26px;
+  font-weight: 800;
+  margin: 6px 0 0;
+  color: #ffffff;
 }
-.edta-notebook p {
-  font-size: 13px;
-  line-height: 1.8;
-  margin-top: 20px;
-}
+
 .edta-table-wrap {
-  overflow: auto;
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #0f131c;
 }
+
 .edta-notebook table {
   width: 100%;
   border-collapse: collapse;
   min-width: 600px;
   font-size: 13px;
+  font-family: var(--font-mono), monospace;
+}
+
+.edta-notebook th {
+  padding: 12px 14px;
+  background: #141926;
+  color: var(--muted);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-bottom: 1px solid var(--line);
   text-align: left;
 }
-.edta-notebook th,
+
 .edta-notebook td {
-  padding: 13px 10px;
+  padding: 12px 14px;
   border-bottom: 1px solid var(--line);
+  color: var(--ink);
 }
+
+.edta-notebook tr:last-child td {
+  border-bottom: 0;
+}
+
 .edta-notebook caption {
   text-align: left;
   color: var(--muted);
-  padding: 10px;
+  padding: 12px 14px;
   font-size: 12px;
 }
+
+/* Footer */
 .edta-footer {
   display: flex;
   justify-content: space-between;
-  gap: 14px;
+  align-items: center;
+  gap: 16px;
   flex-wrap: wrap;
-  border-top: 1px solid var(--line);
-  padding-top: 20px;
-  font-size: 10px;
+  padding-top: 24px;
+  font-size: 11px;
+  font-family: var(--font-mono), monospace;
   color: var(--muted);
 }
+
 .edta-footer a {
-  text-decoration: underline;
+  color: var(--sky);
 }
+
+/* Animations */
 .edta-stream {
   animation: edta-flow 0.6s linear infinite;
 }
+
 .edta-stir {
   transform-origin: 490px 503px;
   animation: edta-mix 0.5s linear infinite;
 }
+
 @keyframes edta-flow {
-  to {
-    stroke-dashoffset: -24;
-  }
+  to { stroke-dashoffset: -24; }
 }
+
 @keyframes edta-mix {
-  to {
-    transform: rotate(360deg);
-  }
+  to { transform: rotate(360deg); }
 }
-@media (min-width: 1500px) {
-  .edta-lab {
-    padding-left: max(5vw, calc((100vw - 1500px) / 2));
-    padding-right: max(5vw, calc((100vw - 1500px) / 2));
-  }
+
+/* Hands-on SVG support */
+.edta-hands-on {
+  position: relative;
+  background: radial-gradient(circle at center, #151b27 0%, #0d1017 100%);
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  touch-action: none !important;
+  user-select: none;
+  -webkit-user-select: none;
 }
-@media (max-width: 1000px) {
+
+.edta-hands-on svg {
+  width: 100%;
+  height: auto;
+  display: block;
+  touch-action: none !important;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+@media (max-width: 1024px) {
   .edta-layout {
-    grid-template-columns: minmax(0, 1fr) 240px;
+    grid-template-columns: 1fr;
     gap: 16px;
   }
   .edta-title {
     align-items: flex-start;
     flex-direction: column;
-    gap: 14px;
+    gap: 16px;
   }
   .edta-course {
     display: none;
@@ -458,218 +699,58 @@
   .edta-hotspot {
     font-size: 10px !important;
   }
-  .edta-buffer {
-    left: 24%;
-  }
-  .edta-indicator {
-    left: 35%;
-  }
 }
+
 @media (max-width: 720px) {
   .edta-header {
-    height: 68px;
+    height: 64px;
   }
   .edta-title {
-    padding: 24px 0 20px;
+    padding: 20px 0 16px;
   }
   .edta-title h1 {
-    font-size: 35px;
+    font-size: 32px;
     letter-spacing: -1px;
   }
-  .edta-layout {
-    display: flex;
-    flex-direction: column;
-    gap: 0;
-  }
-  .edta-stage {
+  .edta-modes {
     width: 100%;
-    overflow: visible;
   }
-  .edta-scene {
-    border-radius: 12px 12px 0 0;
+  .edta-modes button {
+    padding: 6px 10px;
+    font-size: 11px;
   }
   .edta-stage-label {
     font-size: 8px;
-    left: 12px;
-    top: 12px;
-  }
-  .edta-hotspots {
-    bottom: 68px;
-  }
-  .edta-lab .edta-hotspot {
-    font-size: 9px !important;
-    padding: 5px;
-    min-height: 44px;
-  }
-  .edta-burette {
-    left: 60%;
-    top: 22%;
-  }
-  .edta-hotspot b {
-    font-size: 14px;
-  }
-  .edta-pipette {
-    left: 72%;
-    top: 49%;
-    max-width: 27%;
-    white-space: normal !important;
-  }
-  .edta-sample {
-    left: 6%;
-    top: 82%;
-    max-width: 24%;
-    white-space: normal !important;
-  }
-  .edta-buffer {
-    left: 30%;
-    top: 82%;
-  }
-  .edta-indicator {
-    left: 47%;
-    top: 82%;
-  }
-  .edta-flask {
-    left: 47%;
-    top: 59%;
-    min-width: 78px;
-    min-height: 52px !important;
+    left: 10px;
+    top: 10px;
   }
   .edta-observation {
-    min-height: 68px;
-    gap: 10px;
-    font-size: 11px;
-    padding: 12px;
+    font-size: 10px;
+    gap: 8px;
+    padding: 8px 12px;
   }
   .edta-controls {
-    width: 100%;
-    padding-top: 25px;
+    padding-top: 16px;
   }
-  .edta-controls > button {
-    min-height: 46px;
+  .edta-progress {
+    gap: 16px;
+  }
+  .edta-progress b {
+    font-size: 20px;
   }
   .edta-guidance {
+    flex-direction: column;
     align-items: flex-start;
     gap: 12px;
   }
-  .edta-guidance button {
-    font-size: 11px;
-    max-width: 90px;
-  }
-  .edta-progress {
-    gap: 20px;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-  }
-  .edta-progress > button {
-    grid-column: 1/-1;
-  }
-  .edta-progress b {
-    font-size: 26px;
-  }
-  .edta-notebook-title {
-    align-items: flex-start;
-  }
-  .edta-notebook h2 {
-    font-size: 26px;
-  }
 }
+
 @media (prefers-reduced-motion: reduce) {
-  .edta-lab * {
+  .edta-stream,
+  .edta-stir {
     animation: none !important;
-    transition: none !important;
   }
-}
-/* Keep the physical scene visible while operating the controls on a phone. */
-@media (max-width: 720px) {
-  .edta-stage {
-    position: sticky;
-    top: 0;
-    z-index: 5;
-    box-shadow: 0 8px 20px #24423418;
+  * {
+    transition-duration: 0.01ms !important;
   }
-  .edta-lab .edta-hotspot {
-    min-width: 44px;
-  }
-}
-
-.edta-demo-explanation {
-  border-left: 3px solid #50735a;
-  background: #e8eddf;
-  padding: 14px 16px;
-  margin: 16px 0;
-  border-radius: 0 6px 6px 0;
-}
-.edta-demo-explanation h3 {
-  font-size: 13px;
-  font-weight: 700;
-}
-.edta-controls .edta-demo-explanation p {
-  color: #284635;
-  margin-bottom: 0;
-}
-.edta-movable {
-  cursor: grab;
-  touch-action: none;
-  outline: none;
-}
-.edta-movable:active {
-  cursor: grabbing;
-}
-.edta-movable:focus-visible {
-  filter: drop-shadow(0 0 5px #995f2f);
-}
-.edta-hand-toolbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 12px 16px;
-  background: #f8faef;
-  font-size: 12px;
-}
-.edta-hand-toolbar select {
-  color: #173c32;
-  background: #fffef5;
-  padding: 10px;
-  margin-left: 10px;
-  border: 1px solid #96ae97;
-  border-radius: 5px;
-}
-.edta-hand-controls {
-  padding: 14px 18px;
-  background: #f8faef;
-  font-size: 13px;
-}
-.edta-hand-controls label {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.edta-hand-controls input {
-  min-width: 80px;
-  flex: 1;
-  accent-color: #245a48;
-  height: 44px;
-}
-.edta-hand-controls p {
-  margin: 8px 0;
-  min-height: 40px;
-  line-height: 1.5;
-}
-.edta-hand-controls small {
-  color: #52685c;
-  line-height: 1.5;
-}
-@media (max-width: 720px) {
-  .edta-stage.edta-hands-on {
-    position: relative;
-  }
-  .edta-hand-toolbar {
-    font-size: 11px;
-  }
-}
-
-/* Keep touch gestures on the SVG bench from becoming page scrolls. */
-.edta-hands-on .edta-scene {
-  touch-action: none;
 }

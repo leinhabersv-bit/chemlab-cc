@@ -1,153 +1,70 @@
 ---
 name: colorize
-description: Add strategic color to features that are too monochromatic or lack visual interest. Makes interfaces more engaging and expressive.
+description: Give a 3D site a purposeful color system across lights, materials, shaders, fog, UI, and scroll-driven palette shifts, so scene and interface share one world.
 ---
 
-Strategically introduce color to designs that are too monochromatic, gray, or lacking in visual warmth and personality.
+Introduce or refine color so the 3D scene and the UI feel like one designed universe. Color should carry mood, hierarchy, and meaning.
 
-## MANDATORY PREPARATION
+**Prerequisite**: Load the `immersive-3d-web` skill first.
 
-### Context Gathering (Do This First)
+## 1. Gather context (do this first)
 
-You cannot do a great job without having necessary context, such as target audience (critical), desired use-cases (critical), brand personality/tone, and especially existing brand colors.
+Audience, brand colors, emotional goal, and the domain. If brand colors or mood are only inferred, ask before applying. Guessing yields slop palettes.
 
-Attempt to gather these from the current thread or codebase.
+## 2. Assess
 
-1. If you don't find *exact* information and have to infer from existing design and functionality, you MUST STOP and STOP and call the notify_user tool to clarify. whether you got it right.
-2. Otherwise, if you can't fully infer or your level of confidence is medium or lower, you MUST STOP and call the notify_user tool to clarify. clarifying questions first to complete your context.
+- **Washed-out scene**: Gray materials, white light, empty background.
+- **UI and scene mismatch**: CSS palette unrelated to the lighting.
+- **One timid accent**, or too many random colors.
+- **No palette movement**: Same color from first section to last.
+- **Contrast failures** over the scene.
 
-Do NOT proceed until you have answers. Guessing leads to generic AI slop colors.
+**CRITICAL**: More color is not better. Every color needs a job.
 
-### Use frontend-design skill
+## 3. Plan the palette
 
-Use the frontend-design skill for design principles and anti-patterns. Do NOT proceed until it has executed and you know all DO's and DON'Ts.
+- 2 to 4 hues beyond neutrals. Dominant about 60%, secondary 30%, accent 10%.
+- Define them once as tokens and feed both CSS and Three.js from the same source:
+```js
+const tokens = { base: '#0e1a1f', surface: '#16262d', hero: '#e9b44c', accent: '#ff5d3a', ink: '#f3efe6' };
+```
+Read CSS custom properties in JS (`getComputedStyle`) or generate both from one object.
+- Work in **OKLCH** for perceptually even scales. Tint neutrals toward the dominant hue.
+- Avoid pure black and pure white in large areas. Avoid the cyan-purple default.
 
----
+## 4. Apply color across the stack
 
-## Assess Color Opportunity
+### In the 3D scene
+- **Lights**: Key light warm or cool against a complementary rim. Colored lights are your biggest lever for mood. Keep fill subtle.
+- **Materials**: Base color, emissive accents, iridescence tint, transmission tint (`attenuationColor`), clearcoat. Let the hero carry the accent.
+- **Background and fog**: A tinted gradient or fog color that matches the palette. Fog color should equal background color for seamless depth.
+- **Shaders**: Gradient ramps and fresnel colors from uniforms. Use cosine palettes or LUT-style ramps for rich, controlled color.
+- **Particles**: Color by depth or speed, not randomly.
+- **Environment reflections**: A procedural environment tinted to the palette so reflections feel in-world.
 
-Analyze the current state and identify opportunities:
+### In the UI
+- Primary CTA uses the accent. Links and focus rings use a harmonized hue.
+- Backgrounds tinted, never flat gray. Text never gray on colored fills: use a shade of the background hue or transparency.
+- Semantic states: success, error, warning, info, always paired with icon or label, never color alone.
 
-1. **Understand current state**:
-   - **Color absence**: Pure grayscale? Limited neutrals? One timid accent?
-   - **Missed opportunities**: Where could color add meaning, hierarchy, or delight?
-   - **Context**: What's appropriate for this domain and audience?
-   - **Brand**: Are there existing brand colors we should use?
+### Scroll-driven palette shifts
+Animate palette tokens along the master timeline so each section has a mood: lights, fog, material tint, and CSS variables change together. Interpolate in OKLCH to avoid muddy midpoints.
 
-2. **Identify where color adds value**:
-   - **Semantic meaning**: Success (green), error (red), warning (yellow/orange), info (blue)
-   - **Hierarchy**: Drawing attention to important elements
-   - **Categorization**: Different sections, types, or states
-   - **Emotional tone**: Warmth, energy, trust, creativity
-   - **Wayfinding**: Helping users navigate and understand structure
-   - **Delight**: Moments of visual interest and personality
+## 5. Balance and accessibility
 
-If any of these are unclear from the codebase, STOP and call the notify_user tool to clarify.
-
-**CRITICAL**: More color ≠ better. Strategic color beats rainbow vomit every time. Every color should have a purpose.
-
-## Plan Color Strategy
-
-Create a purposeful color introduction plan:
-
-- **Color palette**: What colors match the brand/context? (Choose 2-4 colors max beyond neutrals)
-- **Dominant color**: Which color owns 60% of colored elements?
-- **Accent colors**: Which colors provide contrast and highlights? (30% and 10%)
-- **Application strategy**: Where does each color appear and why?
-
-**IMPORTANT**: Color should enhance hierarchy and meaning, not create chaos. Less is more when it matters more.
-
-## Introduce Color Strategically
-
-Add color systematically across these dimensions:
-
-### Semantic Color
-- **State indicators**:
-  - Success: Green tones (emerald, forest, mint)
-  - Error: Red/pink tones (rose, crimson, coral)
-  - Warning: Orange/amber tones
-  - Info: Blue tones (sky, ocean, indigo)
-  - Neutral: Gray/slate for inactive states
-
-- **Status badges**: Colored backgrounds or borders for states (active, pending, completed, etc.)
-- **Progress indicators**: Colored bars, rings, or charts showing completion or health
-
-### Accent Color Application
-- **Primary actions**: Color the most important buttons/CTAs
-- **Links**: Add color to clickable text (maintain accessibility)
-- **Icons**: Colorize key icons for recognition and personality
-- **Headers/titles**: Add color to section headers or key labels
-- **Hover states**: Introduce color on interaction
-
-### Background & Surfaces
-- **Tinted backgrounds**: Replace pure gray (`#f5f5f5`) with warm neutrals (`oklch(97% 0.01 60)`) or cool tints (`oklch(97% 0.01 250)`)
-- **Colored sections**: Use subtle background colors to separate areas
-- **Gradient backgrounds**: Add depth with subtle, intentional gradients (not generic purple-blue)
-- **Cards & surfaces**: Tint cards or surfaces slightly for warmth
-
-**Use OKLCH for color**: It's perceptually uniform, meaning equal steps in lightness *look* equal. Great for generating harmonious scales.
-
-### Data Visualization
-- **Charts & graphs**: Use color to encode categories or values
-- **Heatmaps**: Color intensity shows density or importance
-- **Comparison**: Color coding for different datasets or timeframes
-
-### Borders & Accents
-- **Accent borders**: Add colored left/top borders to cards or sections
-- **Underlines**: Color underlines for emphasis or active states
-- **Dividers**: Subtle colored dividers instead of gray lines
-- **Focus rings**: Colored focus indicators matching brand
-
-### Typography Color
-- **Colored headings**: Use brand colors for section headings (maintain contrast)
-- **Highlight text**: Color for emphasis or categories
-- **Labels & tags**: Small colored labels for metadata or categories
-
-### Decorative Elements
-- **Illustrations**: Add colored illustrations or icons
-- **Shapes**: Geometric shapes in brand colors as background elements
-- **Gradients**: Colorful gradient overlays or mesh backgrounds
-- **Blobs/organic shapes**: Soft colored shapes for visual interest
-
-## Balance & Refinement
-
-Ensure color addition improves rather than overwhelms:
-
-### Maintain Hierarchy
-- **Dominant color** (60%): Primary brand color or most used accent
-- **Secondary color** (30%): Supporting color for variety
-- **Accent color** (10%): High contrast for key moments
-- **Neutrals** (remaining): Gray/black/white for structure
-
-### Accessibility
-- **Contrast ratios**: Ensure WCAG compliance (4.5:1 for text, 3:1 for UI components)
-- **Don't rely on color alone**: Use icons, labels, or patterns alongside color
-- **Test for color blindness**: Verify red/green combinations work for all users
-
-### Cohesion
-- **Consistent palette**: Use colors from defined palette, not arbitrary choices
-- **Systematic application**: Same color meanings throughout (green always = success)
-- **Temperature consistency**: Warm palette stays warm, cool stays cool
+- Contrast: 4.5:1 for text, 3:1 for UI components, including over the scene (add a scrim where needed).
+- Test for color blindness. Red and green alone must not carry meaning.
+- Keep temperature consistent within a section.
+- Check the palette in bright and dim environments and on mobile screens.
 
 **NEVER**:
-- Use every color in the rainbow (choose 2-4 colors beyond neutrals)
-- Apply color randomly without semantic meaning
-- Put gray text on colored backgrounds—it looks washed out; use a darker shade of the background color or transparency instead
-- Use pure gray for neutrals—add subtle color tint (warm or cool) for sophistication
-- Use pure black (`#000`) or pure white (`#fff`) for large areas
-- Violate WCAG contrast requirements
-- Use color as the only indicator (accessibility issue)
-- Make everything colorful (defeats the purpose)
-- Default to purple-blue gradients (AI slop aesthetic)
+- Use the whole rainbow.
+- Color randomly.
+- Rely on color alone for meaning.
+- Mismatch scene lights and UI palette.
+- Use gradient text for impact.
+- Violate contrast requirements.
 
-## Verify Color Addition
+## 6. Verify
 
-Test that colorization improves the experience:
-
-- **Better hierarchy**: Does color guide attention appropriately?
-- **Clearer meaning**: Does color help users understand states/categories?
-- **More engaging**: Does the interface feel warmer and more inviting?
-- **Still accessible**: Do all color combinations meet WCAG standards?
-- **Not overwhelming**: Is color balanced and purposeful?
-
-Remember: Color is emotional and powerful. Use it to create warmth, guide attention, communicate meaning, and express personality. But restraint and strategy matter more than saturation and variety. Be colorful, but be intentional.
+Does color guide attention to the hero and the primary action? Do scene and UI share a palette? Does each section have a distinct mood? Is everything accessible? Is it restrained enough that the accent still pops?

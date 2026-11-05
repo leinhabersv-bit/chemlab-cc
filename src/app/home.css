@@ -1,164 +1,254 @@
+/* CHEMLAB CC — DIGITAL LABORATORY HOMEPAGE ELEVATED STYLES */
 .home-hero {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1.15fr 0.85fr;
   align-items: center;
-  min-height: 700px;
-  gap: 20px;
+  min-height: 640px;
+  gap: 36px;
+  padding: 40px 0;
 }
+
 .home-copy {
-  padding: 60px 0;
+  padding: 40px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
+
 .home-copy h1 {
-  font:
-    clamp(60px, 7.7vw, 112px)/0.98 Georgia,
-    serif;
-  letter-spacing: -5px;
-  margin: 25px 0 30px;
+  font-family: var(--font-sans), Inter, sans-serif;
+  font-size: clamp(48px, 6.5vw, 84px);
+  font-weight: 800;
+  letter-spacing: -2px;
+  line-height: 1.0;
+  margin: 16px 0 24px;
+  color: #ffffff;
 }
+
 .home-copy > p:not(.edta-eyebrow) {
-  font-size: 17px;
-  line-height: 1.8;
-  color: #52685c;
+  font-size: 18px;
+  line-height: 1.6;
+  color: #94a3b8;
+  max-width: 520px;
 }
+
 .home-enter {
   display: inline-flex;
   align-items: center;
-  gap: 40px;
-  background: #173c32;
-  color: #faf9ed;
-  padding: 20px 25px;
-  border-radius: 5px;
-  margin-top: 30px;
-  font-size: 14px;
-  transition: background 0.2s;
+  gap: 20px;
+  background: var(--accent);
+  color: #0b0d13;
+  padding: 16px 28px;
+  border-radius: 12px;
+  margin-top: 32px;
+  font-size: 15px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 20px rgba(245, 158, 11, 0.25);
 }
+
 .home-enter:hover {
-  background: #325f49;
+  background: #d97706;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 24px rgba(245, 158, 11, 0.35);
+  color: #000000;
 }
+
 .home-enter span {
-  font-size: 25px;
+  font-size: 18px;
+  transition: transform 0.2s;
 }
+
+.home-enter:hover span {
+  transform: translate(2px, -2px);
+}
+
 .home-note {
   display: block;
-  font-size: 10px;
-  line-height: 1.6;
-  max-width: 350px;
-  color: #52685c;
-  margin-top: 18px;
+  font-size: 11px;
+  font-family: var(--font-mono), monospace;
+  line-height: 1.5;
+  max-width: 440px;
+  color: #64748b;
+  margin-top: 16px;
 }
+
 .home-object {
   position: relative;
-  animation: home-arrive 1s ease-out;
+  display: flex;
+  justify-content: center;
 }
+
 .home-object svg {
   width: 100%;
+  max-width: 540px;
   display: block;
+  filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.7));
 }
+
 .home-annotation {
   position: absolute;
-  top: 34%;
-  right: 0;
-  font:
-    20px Georgia,
-    serif;
-  line-height: 1.5;
+  bottom: 24px;
+  right: 12px;
+  background: rgba(18, 22, 32, 0.9);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--line-strong);
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  color: #ffffff;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
 }
+
 .home-annotation small {
-  font:
-    10px Arial,
-    sans-serif;
+  display: block;
+  color: var(--muted);
+  font-size: 10px;
+  margin-top: 2px;
 }
+
+/* Telemetry Stats Band */
+.home-telemetry {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin: 20px 0 48px;
+  padding: 24px 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.telemetry-card {
+  background: rgba(18, 22, 32, 0.5);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: all 0.2s ease-out;
+}
+
+.telemetry-card:hover {
+  background: rgba(24, 30, 44, 0.8);
+  border-color: var(--line-strong);
+  transform: translateY(-2px);
+}
+
+.telemetry-val {
+  font-family: var(--font-mono), monospace;
+  font-size: 24px;
+  font-weight: 800;
+  color: var(--accent);
+  letter-spacing: -0.5px;
+}
+
+.telemetry-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: #f1f5f9;
+}
+
+.telemetry-desc {
+  font-size: 11px;
+  font-family: var(--font-mono), monospace;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
+/* Experiments Directory Grid */
 .home-directory {
-  padding: 60px 0 80px;
-  border-top: 1px solid #cad2c5;
+  padding: 56px 0 48px;
+  border-top: 1px solid var(--line);
 }
+
 .home-directory h2 {
-  font:
-    42px Georgia,
-    serif;
-  margin: 15px 0 35px;
+  font-size: clamp(28px, 3.8vw, 42px);
+  font-weight: 800;
+  letter-spacing: -1px;
+  margin: 10px 0 28px;
+  color: #ffffff;
 }
+
 .home-experiment {
   display: grid;
-  grid-template-columns: 40px 1fr 280px 20px;
+  grid-template-columns: 48px 1fr auto 32px;
   align-items: center;
-  gap: 20px;
-  border-bottom: 1px solid #cad2c5;
-  padding: 24px 0;
-  transition: background 0.2s;
+  gap: 16px;
+  padding: 16px 20px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: #0f131d;
+  margin-bottom: 10px;
+  text-decoration: none;
+  color: var(--ink);
+  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
 }
+
 .home-experiment:hover {
-  background: #e6e9dc;
+  background: #151a26;
+  border-color: var(--line-strong);
+  transform: translateX(4px);
+  color: #ffffff;
 }
+
+.home-experiment span:first-child {
+  font-family: var(--font-mono), monospace;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+}
+
 .home-experiment strong {
-  font:
-    23px Georgia,
-    serif;
+  font-size: 15px;
+  font-weight: 600;
 }
+
 .home-experiment small {
-  font-size: 11px;
-  color: #52685c;
-}
-.home-experiment > span {
   font-size: 12px;
+  font-family: var(--font-mono), monospace;
+  color: var(--muted);
 }
-@keyframes home-arrive {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: none;
-  }
+
+.home-experiment span:last-child {
+  color: var(--muted);
+  font-size: 16px;
+  text-align: right;
+  transition: transform 0.15s;
 }
-@media (max-width: 800px) {
+
+.home-experiment:hover span:last-child {
+  color: var(--accent);
+  transform: translate(2px, -2px);
+}
+
+@media (max-width: 900px) {
   .home-hero {
     grid-template-columns: 1fr;
-    gap: 0;
-    min-height: 0;
+    min-height: auto;
   }
-  .home-copy {
-    padding: 50px 0 10px;
-  }
-  .home-copy h1 {
-    font-size: 72px;
-    letter-spacing: -3px;
+  .home-telemetry {
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
   }
   .home-object {
-    max-width: 500px;
-    margin: auto;
+    order: -1;
     width: 100%;
-  }
-  .home-annotation {
-    font-size: 16px;
+    max-width: 100%;
+    margin: 0 auto;
   }
   .home-experiment {
-    grid-template-columns: 25px 1fr 20px;
-    gap: 10px;
+    grid-template-columns: 36px 1fr 24px;
   }
   .home-experiment small {
-    grid-column: 2;
-  }
-  .home-experiment > span:last-child {
-    grid-column: 3;
-    grid-row: 1;
-  }
-  .home-experiment strong {
-    font-size: 20px;
-  }
-  .home-directory {
-    padding: 35px 0;
-  }
-  .home-directory h2 {
-    font-size: 34px;
-  }
-  .home-lab .edta-header > a:last-child {
-    font-size: 11px;
+    display: none;
   }
 }
-@media (prefers-reduced-motion: reduce) {
-  .home-object {
-    animation: none;
+
+@media (max-width: 540px) {
+  .home-telemetry {
+    grid-template-columns: 1fr;
   }
 }
