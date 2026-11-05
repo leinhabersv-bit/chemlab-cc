@@ -68,3 +68,7 @@ Animate palette tokens along the master timeline so each section has a mood: lig
 ## 6. Verify
 
 Does color guide attention to the hero and the primary action? Do scene and UI share a palette? Does each section have a distinct mood? Is everything accessible? Is it restrained enough that the accent still pops?
+
+## Tailwind projects
+
+If the project uses Tailwind, define and change colors in `reference/tokens.ts` (palette, semantic themes, `scene` lighting colors) and let `reference/tailwind.config.ts` generate the CSS variables and classes. Use semantic classes (`bg-surface`, `text-muted`, `text-accent-ink`) in components and read `scene.*` or `cssColor()` in Three.js so lights, fog, and UI never drift apart.
