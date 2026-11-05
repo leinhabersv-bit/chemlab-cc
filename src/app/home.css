@@ -448,3 +448,33 @@
 .is-static .hm-process { height: auto; }
 .is-static .hm-process-sticky { position: static; height: auto; padding-block: 5rem; }
 .is-static .hm-step { opacity: 1; }
+
+/* ============================ Randomiser UI ========================== */
+.hm-shuffle {
+  position: fixed; left: var(--gutter); bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px)); z-index: 45;
+  display: inline-flex; gap: 0.5rem; align-items: center; padding: 0.65rem 1rem; border-radius: 999px;
+  color: rgb(var(--foreground)); background: rgb(var(--surface) / 0.7);
+  -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px);
+  box-shadow: inset 0 0 0 1px rgb(var(--line) / 0.7);
+  transition: box-shadow 0.3s var(--ease-out-expo), color 0.3s;
+}
+.hm-shuffle:hover { box-shadow: inset 0 0 0 1px rgb(var(--accent) / 0.8); color: rgb(var(--accent-ink)); }
+.hm-shuffle:hover span { display: inline-block; transform: rotate(180deg); transition: transform 0.6s var(--ease-out-expo); }
+.hm-shuffle:focus-visible { outline: 2px solid rgb(var(--accent)); outline-offset: 3px; }
+html.is-loading .hm-shuffle { opacity: 0; pointer-events: none; }
+
+/* Mirrored hero when the seed puts the instrument on the left */
+@media (min-width: 900px) {
+  [data-layout="left"] .hm-orb-zone { inset: 0 0 0 auto; width: 54%; left: 0; right: auto; }
+  [data-layout="left"] .hm-hero-copy { margin-left: auto; }
+  [data-layout="left"] .hm-fallback-orb { right: auto; left: 8%; }
+}
+/* Smooth palette changes when themes flip at runtime */
+html { transition: background-color 0.6s var(--ease-out-expo); }
+
+.hm-seed { font-style: normal; opacity: 0.6; margin-left: 0.25rem; }
+/* Per-seed corner language: same system, different personality */
+[data-corners="sharp"] .hm-tile { border-radius: 0.25rem; }
+[data-corners="sharp"] .btn, [data-corners="sharp"] .chip, [data-corners="sharp"] .hm-pill { border-radius: 0.2rem; }
+[data-corners="soft"] .hm-tile { border-radius: 1.5rem; }
+[data-corners="round"] .hm-tile { border-radius: 2.4rem; }

@@ -1,11 +1,12 @@
 "use client";
 
-import { useEffect, useRef, type CSSProperties } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import * as THREE from "three";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Lenis from "lenis";
-import { scene as sceneTokens, tiers, glide, type TierName } from "../tokens";
+import { tiers, glide, type TierName } from "../tokens";
+import { makeVariant, applyVariantToDom, newSeed, type Variant } from "../variant";
 import "./home.css";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -65,6 +66,9 @@ uniform float uTime;
 uniform float uDistort;
 uniform float uSpeed;
 uniform float uBulge;
+uniform float uFreq;
+uniform float uRidge;
+uniform float uTerrace;
 uniform vec3 uPointer;
 varying vec3 vN;
 varying vec3 vV;
@@ -72,7 +76,10 @@ varying float vNoise;
 
 float field(vec3 p){
   float t=uTime*uSpeed;
-  return snoise(p*1.1+vec3(0.,t,t*.6))+.35*snoise(p*2.4-vec3(t*1.3));
+  float f=snoise(p*uFreq+vec3(0.,t,t*.6))+.35*snoise(p*uFreq*2.2-vec3(t*1.3));
+  f=mix(f,1.-abs(f)*1.6,uRidge*.6);
+  float q=floor(f*4.)/4.;
+  return mix(f,mix(q,f,.3),uTerrace);
 }
 vec3 shape(vec3 p){
   vec3 n=normalize(p);
@@ -119,9 +126,16 @@ void main(){
   vec3 col=mix(uA,uB,t);
   float diff=dot(n,normalize(vec3(.4,.7,.6)))*.5+.5;
   col*=.35+.75*diff;
+  // thin-film iridescence: hue shifts with view angle and surface noise
+  vec3 irid=.5+.5*cos(6.28318*(ndv*1.2+vNoise*.45+vec3(0.,.33,.67)));
+  col=mix(col,col*irid*1.7,.18+.3*fres);
+  // glossy key highlight
+  vec3 L=normalize(vec3(.4,.7,.6));
+  col+=uRim*pow(max(dot(reflect(-L,n),v),0.),42.)*.55;
   col+=uRim*fres*(1.05+uPulse*1.6);
   col+=uB*uGlow*pow(1.-abs(ndv-.25),6.)*.45;
   col+=.06*vec3(sin(vNoise*6.+uTime),sin(vNoise*6.+uTime+2.1),sin(vNoise*6.+uTime+4.2));
+  col+=(fract(sin(dot(gl_FragCoord.xy,vec2(12.9898,78.233)))*43758.5453)-.5)/255.; // dither: no banding
   gl_FragColor=vec4(col,1.);
   #include <tonemapping_fragment>
   #include <colorspace_fragment>
@@ -133,20 +147,13 @@ void main(){
 
 type StageState = {
   rigX: number; rigY: number; scale: number; camZ: number;
-  distort: number; speed: number; glow: number; ring: number; pulse: number;
+  distort: number; speed: number; glow: number; ring: number; pulse: number; swing: number;
 };
 
-const themeMode = (): "dark" | "light" => {
-  const el = document.documentElement;
-  if (el.dataset.theme === "light" || el.classList.contains("light")) return "light";
-  if (el.dataset.theme === "dark" || el.classList.contains("dark")) return "dark";
-  return window.matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
-};
-
-function createStage(canvas: HTMLCanvasElement, startTier: TierName) {
+function createStage(canvas: HTMLCanvasElement, startTier: TierName, v: Variant) {
   let tier = startTier;
-  const mode = themeMode();
-  const tok = sceneTokens[mode];
+  const mode = v.mode;
+  const tok = { fill: v.hex.fill, hero: v.hex.hero, accent: v.hex.accent, rim: v.hex.rim, key: v.hex.key };
 
   const renderer = new THREE.WebGLRenderer({
     canvas,
@@ -157,7 +164,7 @@ function createStage(canvas: HTMLCanvasElement, startTier: TierName) {
   renderer.setClearColor(0x000000, 0); // CSS background shows through
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.05;
+  renderer.toneMappingExposure = v.exposure;
 
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 60);
@@ -168,6 +175,9 @@ function createStage(canvas: HTMLCanvasElement, startTier: TierName) {
   const uniforms = {
     uTime: { value: 0 },
     uDistort: { value: 0.35 },
+    uFreq: { value: v.shape.freq },
+    uRidge: { value: v.shape.ridge },
+    uTerrace: { value: v.shape.terrace },
     uSpeed: { value: 0.25 },
     uBulge: { value: 0 },
     uPointer: { value: new THREE.Vector3(99, 99, 99) },
@@ -186,9 +196,9 @@ function createStage(canvas: HTMLCanvasElement, startTier: TierName) {
   /* Orbit rings: they spread out during the "How it works" beat */
   const ringGeo = new THREE.TorusGeometry(2.15, 0.006, 8, 220);
   const ringMat = new THREE.MeshBasicMaterial({ color: tok.rim, transparent: true, opacity: 0.55 });
-  const rings = [0, 1, 2].map((i) => {
+  const rings = [0, 1, 2, 3, 4].slice(0, v.rings).map((i) => {
     const m = new THREE.Mesh(ringGeo, ringMat);
-    m.rotation.set(Math.PI / 2.2 + i * 0.5, i * 0.9, 0);
+    m.rotation.set(Math.PI / 2.2 + i * v.ringTilt, i * 0.9, 0);
     rig.add(m);
     return m;
   });
@@ -200,15 +210,16 @@ function createStage(canvas: HTMLCanvasElement, startTier: TierName) {
     const r = 2.4 + Math.random() * 2.2;
     const th = Math.random() * Math.PI * 2;
     const ph = Math.acos(2 * Math.random() - 1);
-    haloPos[i * 3] = r * Math.sin(ph) * Math.cos(th);
-    haloPos[i * 3 + 1] = r * Math.sin(ph) * Math.sin(th);
-    haloPos[i * 3 + 2] = r * Math.cos(ph);
+    let x = r * Math.sin(ph) * Math.cos(th), y = r * Math.sin(ph) * Math.sin(th), z = r * Math.cos(ph);
+    if (v.dust === 1) { y *= 0.12; } // galactic disk
+    else if (v.dust === 2) { const a = Math.random() * 6.283 * 1.5; x = (2.6 + Math.random() * 1.2) * Math.cos(a); z = (2.6 + Math.random() * 1.2) * Math.sin(a); y = Math.sin(a * 2) * 0.6 + (Math.random() - 0.5) * 0.25; } // ribbon
+    haloPos[i * 3] = x; haloPos[i * 3 + 1] = y; haloPos[i * 3 + 2] = z;
   }
   const haloGeo = new THREE.BufferGeometry();
   haloGeo.setAttribute("position", new THREE.BufferAttribute(haloPos, 3));
   const haloMat = new THREE.PointsMaterial({
     color: tok.key,
-    size: 0.022,
+    size: v.dustSize,
     sizeAttenuation: true,
     transparent: true,
     opacity: mode === "dark" ? 0.8 : 0.6,
@@ -217,6 +228,17 @@ function createStage(canvas: HTMLCanvasElement, startTier: TierName) {
   });
   const halo = new THREE.Points(haloGeo, haloMat);
   rig.add(halo);
+
+  /* Soft bloom stand-in: a radial glow sprite behind the orb (cheap, tier-safe) */
+  const gc = document.createElement("canvas"); gc.width = gc.height = 256;
+  const gx = gc.getContext("2d")!;
+  const gg = gx.createRadialGradient(128, 128, 0, 128, 128, 128);
+  gg.addColorStop(0, "rgba(255,255,255,0.9)"); gg.addColorStop(0.35, "rgba(255,255,255,0.25)"); gg.addColorStop(1, "rgba(255,255,255,0)");
+  gx.fillStyle = gg; gx.fillRect(0, 0, 256, 256);
+  const glowTex = new THREE.CanvasTexture(gc); glowTex.colorSpace = THREE.SRGBColorSpace;
+  const glowMat = new THREE.SpriteMaterial({ map: glowTex, color: tok.accent, transparent: true, opacity: mode === "dark" ? 0.38 : 0.22, depthWrite: false, blending: mode === "dark" ? THREE.AdditiveBlending : THREE.NormalBlending });
+  const glow = new THREE.Sprite(glowMat);
+  glow.position.z = -1.2; rig.add(glow);
 
   const applyTier = () => {
     haloGeo.setDrawRange(0, Math.floor(COUNT * tiers[tier].particles));
@@ -235,7 +257,7 @@ function createStage(canvas: HTMLCanvasElement, startTier: TierName) {
   /* Scroll-driven values (tweened by GSAP) and input (damped here) */
   const state: StageState = {
     rigX: 1.7, rigY: 0, scale: 1, camZ: 7,
-    distort: 0.35, speed: 0.25, glow: 0.5, ring: 0.4, pulse: 0,
+    distort: 0.35, speed: 0.25, glow: 0.5, ring: 0.4, pulse: 0, swing: 0,
   };
   const ptr = { x: 0, y: 0, tx: 0, ty: 0, active: false };
   const drag = { active: false, vx: 0, vy: 0, rotX: 0.15, rotY: 0 };
@@ -251,14 +273,16 @@ function createStage(canvas: HTMLCanvasElement, startTier: TierName) {
       drag.rotX = damp(drag.rotX, 0.15, 1.2);
     }
 
-    camera.position.set(ptr.x * 0.3, ptr.y * 0.18, state.camZ);
+    camera.position.set(ptr.x * 0.3, ptr.y * 0.18, state.camZ * v.camJitter);
     camera.lookAt(0, 0, 0);
 
     rig.position.set(state.rigX, state.rigY, 0);
     rig.scale.setScalar(state.scale);
-    rig.rotation.set(-ptr.y * 0.12, ptr.x * 0.2, 0);
+    rig.rotation.set(-ptr.y * 0.12, ptr.x * 0.2 + state.swing, 0);
+    glow.scale.setScalar(6.2 + state.glow * 2.4 + state.pulse * 1.5);
+    glowMat.opacity = (mode === "dark" ? 0.3 : 0.18) + state.glow * 0.14;
 
-    orb.rotation.set(drag.rotX, drag.rotY + t * 0.06, 0);
+    orb.rotation.set(drag.rotX, drag.rotY + t * v.shape.spin, 0);
     rings.forEach((m, i) => {
       m.rotation.z += dt * (0.08 + i * 0.05);
       m.scale.setScalar((1 + i * 0.22) * (0.8 + state.ring * 0.35));
@@ -269,7 +293,7 @@ function createStage(canvas: HTMLCanvasElement, startTier: TierName) {
     uniforms.uPointer.value.set(ptr.x * halfH * camera.aspect, ptr.y * halfH, 1.6);
     uniforms.uBulge.value = damp(uniforms.uBulge.value, ptr.active && !drag.active ? 0.16 : 0, 3);
     uniforms.uTime.value = t;
-    uniforms.uDistort.value = state.distort;
+    uniforms.uDistort.value = state.distort * (v.shape.distort / 0.35);
     uniforms.uSpeed.value = state.speed;
     uniforms.uGlow.value = state.glow;
     uniforms.uPulse.value = state.pulse;
@@ -285,7 +309,7 @@ function createStage(canvas: HTMLCanvasElement, startTier: TierName) {
     dispose() {
       orbGeo.dispose(); orbMat.dispose();
       ringGeo.dispose(); ringMat.dispose();
-      haloGeo.dispose(); haloMat.dispose();
+      haloGeo.dispose(); haloMat.dispose(); glowTex.dispose(); glowMat.dispose();
       renderer.dispose();
     },
   };
@@ -352,6 +376,7 @@ const STATS = [
    ==================================================================== */
 
 export default function Home() {
+  const [variantLabel, setVariantLabel] = useState("");
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const mainRef = useRef<HTMLElement>(null);
 
@@ -366,10 +391,15 @@ export default function Home() {
     const $$ = <T extends HTMLElement>(s: string) => Array.from(document.querySelectorAll<T>(s));
 
     /* ---- Stage (3D), with graceful fallback ---- */
+    const seed = new URLSearchParams(window.location.search).get("seed") || newSeed();
+    const variant = makeVariant(seed);
+    applyVariantToDom(variant);
+    setVariantLabel(`${variant.name} · ${seed}`);
+    root.dataset.seed = seed;
     let tier = detectTier();
     let stage: ReturnType<typeof createStage> | null = null;
     try {
-      stage = createStage(canvas, tier);
+      stage = createStage(canvas, tier, variant);
       root.dataset.tier = tier;
     } catch {
       root.classList.add("no-webgl");
@@ -554,7 +584,8 @@ export default function Home() {
 
       // Instrument beats: one tween per section, scrubbed with glide smoothing
       mm.add({ wide: "(min-width: 900px)", narrow: "(max-width: 899px)" }, (c) => {
-        const set = c.conditions?.wide ? BEATS.wide : BEATS.narrow;
+        const base = c.conditions?.wide ? BEATS.wide.map((b) => ({ ...b, rigX: b.rigX * variant.flip })) : BEATS.narrow.map((b) => ({ ...b }));
+        const set = base.map((b, i) => ({ ...b, swing: i * variant.swing }));
         if (!stage) return;
         Object.assign(stage.state, set[0]);
         for (let i = 1; i < SECTION_IDS.length; i++) {
@@ -664,6 +695,17 @@ export default function Home() {
       <div className="hm-vignette" aria-hidden="true" />
       <div className="hm-grain bg-noise tier-low:hidden" aria-hidden="true" />
       <div className="hm-cursor" aria-hidden="true"><i /></div>
+
+      {/* Randomiser: reloads with a fresh seed, replaying the intro in a new world */}
+      <button
+        type="button"
+        className="hm-shuffle hud"
+        data-magnetic
+        aria-label="Reshuffle the design: generate a new look"
+        onClick={() => { const u = new URL(window.location.href); u.searchParams.set("seed", newSeed()); window.location.href = u.toString(); }}
+      >
+        <span aria-hidden="true">⟳</span> Reshuffle<em className="hm-seed">{variantLabel}</em>
+      </button>
 
       {/* Nav */}
       <header className="hm-nav">

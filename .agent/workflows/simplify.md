@@ -1,84 +1,132 @@
 ---
 name: simplify
-description: Strip a 3D site down to its essence: one hero idea, fewer effects, a clearer scroll story, simpler UI, leaner code, and faster load. Remove obstacles, not capability.
+description: Strip designs to their essence by removing unnecessary complexity. Great design is simple, powerful, and clean.
 ---
 
-Cut everything that does not serve the one idea. A focused scene beats a crowded one.
+Remove unnecessary complexity from designs, revealing the essential elements and creating clarity through ruthless simplification.
 
-**Prerequisite**: Load the `immersive-3d-web` skill first.
+## MANDATORY PREPARATION
 
-## 1. Gather context (do this first)
+### Context Gathering (Do This First)
 
-Primary goal, audience, and what is essential versus nice-to-have. If unclear, ask before cutting. Simplifying the wrong thing hurts usability.
+You cannot do a great job without having necessary context, such as target audience (critical), desired use-cases (critical), and understanding what's truly essential vs nice-to-have for this product.
 
-## 2. Find the complexity
+Attempt to gather these from the current thread or codebase.
 
-- **Too many ideas**: Several hero objects, competing focal points, unrelated effects.
-- **Effect stack**: Bloom, grain, glitch, particles, parallax, cursor trails, all at once.
-- **Long, unfocused journey**: More beats than the story needs.
-- **Cluttered UI**: Too many buttons, panels, HUD elements, options.
-- **Excess variation**: Too many fonts, colors, sizes, easings.
-- **Heavy code**: Unused modules, dead shaders, deep component trees.
+1. If you don't find *exact* information and have to infer from existing design and functionality, you MUST STOP and STOP and call the notify_user tool to clarify. whether you got it right.
+2. Otherwise, if you can't fully infer or your level of confidence is medium or lower, you MUST STOP and call the notify_user tool to clarify. clarifying questions first to complete your context.
 
-Find the essence: What is the single thing this site must achieve? What is the 20% that delivers 80% of the value?
+Do NOT proceed until you have answers. Simplifying the wrong things destroys usability.
 
-**CRITICAL**: Simplicity is removing obstacles between people and their goal, not removing features people need.
+### Use frontend-design skill
 
-## 3. Plan
+Use the frontend-design skill for design principles and anti-patterns. Do NOT proceed until it has executed and you know all DO's and DON'Ts.
 
-- **Core purpose**: One sentence.
-- **Essential elements**: What the purpose truly requires.
-- **Progressive disclosure**: What can hide until needed.
-- **Consolidation**: What can merge.
+---
 
-## 4. Simplify
+## Assess Current State
 
-### The scene
-- One hero object, one supporting environment. Remove secondary props.
-- Keep the 2 or 3 effects that define the look. Cut the rest.
-- Reduce particle and instance counts. Fewer, better lights. Simpler materials where the difference is invisible.
-- Replace complex shaders with simpler ones where the result is the same.
+Analyze what makes the design feel complex or cluttered:
 
-### The journey
-- Reduce scroll beats to what the story needs (often 3 to 5). Merge adjacent sections.
-- Keep one signature moment. Remove competing set pieces.
-- Shorter total scroll length. Clear pacing with deliberate quiet sections.
+1. **Identify complexity sources**:
+   - **Too many elements**: Competing buttons, redundant information, visual clutter
+   - **Excessive variation**: Too many colors, fonts, sizes, styles without purpose
+   - **Information overload**: Everything visible at once, no progressive disclosure
+   - **Visual noise**: Unnecessary borders, shadows, backgrounds, decorations
+   - **Confusing hierarchy**: Unclear what matters most
+   - **Feature creep**: Too many options, actions, or paths forward
 
-### Interaction
-- Fewer controls. One obvious primary action per view. Smart defaults.
-- Replace multi-step flows with inline interactions. Remove modals where inline works.
-- Remove redundant hints once the interaction is learnable by doing.
+2. **Find the essence**:
+   - What's the primary user goal? (There should be ONE)
+   - What's actually necessary vs nice-to-have?
+   - What can be removed, hidden, or combined?
+   - What's the 20% that delivers 80% of value?
 
-### Visual system
-- 1 to 2 colors plus tinted neutrals. One or two type families, a few sizes and weights.
-- Remove unneeded borders, shadows, cards, and containers. Use spacing and alignment.
-- Never nest cards in cards.
+If any of these are unclear from the codebase, STOP and call the notify_user tool to clarify.
 
-### Layout
-- Linear flow, consistent alignment, generous whitespace. Remove sidebars and dense grids when a single column works.
+**CRITICAL**: Simplicity is not about removing features - it's about removing obstacles between users and their goals. Every element should justify its existence.
 
-### Copy
-- Cut every sentence in half, then again. Active voice. Plain language. Say it once.
+## Plan Simplification
 
-### Code
-- Remove dead code, unused libraries, orphaned shaders and textures. Flatten component trees. Reduce variants (3 cover most cases). Smaller bundle, faster load, steadier frames.
+Create a ruthless editing strategy:
+
+- **Core purpose**: What's the ONE thing this should accomplish?
+- **Essential elements**: What's truly necessary to achieve that purpose?
+- **Progressive disclosure**: What can be hidden until needed?
+- **Consolidation opportunities**: What can be combined or integrated?
+
+**IMPORTANT**: Simplification is hard. It requires saying no to good ideas to make room for great execution. Be ruthless.
+
+## Simplify the Design
+
+Systematically remove complexity across these dimensions:
+
+### Information Architecture
+- **Reduce scope**: Remove secondary actions, optional features, redundant information
+- **Progressive disclosure**: Hide complexity behind clear entry points (accordions, modals, step-through flows)
+- **Combine related actions**: Merge similar buttons, consolidate forms, group related content
+- **Clear hierarchy**: ONE primary action, few secondary actions, everything else tertiary or hidden
+- **Remove redundancy**: If it's said elsewhere, don't repeat it here
+
+### Visual Simplification
+- **Reduce color palette**: Use 1-2 colors plus neutrals, not 5-7 colors
+- **Limit typography**: One font family, 3-4 sizes maximum, 2-3 weights
+- **Remove decorations**: Eliminate borders, shadows, backgrounds that don't serve hierarchy or function
+- **Flatten structure**: Reduce nesting, remove unnecessary containers—never nest cards inside cards
+- **Remove unnecessary cards**: Cards aren't needed for basic layout; use spacing and alignment instead
+- **Consistent spacing**: Use one spacing scale, remove arbitrary gaps
+
+### Layout Simplification
+- **Linear flow**: Replace complex grids with simple vertical flow where possible
+- **Remove sidebars**: Move secondary content inline or hide it
+- **Full-width**: Use available space generously instead of complex multi-column layouts
+- **Consistent alignment**: Pick left or center, stick with it
+- **Generous white space**: Let content breathe, don't pack everything tight
+
+### Interaction Simplification
+- **Reduce choices**: Fewer buttons, fewer options, clearer path forward (paradox of choice is real)
+- **Smart defaults**: Make common choices automatic, only ask when necessary
+- **Inline actions**: Replace modal flows with inline editing where possible
+- **Remove steps**: Can signup be one step instead of three? Can checkout be simplified?
+- **Clear CTAs**: ONE obvious next step, not five competing actions
+
+### Content Simplification
+- **Shorter copy**: Cut every sentence in half, then do it again
+- **Active voice**: "Save changes" not "Changes will be saved"
+- **Remove jargon**: Plain language always wins
+- **Scannable structure**: Short paragraphs, bullet points, clear headings
+- **Essential information only**: Remove marketing fluff, legalese, hedging
+- **Remove redundant copy**: No headers restating intros, no repeated explanations, say it once
+
+### Code Simplification
+- **Remove unused code**: Dead CSS, unused components, orphaned files
+- **Flatten component trees**: Reduce nesting depth
+- **Consolidate styles**: Merge similar styles, use utilities consistently
+- **Reduce variants**: Does that component need 12 variations, or can 3 cover 90% of cases?
 
 **NEVER**:
-- Remove necessary functionality or information needed to decide.
-- Sacrifice accessibility, labels, or reduced-motion support.
-- Make it so minimal it is unclear. Mystery is not minimalism.
-- Eliminate hierarchy completely.
-- Oversimplify genuinely complex domains.
+- Remove necessary functionality (simplicity ≠ feature-less)
+- Sacrifice accessibility for simplicity (clear labels and ARIA still required)
+- Make things so simple they're unclear (mystery ≠ minimalism)
+- Remove information users need to make decisions
+- Eliminate hierarchy completely (some things should stand out)
+- Oversimplify complex domains (match complexity to actual task complexity)
 
-## 5. Verify
+## Verify Simplification
 
-- Do people reach their goal faster?
-- Is the hierarchy clearer? Is there one obvious focus per screen?
-- Is everything necessary still reachable?
-- Did load time and frame stability improve?
+Ensure simplification improves usability:
 
-## 6. Document what was removed
+- **Faster task completion**: Can users accomplish goals more quickly?
+- **Reduced cognitive load**: Is it easier to understand what to do?
+- **Still complete**: Are all necessary features still accessible?
+- **Clearer hierarchy**: Is it obvious what matters most?
+- **Better performance**: Does simpler design load faster?
 
-Record why features were removed and whether they need another entry point. Note feedback to watch.
+## Document Removed Complexity
 
-Perfection is achieved when there is nothing left to take away.
+If you removed features or options:
+- Document why they were removed
+- Consider if they need alternative access points
+- Note any user feedback to monitor
+
+Remember: You have great taste and judgment. Simplification is an act of confidence - knowing what to keep and courage to remove the rest. As Antoine de Saint-Exupéry said: "Perfection is achieved not when there is nothing more to add, but when there is nothing left to take away."

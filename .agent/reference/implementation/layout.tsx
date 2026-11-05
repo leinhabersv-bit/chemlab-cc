@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Fraunces, Instrument_Sans, IBM_Plex_Mono } from "next/font/google";
+import { Fraunces, Bricolage_Grotesque, Instrument_Serif, Syne, Instrument_Sans, IBM_Plex_Mono } from "next/font/google";
 import { palette } from "../tokens";
 import "./globals.css";
 
@@ -12,9 +12,14 @@ const display = Fraunces({
   subsets: ["latin"],
   style: ["normal", "italic"],
   axes: ["opsz"],
-  variable: "--font-display",
+  variable: "--fd-0",
   display: "swap",
 });
+
+/* Randomiser typefaces: variant.ts points --font-display at one of --fd-0..3 */
+const fd1 = Bricolage_Grotesque({ subsets: ["latin"], variable: "--fd-1", display: "swap" });
+const fd2 = Instrument_Serif({ subsets: ["latin"], weight: "400", style: ["normal", "italic"], variable: "--fd-2", display: "swap" });
+const fd3 = Syne({ subsets: ["latin"], variable: "--fd-3", display: "swap" });
 
 const sans = Instrument_Sans({
   subsets: ["latin"],
@@ -65,7 +70,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       lang="en"
       // is-loading: scroll-locked until the intro finishes (page.tsx removes it).
       // suppressHydrationWarning: client code edits <html> classes and data attributes.
-      className={`${display.variable} ${sans.variable} ${mono.variable} is-loading`}
+      className={`${display.variable} ${fd1.variable} ${fd2.variable} ${fd3.variable} ${sans.variable} ${mono.variable} is-loading`}
       suppressHydrationWarning
     >
       <head>

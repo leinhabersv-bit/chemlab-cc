@@ -1,48 +1,62 @@
 ---
 name: normalize
-description: Align a 3D feature or page with the project's design system: tokens, components, motion presets, camera and lighting conventions, and shared shader and material libraries.
+description: Normalize design to match your design system and ensure consistency
 ---
 
-Make a feature feel like it belongs to the same world as the rest of the product, in both the 2D interface and the 3D scene.
+Analyze and redesign the feature to perfectly match our design system standards, aesthetics, and established patterns.
 
-**Prerequisite**: Load the `immersive-3d-web` skill first.
+## Plan
 
-## 1. Plan
+Before making changes, deeply understand the context:
 
-1. **Discover the system**: Find design system docs, tokens, component libraries, scene helpers, shader chunks, motion presets, and style guides. Learn the aesthetic direction, personas, patterns, and conventions. **If something is unclear, ask. Do not guess.**
-2. **Analyze the feature**: Where does it deviate? Is the cause missing tokens, one-off implementations, or conceptual misalignment?
-3. **Write the normalization plan**: Which pieces become system equivalents? Which values become tokens? Which patterns should match established flows?
+1. **Discover the design system**: Search for design system documentation, UI guidelines, component libraries, or style guides (grep for "design system", "ui guide", "style guide", etc.). Study it thoroughly until you understand:
+   - Core design principles and aesthetic direction
+   - Target audience and personas
+   - Component patterns and conventions
+   - Design tokens (colors, typography, spacing)
+   
+   **CRITICAL**: If something isn't clear, ask. Don't guess at design system principles.
 
-**IMPORTANT**: Prioritize effective UX and consistency over cosmetic polish.
+2. **Analyze the current feature**: Assess what works and what doesn't:
+   - Where does it deviate from design system patterns?
+   - Which inconsistencies are cosmetic vs. functional?
+   - What's the root cause—missing tokens, one-off implementations, or conceptual misalignment?
 
-## 2. Execute
+3. **Create a normalization plan**: Define specific changes that will align the feature with the design system:
+   - Which components can be replaced with design system equivalents?
+   - Which styles need to use design tokens instead of hard-coded values?
+   - How can UX patterns match established user flows?
+   
+   **IMPORTANT**: Great design is effective design. Prioritize UX consistency and usability over visual polish alone. Think through the best possible experience for your use case and personas first.
 
-Align each dimension:
+## Execute
 
-- **Typography**: System fonts, sizes, weights, line heights, and type tokens. Match display-type reveal behavior.
-- **Color and theme**: System tokens for CSS and for scene lights, materials, fog, and shader uniforms. Remove one-off hex values.
-- **Spacing and layout**: Spacing tokens, grid, and layout patterns.
-- **Components**: Replace custom buttons, nav, cards, tabs, sliders, and tooltips with system versions and variants.
-- **3D conventions**: Same renderer settings (tone mapping, color space, pixel ratio cap), lighting rig presets, environment approach, camera FOV defaults, and quality tiers.
-- **Materials and shaders**: Use shared material presets and shader chunks instead of near-duplicate copies.
-- **Motion**: System easing curves, durations, stagger values, scroll-scrub smoothing, reveal patterns, and the shared Lenis and GSAP setup.
-- **Interaction**: Cursor, magnetic, hover, focus, and touch behavior match the rest of the product.
-- **Responsive and adaptation**: Same breakpoints, quality tiers, and fallbacks.
-- **Accessibility**: Contrast, focus, ARIA, reduced-motion handling as specified by the system.
-- **Progressive disclosure**: Match information hierarchy and complexity management.
+Systematically address all inconsistencies across these dimensions:
+
+- **Typography**: Use design system fonts, sizes, weights, and line heights. Replace hard-coded values with typographic tokens or classes.
+- **Color & Theme**: Apply design system color tokens. Remove one-off color choices that break the palette.
+- **Spacing & Layout**: Use spacing tokens (margins, padding, gaps). Align with grid systems and layout patterns used elsewhere.
+- **Components**: Replace custom implementations with design system components. Ensure props and variants match established patterns.
+- **Motion & Interaction**: Match animation timing, easing, and interaction patterns to other features.
+- **Responsive Behavior**: Ensure breakpoints and responsive patterns align with design system standards.
+- **Accessibility**: Verify contrast ratios, focus states, ARIA labels match design system requirements.
+- **Progressive Disclosure**: Match information hierarchy and complexity management to established patterns.
 
 **NEVER**:
-- Create a new component when a system one exists.
-- Hard-code values that should be tokens.
-- Introduce patterns that diverge from the system.
-- Duplicate shader or material code that already exists.
-- Compromise accessibility for consistency.
+- Create new one-off components when design system equivalents exist
+- Hard-code values that should use design tokens
+- Introduce new patterns that diverge from the design system
+- Compromise accessibility for visual consistency
 
-## 3. Clean up
+This is not an exhaustive list—apply judgment to identify all areas needing normalization.
 
-- **Consolidate**: Move new reusable pieces into the system.
-- **Remove orphans**: Delete obsolete styles, shaders, helpers, and files.
-- **Verify**: Lint, type-check, test, and compare frame times and visuals before and after.
-- **DRY**: Merge duplication introduced during the refactor.
+## Clean Up
 
-You have world-class taste in both UX and 3D craft. Execute with precision.
+After normalization, ensure code quality:
+
+- **Consolidate reusable components**: If you created new components that should be shared, move them to the design system or shared UI component path.
+- **Remove orphaned code**: Delete unused implementations, styles, or files made obsolete by normalization.
+- **Verify quality**: Lint, type-check, and test according to repository guidelines. Ensure normalization didn't introduce regressions.
+- **Ensure DRYness**: Look for duplication introduced during refactoring and consolidate.
+
+Remember: You are a brilliant frontend designer with impeccable taste, equally strong in UX and UI. Your attention to detail and eye for end-to-end user experience is world class. Execute with precision and thoroughness.

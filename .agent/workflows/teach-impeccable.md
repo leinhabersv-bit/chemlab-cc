@@ -1,86 +1,68 @@
 ---
 name: teach-impeccable
-description: One-time setup that gathers context for an immersive 3D project (audience, concept, hero object, aesthetic, performance targets) and saves persistent design guidelines for all future sessions.
+description: One-time setup that gathers design context for your project and saves it to your AI config file. Run once to establish persistent design guidelines.
 ---
 
-Gather the context a great creative developer needs, then persist it so every future session starts informed.
+Gather design context for this project, then persist it for all future sessions.
 
-**Prerequisite**: Load the `immersive-3d-web` skill first.
+## Step 1: Explore the Codebase
 
-## Step 1: Explore the project
+Before asking questions, thoroughly scan the project to discover what you can:
 
-Before asking questions, scan what you can:
+- **README and docs**: Project purpose, target audience, any stated goals
+- **Package.json / config files**: Tech stack, dependencies, existing design libraries
+- **Existing components**: Current design patterns, spacing, typography in use
+- **Brand assets**: Logos, favicons, color values already defined
+- **Design tokens / CSS variables**: Existing color palettes, font stacks, spacing scales
+- **Any style guides or brand documentation**
 
-- **README and docs**: Purpose, audience, goals.
-- **package.json and config**: Stack (Three.js, R3F, GSAP, Lenis, framework, build tool).
-- **Existing scene code**: Renderer setup, lighting, materials, shaders, camera paths, quality tiers.
-- **Motion setup**: Scroll library, timeline structure, easing and duration conventions.
-- **Brand assets**: Logos, colors, fonts, tokens, CSS variables.
-- **Content**: Real copy, product details, imagery or models that already exist.
-- **Style guides** or design documentation.
+Note what you've learned and what remains unclear.
 
-Note what you learned and what is still unclear.
+## Step 2: Ask UX-Focused Questions
 
-## Step 2: Ask focused questions
+STOP and call the notify_user tool to clarify. Focus only on what you couldn't infer from the codebase:
 
-Ask the user (batch them, skip what the codebase already answers):
+### Users & Purpose
+- Who uses this? What's their context when using it?
+- What job are they trying to get done?
+- What emotions should the interface evoke? (confidence, delight, calm, urgency, etc.)
 
-### Users and purpose
-- Who visits, in what context, and what should they do or feel?
-- What is the single goal of the site (sell, impress, explain, convert, entertain)?
+### Brand & Personality
+- How would you describe the brand personality in 3 words?
+- Any reference sites or apps that capture the right feel? What specifically about them?
+- What should this explicitly NOT look like? Any anti-references?
 
-### Concept
-- What is the subject, and what could be the one hero object or idea?
-- Any story arc or sections the scroll should tell?
-- Any reference sites you admire? What specifically about them? Any anti-references?
+### Aesthetic Preferences
+- Any strong preferences for visual direction? (minimal, bold, elegant, playful, technical, organic, etc.)
+- Light mode, dark mode, or both?
+- Any colors that must be used or avoided?
 
-### Brand and aesthetic
-- Three words for the brand personality.
-- Direction: elegant, brutal, organic, playful, technical, surreal, minimal?
-- Light, dark, or shifting? Colors and fonts that must be used or avoided?
-- Preferred material feel (glass, metal, clay, iridescent, matte)?
+### Accessibility & Inclusion
+- Specific accessibility requirements? (WCAG level, known user needs)
+- Considerations for reduced motion, color blindness, or other accommodations?
 
-### Technical and performance
-- Target devices and browsers? Is mobile a priority?
-- Hosting constraints (single HTML file, framework app, CDN limits)? Any no-external-asset rule?
-- Performance budget and minimum acceptable frame rate?
-- Do you have 3D models or must everything be procedural?
+Skip questions where the answer is already clear from the codebase exploration.
 
-### Accessibility and inclusion
-- WCAG target, reduced-motion expectations, known user needs, languages and RTL.
+## Step 3: Write Design Context
 
-## Step 3: Write the design context
-
-Synthesize findings and answers into a `## Design Context` section:
+Synthesize your findings and the user's answers into a `## Design Context` section:
 
 ```markdown
 ## Design Context
 
-### Users and Goal
-[Who they are, their context, the single goal]
-
-### Concept
-[Subject, hero object, scroll story beats, signature moment]
+### Users
+[Who they are, their context, the job to be done]
 
 ### Brand Personality
-[Voice, tone, three words, emotional goals]
+[Voice, tone, 3-word personality, emotional goals]
 
 ### Aesthetic Direction
-[Visual tone, palette (named hex values), type pairing, material language, references, anti-references, theme]
-
-### Motion Language
-[Glide feel, easing and duration conventions, scrub smoothing, idle vs expressive motion]
-
-### Technical Constraints
-[Stack, hosting limits, quality tiers, performance budget, device targets]
-
-### Accessibility
-[WCAG target, reduced-motion approach, fallback behavior]
+[Visual tone, references, anti-references, theme]
 
 ### Design Principles
-[3 to 5 principles that guide every decision]
+[3-5 principles derived from the conversation that should guide all design decisions]
 ```
 
-Write this to `task.md` in the project root. If the file exists, append or update the Design Context section.
+Write this section to task.md in the project root. If the file exists, append or update the Design Context section.
 
-Confirm completion and summarize the key principles that will now guide all future work.
+Confirm completion and summarize the key design principles that will now guide all future work.

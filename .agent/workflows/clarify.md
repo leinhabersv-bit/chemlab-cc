@@ -1,76 +1,174 @@
 ---
 name: clarify
-description: Improve copy, labels, errors, loaders, and microcopy in an immersive 3D site so the spectacle never costs understanding. Clear, specific, human.
+description: Improve unclear UX copy, error messages, microcopy, labels, and instructions. Makes interfaces easier to understand and use.
 ---
 
-Beautiful scenes with confusing words fail. Make every piece of interface text easy to understand and act on, including text that sits over or inside a 3D world.
+Identify and improve unclear, confusing, or poorly written interface text to make the product easier to understand and use.
 
-## 1. Assess the copy
+## Assess Current Copy
 
-Look for: jargon, ambiguity, passive voice, vague labels ("Explore", "Discover", "Learn more" with no object), filler, tone mismatch, copy that repeats what the visuals already say, and text that only exists inside the canvas.
+Identify what makes the text unclear or ineffective:
 
-Know the audience, their mental state (curious, rushed, frustrated), the action you want, and constraints (length, localization, space over the scene).
+1. **Find clarity problems**:
+   - **Jargon**: Technical terms users won't understand
+   - **Ambiguity**: Multiple interpretations possible
+   - **Passive voice**: "Your file has been uploaded" vs "We uploaded your file"
+   - **Length**: Too wordy or too terse
+   - **Assumptions**: Assuming user knowledge they don't have
+   - **Missing context**: Users don't know what to do or why
+   - **Tone mismatch**: Too formal, too casual, or inappropriate for situation
 
-**CRITICAL**: Poetic is fine, unclear is not. A visitor should always know what this is, what they can do, and what happens next.
+2. **Understand the context**:
+   - Who's the audience? (Technical? General? First-time users?)
+   - What's the user's mental state? (Stressed during error? Confident during success?)
+   - What's the action? (What do we want users to do?)
+   - What's the constraint? (Character limits? Space limitations?)
 
-## 2. Plan
+**CRITICAL**: Clear copy helps users succeed. Unclear copy creates frustration, errors, and support tickets.
 
-- **Primary message**: The one thing to understand.
-- **Action**: What to do next.
-- **Tone**: Matches the brand and the moment.
-- **Constraints**: Space over the scene, readability, translation length.
+## Plan Copy Improvements
 
-## 3. Improve systematically
+Create a strategy for clearer communication:
 
-### Hero and section copy
-- Say what the product or project is in plain words within the first screen. Cinematic is not a replacement for clarity.
-- One idea per section. Headlines make a claim. Supporting text proves it.
-- Do not restate the headline in the intro line.
+- **Primary message**: What's the ONE thing users need to know?
+- **Action needed**: What should users do next (if anything)?
+- **Tone**: How should this feel? (Helpful? Apologetic? Encouraging?)
+- **Constraints**: Length limits, brand voice, localization considerations
 
-### Buttons and CTAs
-Bad: "Click here", "Submit", "Explore". Good: "Start the tour", "Book a demo", "Add to cart", "View the collection".
-Use verb + object. Keep the same name for the same action everywhere.
+**IMPORTANT**: Good UX writing is invisible. Users should understand immediately without noticing the words.
 
-### Interactive 3D hints
-- Tell users what the scene can do: "Drag to rotate", "Scroll to enter", "Pick a finish".
-- Show hints at the moment of need, fade them after first use, and never rely on hover alone.
-- Provide text equivalents for configurator choices: the selected finish name, the price change, the result.
+## Improve Copy Systematically
 
-### Loaders and progress
-Bad: "Loading..." for several seconds. Good: "Building the scene" with a visible progress value, or a short honest line. Never hide a long load behind a spinner with no information.
+Refine text across these common areas:
 
-### Errors and fallbacks
-- WebGL unavailable: "Your browser can't show the 3D view. Here's the same story in 2D." Then deliver it.
-- Context lost: "The 3D view paused. Reload to bring it back." with a retry button.
-- Form and network errors: say what happened, how to fix it, and do not blame the user.
+### Error Messages
+**Bad**: "Error 403: Forbidden"
+**Good**: "You don't have permission to view this page. Contact your admin for access."
 
-### Labels, forms, tooltips
-Specific labels, real labels (not placeholder-only), format examples, why you are asking, instructions before the field.
+**Bad**: "Invalid input"
+**Good**: "Email addresses need an @ symbol. Try: name@example.com"
 
-### Empty and success states
-Explain what will appear, give a next step. Confirm what happened and what comes next.
+**Principles**:
+- Explain what went wrong in plain language
+- Suggest how to fix it
+- Don't blame the user
+- Include examples when helpful
+- Link to help/support if applicable
 
-### Navigation and wayfinding
-Name sections by what they contain. Show a section index or progress indicator tied to scroll so visitors know where they are in the journey.
+### Form Labels & Instructions
+**Bad**: "DOB (MM/DD/YYYY)"
+**Good**: "Date of birth" (with placeholder showing format)
 
-## 4. Clarity rules
+**Bad**: "Enter value here"
+**Good**: "Your email address" or "Company name"
 
-1. Be specific. 2. Be concise. 3. Use active voice. 4. Sound human. 5. Tell people what to do. 6. Be consistent with terms.
+**Principles**:
+- Use clear, specific labels (not generic placeholders)
+- Show format expectations with examples
+- Explain why you're asking (when not obvious)
+- Put instructions before the field, not after
+- Keep required field indicators clear
 
-## 5. Text over 3D
+### Button & CTA Text
+**Bad**: "Click here" | "Submit" | "OK"
+**Good**: "Create account" | "Save changes" | "Got it, thanks"
 
-- Ensure legibility: scrims, text shadows used sparingly, or position text over calm regions of the scene.
-- Keep line length under about 70 characters and sizes responsive.
-- All essential content exists as real DOM text, never only as 3D text or texture.
+**Principles**:
+- Describe the action specifically
+- Use active voice (verb + noun)
+- Match user's mental model
+- Be specific ("Save" is better than "OK")
+
+### Help Text & Tooltips
+**Bad**: "This is the username field"
+**Good**: "Choose a username. You can change this later in Settings."
+
+**Principles**:
+- Add value (don't just repeat the label)
+- Answer the implicit question ("What is this?" or "Why do you need this?")
+- Keep it brief but complete
+- Link to detailed docs if needed
+
+### Empty States
+**Bad**: "No items"
+**Good**: "No projects yet. Create your first project to get started."
+
+**Principles**:
+- Explain why it's empty (if not obvious)
+- Show next action clearly
+- Make it welcoming, not dead-end
+
+### Success Messages
+**Bad**: "Success"
+**Good**: "Settings saved! Your changes will take effect immediately."
+
+**Principles**:
+- Confirm what happened
+- Explain what happens next (if relevant)
+- Be brief but complete
+- Match the user's emotional moment (celebrate big wins)
+
+### Loading States
+**Bad**: "Loading..." (for 30+ seconds)
+**Good**: "Analyzing your data... this usually takes 30-60 seconds"
+
+**Principles**:
+- Set expectations (how long?)
+- Explain what's happening (when it's not obvious)
+- Show progress when possible
+- Offer escape hatch if appropriate ("Cancel")
+
+### Confirmation Dialogs
+**Bad**: "Are you sure?"
+**Good**: "Delete 'Project Alpha'? This can't be undone."
+
+**Principles**:
+- State the specific action
+- Explain consequences (especially for destructive actions)
+- Use clear button labels ("Delete project" not "Yes")
+- Don't overuse confirmations (only for risky actions)
+
+### Navigation & Wayfinding
+**Bad**: Generic labels like "Items" | "Things" | "Stuff"
+**Good**: Specific labels like "Your projects" | "Team members" | "Settings"
+
+**Principles**:
+- Be specific and descriptive
+- Use language users understand (not internal jargon)
+- Make hierarchy clear
+- Consider information scent (breadcrumbs, current location)
+
+## Apply Clarity Principles
+
+Every piece of copy should follow these rules:
+
+1. **Be specific**: "Enter email" not "Enter value"
+2. **Be concise**: Cut unnecessary words (but don't sacrifice clarity)
+3. **Be active**: "Save changes" not "Changes will be saved"
+4. **Be human**: "Oops, something went wrong" not "System error encountered"
+5. **Be helpful**: Tell users what to do, not just what happened
+6. **Be consistent**: Use same terms throughout (don't vary for variety)
 
 **NEVER**:
-- Use jargon without explaining it.
-- Blame the user.
-- Use humor in serious errors.
-- Vary terminology for variety.
-- Write long explanations where a line works.
-- Use placeholders as the only labels.
+- Use jargon without explanation
+- Blame users ("You made an error" → "This field is required")
+- Be vague ("Something went wrong" without explanation)
+- Use passive voice unnecessarily
+- Write overly long explanations (be concise)
+- Use humor for errors (be empathetic instead)
+- Assume technical knowledge
+- Vary terminology (pick one term and stick with it)
+- Repeat information (headers restating intros, redundant explanations)
+- Use placeholders as the only labels (they disappear when users type)
 
-## 6. Verify
+## Verify Improvements
 
-Can a new visitor understand the offer in 5 seconds? Do they know what to do next? Is every CTA specific? Is the copy short, consistent, and readable over the scene? Does the fallback copy work when the 3D does not?
+Test that copy improvements work:
+
+- **Comprehension**: Can users understand without context?
+- **Actionability**: Do users know what to do next?
+- **Brevity**: Is it as short as possible while remaining clear?
+- **Consistency**: Does it match terminology elsewhere?
+- **Tone**: Is it appropriate for the situation?
+
+Remember: You're a clarity expert with excellent communication skills. Write like you're explaining to a smart friend who's unfamiliar with the product. Be clear, be helpful, be human.

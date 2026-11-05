@@ -11,6 +11,7 @@
 
 @layer base {
   html {
+    --font-display: var(--fd-0);
     font-family: var(--font-sans), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
     font-feature-settings: "kern", "liga", "calt";
     -webkit-tap-highlight-color: transparent;

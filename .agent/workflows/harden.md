@@ -1,85 +1,352 @@
 ---
 name: harden
-description: Make a 3D site production-proof: WebGL context loss, no-GPU fallbacks, memory leaks, bad inputs, slow networks, i18n and RTL, accessibility, and graceful degradation.
+description: Improve interface resilience through better error handling, i18n support, text overflow handling, and edge case management. Makes interfaces robust and production-ready.
 ---
 
-Real users have weak GPUs, flaky networks, odd languages, and assistive tech. Harden the site so it never breaks in front of them.
+Strengthen interfaces against edge cases, errors, internationalization issues, and real-world usage scenarios that break idealized designs.
 
-**Prerequisite**: Load the `immersive-3d-web` skill first.
+## Assess Hardening Needs
 
-## 1. Assess
+Identify weaknesses and edge cases:
 
-Test with extremes: very long and very short text, emoji, RTL, CJK, huge lists, no data, offline, throttled CPU and network, blocked scripts, old browsers, software rendering, background tabs, rapid resizing, fast scroll flicks, rotate mid-animation.
+1. **Test with extreme inputs**:
+   - Very long text (names, descriptions, titles)
+   - Very short text (empty, single character)
+   - Special characters (emoji, RTL text, accents)
+   - Large numbers (millions, billions)
+   - Many items (1000+ list items, 50+ options)
+   - No data (empty states)
 
-**CRITICAL**: A showpiece that only works on the dev machine is a demo, not a product.
+2. **Test error scenarios**:
+   - Network failures (offline, slow, timeout)
+   - API errors (400, 401, 403, 404, 500)
+   - Validation errors
+   - Permission errors
+   - Rate limiting
+   - Concurrent operations
 
-## 2. 3D and WebGL resilience
+3. **Test internationalization**:
+   - Long translations (German is often 30% longer than English)
+   - RTL languages (Arabic, Hebrew)
+   - Character sets (Chinese, Japanese, Korean, emoji)
+   - Date/time formats
+   - Number formats (1,000 vs 1.000)
+   - Currency symbols
 
-- **Capability detection**: Try creating the context in `try/catch`. Check `renderer.capabilities`, max texture size, and float texture support. Pick a quality tier accordingly.
-- **Context loss**: Listen for `webglcontextlost` (`preventDefault()`) and `webglcontextrestored`. Pause the loop, show a friendly status, rebuild resources on restore.
-- **Fallback hero**: If WebGL fails, show a designed static hero (CSS gradient, inline SVG, or a pre-rendered image as a data URI) with all content intact and working navigation.
-- **Shader compile failures**: Check `renderer.debug.onShaderError` and fall back to a basic material.
-- **Memory**: `dispose()` geometries, materials, textures, render targets, and composers when removed. Remove listeners, kill GSAP tweens and ScrollTriggers, cancel animation frames, and disconnect observers on teardown.
-- **Visibility**: Stop rendering when the tab is hidden or the canvas is offscreen.
-- **Quality scaling**: Measure frame time. Step down pixel ratio, particle count, and passes automatically when frames drop.
-- **Resize safety**: Debounced resize that updates camera, renderer, passes, and `ScrollTrigger.refresh()`.
+**CRITICAL**: Designs that only work with perfect data aren't production-ready. Harden against reality.
 
-## 3. Loading and network
+## Hardening Dimensions
 
-- Show the HTML shell and a designed loader immediately. Build the scene after first paint.
-- Handle failed CDN loads: detect missing `THREE`, `gsap`, or `Lenis` globals and degrade (no smooth scroll, no 3D) rather than throwing.
-- Pin CDN versions. Keep the page self-contained where possible.
-- Set explicit sizes for the canvas container to prevent layout shift.
-- Respect `navigator.connection.saveData` and slow connections by skipping optional effects.
+Systematically improve resilience:
 
-## 4. Text overflow and layout
+### Text Overflow & Wrapping
 
+**Long text handling**:
 ```css
-.truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.wrap { overflow-wrap: anywhere; hyphens: auto; }
-.flex-item, .grid-item { min-width: 0; }
+/* Single line with ellipsis */
+.truncate {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Multi-line with clamp */
+.line-clamp {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Allow wrapping */
+.wrap {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
 ```
-- Fluid type with `clamp()`. Containers grow with content. Avoid fixed widths on text.
-- Test text zoom to 200%.
 
-## 5. Internationalization
+**Flex/Grid overflow**:
+```css
+/* Prevent flex items from overflowing */
+.flex-item {
+  min-width: 0; /* Allow shrinking below content size */
+  overflow: hidden;
+}
 
-- Budget 30 to 40% extra space for translations. Use flexible layouts.
-- Logical properties (`margin-inline-start`, `padding-inline`). Mirror directional icons and, where it matters, scene composition for RTL.
-- UTF-8 everywhere. Test CJK, Arabic, emoji. Make sure display fonts cover required scripts or provide fallbacks.
-- `Intl.DateTimeFormat`, `Intl.NumberFormat`, `Intl.PluralRules` instead of hand-rolled formats.
-- Animated type splitting must handle multi-byte characters, ligatures, and RTL (split by grapheme with `Intl.Segmenter` when available).
+/* Prevent grid items from overflowing */
+.grid-item {
+  min-width: 0;
+  min-height: 0;
+}
+```
 
-## 6. Errors and edge cases
+**Responsive text sizing**:
+- Use `clamp()` for fluid typography
+- Set minimum readable sizes (14px on mobile)
+- Test text scaling (zoom to 200%)
+- Ensure containers expand with text
 
-- Forms: inline, specific errors. Preserve input. Prevent double submission.
-- API errors: handle each status meaningfully. Retry button on network failure.
-- Storage and optional APIs wrapped in `try/catch` (`localStorage`, `AudioContext`, device orientation, clipboard).
-- Empty, loading, error, success, and permission states for every dynamic area.
-- Isolate failures: one broken feature must not take down the page.
-- Pointer and touch conflicts: ensure the canvas never traps scroll or taps.
+### Internationalization (i18n)
 
-## 7. Accessibility resilience
+**Text expansion**:
+- Add 30-40% space budget for translations
+- Use flexbox/grid that adapts to content
+- Test with longest language (usually German)
+- Avoid fixed widths on text containers
 
-- Real semantic HTML underneath the canvas. All essential content in the DOM.
-- Keyboard access, visible focus, skip links, logical order.
-- `prefers-reduced-motion`: swap the scroll film for calm static or slow-drift. Pause autoplay and auto-advancing effects.
-- `prefers-contrast` and forced colors: scrims and outlines that survive.
-- Announce dynamic changes with live regions. Provide a pause control for continuous motion.
-- No flashing content.
+```jsx
+// ❌ Bad: Assumes short English text
+<button className="w-24">Submit</button>
 
-## 8. Testing
+// ✅ Good: Adapts to content
+<button className="px-4 py-2">Submit</button>
+```
 
-Manual: low-end device, software renderer, offline, throttled network, screen reader, keyboard only, RTL, long text, rapid input. Automated: unit tests for edge cases, E2E for critical paths, visual regression of the fallback, axe accessibility checks.
+**RTL (Right-to-Left) support**:
+```css
+/* Use logical properties */
+margin-inline-start: 1rem; /* Not margin-left */
+padding-inline: 1rem; /* Not padding-left/right */
+border-inline-end: 1px solid; /* Not border-right */
+
+/* Or use dir attribute */
+[dir="rtl"] .arrow { transform: scaleX(-1); }
+```
+
+**Character set support**:
+- Use UTF-8 encoding everywhere
+- Test with Chinese/Japanese/Korean (CJK) characters
+- Test with emoji (they can be 2-4 bytes)
+- Handle different scripts (Latin, Cyrillic, Arabic, etc.)
+
+**Date/Time formatting**:
+```javascript
+// ✅ Use Intl API for proper formatting
+new Intl.DateTimeFormat('en-US').format(date); // 1/15/2024
+new Intl.DateTimeFormat('de-DE').format(date); // 15.1.2024
+
+new Intl.NumberFormat('en-US', { 
+  style: 'currency', 
+  currency: 'USD' 
+}).format(1234.56); // $1,234.56
+```
+
+**Pluralization**:
+```javascript
+// ❌ Bad: Assumes English pluralization
+`${count} item${count !== 1 ? 's' : ''}`
+
+// ✅ Good: Use proper i18n library
+t('items', { count }) // Handles complex plural rules
+```
+
+### Error Handling
+
+**Network errors**:
+- Show clear error messages
+- Provide retry button
+- Explain what happened
+- Offer offline mode (if applicable)
+- Handle timeout scenarios
+
+```jsx
+// Error states with recovery
+{error && (
+  <ErrorMessage>
+    <p>Failed to load data. {error.message}</p>
+    <button onClick={retry}>Try again</button>
+  </ErrorMessage>
+)}
+```
+
+**Form validation errors**:
+- Inline errors near fields
+- Clear, specific messages
+- Suggest corrections
+- Don't block submission unnecessarily
+- Preserve user input on error
+
+**API errors**:
+- Handle each status code appropriately
+  - 400: Show validation errors
+  - 401: Redirect to login
+  - 403: Show permission error
+  - 404: Show not found state
+  - 429: Show rate limit message
+  - 500: Show generic error, offer support
+
+**Graceful degradation**:
+- Core functionality works without JavaScript
+- Images have alt text
+- Progressive enhancement
+- Fallbacks for unsupported features
+
+### Edge Cases & Boundary Conditions
+
+**Empty states**:
+- No items in list
+- No search results
+- No notifications
+- No data to display
+- Provide clear next action
+
+**Loading states**:
+- Initial load
+- Pagination load
+- Refresh
+- Show what's loading ("Loading your projects...")
+- Time estimates for long operations
+
+**Large datasets**:
+- Pagination or virtual scrolling
+- Search/filter capabilities
+- Performance optimization
+- Don't load all 10,000 items at once
+
+**Concurrent operations**:
+- Prevent double-submission (disable button while loading)
+- Handle race conditions
+- Optimistic updates with rollback
+- Conflict resolution
+
+**Permission states**:
+- No permission to view
+- No permission to edit
+- Read-only mode
+- Clear explanation of why
+
+**Browser compatibility**:
+- Polyfills for modern features
+- Fallbacks for unsupported CSS
+- Feature detection (not browser detection)
+- Test in target browsers
+
+### Input Validation & Sanitization
+
+**Client-side validation**:
+- Required fields
+- Format validation (email, phone, URL)
+- Length limits
+- Pattern matching
+- Custom validation rules
+
+**Server-side validation** (always):
+- Never trust client-side only
+- Validate and sanitize all inputs
+- Protect against injection attacks
+- Rate limiting
+
+**Constraint handling**:
+```html
+<!-- Set clear constraints -->
+<input 
+  type="text"
+  maxlength="100"
+  pattern="[A-Za-z0-9]+"
+  required
+  aria-describedby="username-hint"
+/>
+<small id="username-hint">
+  Letters and numbers only, up to 100 characters
+</small>
+```
+
+### Accessibility Resilience
+
+**Keyboard navigation**:
+- All functionality accessible via keyboard
+- Logical tab order
+- Focus management in modals
+- Skip links for long content
+
+**Screen reader support**:
+- Proper ARIA labels
+- Announce dynamic changes (live regions)
+- Descriptive alt text
+- Semantic HTML
+
+**Motion sensitivity**:
+```css
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+```
+
+**High contrast mode**:
+- Test in Windows high contrast mode
+- Don't rely only on color
+- Provide alternative visual cues
+
+### Performance Resilience
+
+**Slow connections**:
+- Progressive image loading
+- Skeleton screens
+- Optimistic UI updates
+- Offline support (service workers)
+
+**Memory leaks**:
+- Clean up event listeners
+- Cancel subscriptions
+- Clear timers/intervals
+- Abort pending requests on unmount
+
+**Throttling & Debouncing**:
+```javascript
+// Debounce search input
+const debouncedSearch = debounce(handleSearch, 300);
+
+// Throttle scroll handler
+const throttledScroll = throttle(handleScroll, 100);
+```
+
+## Testing Strategies
+
+**Manual testing**:
+- Test with extreme data (very long, very short, empty)
+- Test in different languages
+- Test offline
+- Test slow connection (throttle to 3G)
+- Test with screen reader
+- Test keyboard-only navigation
+- Test on old browsers
+
+**Automated testing**:
+- Unit tests for edge cases
+- Integration tests for error scenarios
+- E2E tests for critical paths
+- Visual regression tests
+- Accessibility tests (axe, WAVE)
+
+**IMPORTANT**: Hardening is about expecting the unexpected. Real users will do things you never imagined.
 
 **NEVER**:
-- Assume WebGL, a fast GPU, or fast network.
-- Leave resources undisposed.
-- Throw on a missing CDN global.
-- Trust client-side validation alone.
-- Use fixed widths for text.
-- Block the whole interface when one piece fails.
+- Assume perfect input (validate everything)
+- Ignore internationalization (design for global)
+- Leave error messages generic ("Error occurred")
+- Forget offline scenarios
+- Trust client-side validation alone
+- Use fixed widths for text
+- Assume English-length text
+- Block entire interface when one component errors
 
-## 9. Verify
+## Verify Hardening
 
-Kill WebGL, drop the network, lose the context, flood with long text, flip to RTL, rotate and resize repeatedly, leave the tab for 10 minutes and return. The page should still look intentional and work.
+Test thoroughly with edge cases:
+
+- **Long text**: Try names with 100+ characters
+- **Emoji**: Use emoji in all text fields
+- **RTL**: Test with Arabic or Hebrew
+- **CJK**: Test with Chinese/Japanese/Korean
+- **Network issues**: Disable internet, throttle connection
+- **Large datasets**: Test with 1000+ items
+- **Concurrent actions**: Click submit 10 times rapidly
+- **Errors**: Force API errors, test all error states
+- **Empty**: Remove all data, test empty states
+
+Remember: You're hardening for production reality, not demo perfection. Expect users to input weird data, lose connection mid-flow, and use your product in unexpected ways. Build resilience into every component.

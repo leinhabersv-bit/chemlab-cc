@@ -1,95 +1,196 @@
 ---
 name: polish
-description: Final quality pass for a 3D scroll site: edge alignment, spacing, type detail, shader and light tuning, state coverage, timing, performance sanity, and code cleanup before launch.
+description: Final quality pass before shipping. Fixes alignment, spacing, consistency, and detail issues that separate good from great.
 ---
 
-The difference between shipped and polished. Do this last, once everything works.
+**First**: Use the frontend-design skill for design principles and anti-patterns.
 
-**Prerequisite**: Load the `immersive-3d-web` skill first.
+Perform a meticulous final pass to catch all the small details that separate good work from great work. The difference between shipped and polished.
 
-## 1. Pre-polish check
+## Pre-Polish Assessment
 
-- Is it functionally complete? Polish is the final step.
-- What is the quality bar (portfolio showpiece or MVP)? How much time remains? Triage accordingly.
-- Note known issues to preserve with TODOs.
+Understand the current state and goals:
 
-## 2. Polish dimensions
+1. **Review completeness**:
+   - Is it functionally complete?
+   - Are there known issues to preserve (mark with TODOs)?
+   - What's the quality bar? (MVP vs flagship feature?)
+   - When does it ship? (How much time for polish?)
 
-### 3D scene
-- **Framing**: Hero well composed at every aspect ratio. Nothing clipped, nothing awkwardly empty.
-- **Lighting**: No blown highlights or crushed blacks. Rim light reads. Reflections look intentional.
-- **Materials**: Roughness, clearcoat, transmission tuned. No z-fighting, shimmering, or visible seams. Normals correct.
-- **Edges**: Antialiasing clean. No jagged silhouettes or banding in gradients (add subtle dither or grain).
-- **Depth cues**: Fog and particles consistent in scale and density.
-- **Color management**: Correct color space and tone mapping. Consistent look between scene and CSS.
-- **Idle life**: Quiet, never distracting.
-- **Loader to hero handoff**: Seamless, no flash of empty canvas.
+2. **Identify polish areas**:
+   - Visual inconsistencies
+   - Spacing and alignment issues
+   - Interaction state gaps
+   - Copy inconsistencies
+   - Edge cases and error states
+   - Loading and transition smoothness
 
-### Motion and glide
-- Smooth in both scroll directions and under fast flicks.
-- No pops at section boundaries, no scrub overshoot.
-- Consistent easing (expo, quart) and durations. No bounce.
-- Camera look-at eased. Pointer damping consistent.
-- Pin and unpin points feel natural. Anchor links and "back to top" glide properly.
-- `ScrollTrigger.refresh()` after fonts load and on resize.
-- Reduced-motion alternative looks good, not broken.
+**CRITICAL**: Polish is the last step, not the first. Don't polish work that's not functionally complete.
 
-### Alignment and spacing
-- Everything on the spacing scale. No random 13px gaps.
-- Optical alignment for icons and large type (display type often needs negative offsets).
-- Consistent edge margins and rhythm. Intentional asymmetry, not accidents.
+## Polish Systematically
 
-### Typography
-- Consistent hierarchy. Line length 45 to 75 characters for body.
-- Tight tracking on display, comfortable on body. No widows and orphans.
-- Kerning tuned on headlines. No FOUT or layout jump when fonts load.
-- Split-text animations preserve spacing, ligatures, and wrapping.
+Work through these dimensions methodically:
 
-### Color and contrast
-- Contrast passes over the scene at every scroll position. Check the worst frame.
-- Tokens used everywhere. Tinted neutrals. No gray on colored fills.
-- Focus rings visible against the scene.
+### Visual Alignment & Spacing
 
-### Interaction states
-Every interactive element has default, hover, focus, active, disabled, loading, error, success. Custom cursor states for every interactive type. Touch states replace hover on touch devices.
+- **Pixel-perfect alignment**: Everything lines up to grid
+- **Consistent spacing**: All gaps use spacing scale (no random 13px gaps)
+- **Optical alignment**: Adjust for visual weight (icons may need offset for optical centering)
+- **Responsive consistency**: Spacing and alignment work at all breakpoints
+- **Grid adherence**: Elements snap to baseline grid
 
-### Copy and content
-Consistent terms and capitalization, no typos, specific CTAs, no placeholder text. Loader and hint copy fits the brand.
+**Check**:
+- Enable grid overlay and verify alignment
+- Check spacing with browser inspector
+- Test at multiple viewport sizes
+- Look for elements that "feel" off
 
-### Responsiveness and adaptation
-All breakpoints and orientations. Touch targets 44px. No horizontal scroll. Safe areas respected. Quality tiers working.
+### Typography Refinement
 
-### Performance sanity
-60fps on target devices, no layout shift, clean first load, no console errors or warnings, resources disposed.
+- **Hierarchy consistency**: Same elements use same sizes/weights throughout
+- **Line length**: 45-75 characters for body text
+- **Line height**: Appropriate for font size and context
+- **Widows & orphans**: No single words on last line
+- **Hyphenation**: Appropriate for language and column width
+- **Kerning**: Adjust letter spacing where needed (especially headlines)
+- **Font loading**: No FOUT/FOIT flashes
 
-### Code quality
-Remove debug helpers (stats, GUI, axes, logs) from production. Remove dead code and unused imports. Pinned CDN versions. Consistent naming. Comments where non-obvious.
+### Color & Contrast
 
-### Meta and sharing
-Title, description, favicon, social image (a still of the hero), correct theme color.
+- **Contrast ratios**: All text meets WCAG standards
+- **Consistent token usage**: No hard-coded colors, all use design tokens
+- **Theme consistency**: Works in all theme variants
+- **Color meaning**: Same colors mean same things throughout
+- **Accessible focus**: Focus indicators visible with sufficient contrast
+- **Tinted neutrals**: No pure gray or pure black—add subtle color tint (0.01 chroma)
+- **Gray on color**: Never put gray text on colored backgrounds—use a shade of that color or transparency
 
-## 3. Checklist
+### Interaction States
 
-- [ ] Hero framed well at all aspect ratios
-- [ ] Lighting and materials tuned, no artifacts
-- [ ] Glide smooth in both directions, no pops
-- [ ] Easing and timing consistent
-- [ ] Reduced-motion version polished
-- [ ] WebGL fallback polished
-- [ ] Spacing and alignment on system
-- [ ] Type hierarchy and kerning refined
-- [ ] Contrast passes at worst frame
-- [ ] All interactive states present
-- [ ] Copy consistent, no placeholders
-- [ ] Touch, keyboard, and mouse all work
-- [ ] 60fps on mid-range device
-- [ ] No console errors, debug tools removed
-- [ ] Meta tags and share image set
+Every interactive element needs all states:
+
+- **Default**: Resting state
+- **Hover**: Subtle feedback (color, scale, shadow)
+- **Focus**: Keyboard focus indicator (never remove without replacement)
+- **Active**: Click/tap feedback
+- **Disabled**: Clearly non-interactive
+- **Loading**: Async action feedback
+- **Error**: Validation or error state
+- **Success**: Successful completion
+
+**Missing states create confusion and broken experiences**.
+
+### Micro-interactions & Transitions
+
+- **Smooth transitions**: All state changes animated appropriately (150-300ms)
+- **Consistent easing**: Use ease-out-quart/quint/expo for natural deceleration. Never bounce or elastic—they feel dated.
+- **No jank**: 60fps animations, only animate transform and opacity
+- **Appropriate motion**: Motion serves purpose, not decoration
+- **Reduced motion**: Respects `prefers-reduced-motion`
+
+### Content & Copy
+
+- **Consistent terminology**: Same things called same names throughout
+- **Consistent capitalization**: Title Case vs Sentence case applied consistently
+- **Grammar & spelling**: No typos
+- **Appropriate length**: Not too wordy, not too terse
+- **Punctuation consistency**: Periods on sentences, not on labels (unless all labels have them)
+
+### Icons & Images
+
+- **Consistent style**: All icons from same family or matching style
+- **Appropriate sizing**: Icons sized consistently for context
+- **Proper alignment**: Icons align with adjacent text optically
+- **Alt text**: All images have descriptive alt text
+- **Loading states**: Images don't cause layout shift, proper aspect ratios
+- **Retina support**: 2x assets for high-DPI screens
+
+### Forms & Inputs
+
+- **Label consistency**: All inputs properly labeled
+- **Required indicators**: Clear and consistent
+- **Error messages**: Helpful and consistent
+- **Tab order**: Logical keyboard navigation
+- **Auto-focus**: Appropriate (don't overuse)
+- **Validation timing**: Consistent (on blur vs on submit)
+
+### Edge Cases & Error States
+
+- **Loading states**: All async actions have loading feedback
+- **Empty states**: Helpful empty states, not just blank space
+- **Error states**: Clear error messages with recovery paths
+- **Success states**: Confirmation of successful actions
+- **Long content**: Handles very long names, descriptions, etc.
+- **No content**: Handles missing data gracefully
+- **Offline**: Appropriate offline handling (if applicable)
+
+### Responsiveness
+
+- **All breakpoints**: Test mobile, tablet, desktop
+- **Touch targets**: 44x44px minimum on touch devices
+- **Readable text**: No text smaller than 14px on mobile
+- **No horizontal scroll**: Content fits viewport
+- **Appropriate reflow**: Content adapts logically
+
+### Performance
+
+- **Fast initial load**: Optimize critical path
+- **No layout shift**: Elements don't jump after load (CLS)
+- **Smooth interactions**: No lag or jank
+- **Optimized images**: Appropriate formats and sizes
+- **Lazy loading**: Off-screen content loads lazily
+
+### Code Quality
+
+- **Remove console logs**: No debug logging in production
+- **Remove commented code**: Clean up dead code
+- **Remove unused imports**: Clean up unused dependencies
+- **Consistent naming**: Variables and functions follow conventions
+- **Type safety**: No TypeScript `any` or ignored errors
+- **Accessibility**: Proper ARIA labels and semantic HTML
+
+## Polish Checklist
+
+Go through systematically:
+
+- [ ] Visual alignment perfect at all breakpoints
+- [ ] Spacing uses design tokens consistently
+- [ ] Typography hierarchy consistent
+- [ ] All interactive states implemented
+- [ ] All transitions smooth (60fps)
+- [ ] Copy is consistent and polished
+- [ ] Icons are consistent and properly sized
+- [ ] All forms properly labeled and validated
+- [ ] Error states are helpful
+- [ ] Loading states are clear
+- [ ] Empty states are welcoming
+- [ ] Touch targets are 44x44px minimum
+- [ ] Contrast ratios meet WCAG AA
+- [ ] Keyboard navigation works
+- [ ] Focus indicators visible
+- [ ] No console errors or warnings
+- [ ] No layout shift on load
+- [ ] Works in all supported browsers
+- [ ] Respects reduced motion preference
+- [ ] Code is clean (no TODOs, console.logs, commented code)
+
+**IMPORTANT**: Polish is about details. Zoom in. Squint at it. Use it yourself. The little things add up.
 
 **NEVER**:
-- Polish before it works.
-- Introduce bugs while polishing.
-- Perfect one area and leave others rough.
-- Ignore systemic issues. Fix the system, not each instance.
+- Polish before it's functionally complete
+- Spend hours on polish if it ships in 30 minutes (triage)
+- Introduce bugs while polishing (test thoroughly)
+- Ignore systematic issues (if spacing is off everywhere, fix the system)
+- Perfect one thing while leaving others rough (consistent quality level)
 
-Zoom in. Squint. Scroll it slowly, then fast. Use it yourself on a real phone. Sweat the details.
+## Final Verification
+
+Before marking as done:
+
+- **Use it yourself**: Actually interact with the feature
+- **Test on real devices**: Not just browser DevTools
+- **Ask someone else to review**: Fresh eyes catch things
+- **Compare to design**: Match intended design
+- **Check all states**: Don't just test happy path
+
+Remember: You have impeccable attention to detail and exquisite taste. Polish until it feels effortless, looks intentional, and works flawlessly. Sweat the details - they matter.
