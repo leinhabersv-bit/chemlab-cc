@@ -67,7 +67,7 @@ export const ExperimentShell: React.FC<ExperimentShellProps> = ({ experiment }) 
               : "border-transparent text-enamel-400 hover:text-white hover:bg-bench-900/50"
           }`}
         >
-          <span>📋</span>
+          <span className="w-1.5 h-1.5 rounded-full bg-instrument-amber" />
           <span>1. Station Blueprint & Protocol</span>
         </button>
 
@@ -79,7 +79,7 @@ export const ExperimentShell: React.FC<ExperimentShellProps> = ({ experiment }) 
               : "border-transparent text-enamel-400 hover:text-white hover:bg-bench-900/50"
           }`}
         >
-          <span>📘</span>
+          <span className="w-1.5 h-1.5 rounded-full bg-instrument-sky" />
           <span>2. Scientific Theory & Equations</span>
         </button>
 
@@ -91,7 +91,7 @@ export const ExperimentShell: React.FC<ExperimentShellProps> = ({ experiment }) 
               : "border-transparent text-enamel-400 hover:text-white hover:bg-bench-900/50"
           }`}
         >
-          <span>📐</span>
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
           <span>3. Calculations & Formulas</span>
         </button>
 
@@ -103,7 +103,7 @@ export const ExperimentShell: React.FC<ExperimentShellProps> = ({ experiment }) 
               : "border-transparent text-enamel-400 hover:text-white hover:bg-bench-900/50"
           }`}
         >
-          <span>📝</span>
+          <span className="w-1.5 h-1.5 rounded-full bg-purple-400" />
           <span>4. Viva Voce & Review</span>
         </button>
       </div>
