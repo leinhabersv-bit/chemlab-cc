@@ -2,30 +2,11 @@
 
 import { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import Link from "next/link";
+import { Exp1Canvas3D, type Exp1Canvas3DHandle } from "./Exp1Canvas3D";
 import "./exp1.css";
 
 /* ====================================================================
-   1. TYPES & DATA
-   ==================================================================== */
-
-interface CoachStep {
-  text: string;
-  targetId: string;
-  zoneId?: string;
-}
-
-interface EvalSummary {
-  calculated: number;
-  trueHardness: number;
-  errorPct: number;
-  marks: number;
-  bisDeviation: number;
-  isPotable: boolean;
-  dateStr: string;
-}
-
-/* ====================================================================
-   2. ACOUSTIC ENGINE (Web Audio API Synthesizer)
+   1. ACOUSTIC ENGINE (Web Audio API Synthesizer)
    ==================================================================== */
 
 class LabAcoustics {
@@ -34,7 +15,9 @@ class LabAcoustics {
 
   private init() {
     if (!this.ctx && typeof window !== "undefined") {
-      const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      const AudioCtx =
+        window.AudioContext ||
+        (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
       if (AudioCtx) {
         this.ctx = new AudioCtx();
       }
@@ -55,8 +38,8 @@ class LabAcoustics {
       const now = this.ctx.currentTime;
 
       osc.type = "sine";
-      osc.frequency.setValueAtTime(950, now);
-      osc.frequency.exponentialRampToValueAtTime(320, now + 0.08);
+      osc.frequency.setValueAtTime(920, now);
+      osc.frequency.exponentialRampToValueAtTime(340, now + 0.08);
 
       gain.gain.setValueAtTime(0.18, now);
       gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
@@ -98,7 +81,7 @@ class LabAcoustics {
     }
   }
 
-  // Stopcock squeak/turn
+  // Stopcock valve turn sound
   playValve() {
     if (!this.enabled) return;
     try {
@@ -158,6 +141,20 @@ class LabAcoustics {
 const acoustics = new LabAcoustics();
 
 /* ====================================================================
+   2. TYPES & INTERFACES
+   ==================================================================== */
+
+interface EvalSummary {
+  calculated: number;
+  trueHardness: number;
+  errorPct: number;
+  marks: number;
+  bisDeviation: number;
+  isPotable: boolean;
+  dateStr: string;
+}
+
+/* ====================================================================
    3. COMPONENT
    ==================================================================== */
 
@@ -169,6 +166,10 @@ export default function ExperimentOnePage() {
   }).current;
 
   const targetV2 = (truths.trueHardness / 1000) * truths.v1;
+
+  // 3D Canvas Ref & Camera View State
+  const canvas3DRef = useRef<Exp1Canvas3DHandle>(null);
+  const [cameraView, setCameraView] = useState<"overview" | "meniscus" | "flask">("overview");
 
   // Laboratory state machine
   const [phase, setPhase] = useState<1 | 2>(1); // 1 = Standardization, 2 = Unknown Sample
@@ -182,201 +183,43 @@ export default function ExperimentOnePage() {
   const [trials, setTrials] = useState<{ 1: number[]; 2: number[] }>({ 1: [], 2: [] });
   const [concordant, setConcordant] = useState<{ 1: number | null; 2: number | null }>({ 1: null, 2: null });
   const [isRunning, setIsRunning] = useState(false);
-  const [dropsPulse, setDropsPulse] = useState(0);
   const [endpointReached, setEndpointReached] = useState(false);
   const [audioEnabled, setAudioEnabled] = useState(true);
-
-  // 3D Parallax tilt coordinates
-  const [tilt, setTilt] = useState({ rx: 0, ry: 0 });
 
   // Calculation & VIT evaluation state
   const [userHardnessInput, setUserHardnessInput] = useState("");
   const [studentRegNo, setStudentRegNo] = useState("24BCE1042");
   const [evalResult, setEvalResult] = useState<EvalSummary | null>(null);
 
-  // Modals & hints
+  // Modals & UI notifications
   const [toastMsg, setToastMsg] = useState<string | null>(null);
   const [showTheoryModal, setShowTheoryModal] = useState(false);
   const [showManualModal, setShowManualModal] = useState(false);
-  const [showCoach, setShowCoach] = useState(false);
-  const [coachStep, setCoachStep] = useState<CoachStep | null>(null);
-  const [coachPos, setCoachPos] = useState({ left: 0, top: 0, isBelow: true, arrowX: 24 });
-  const [dragItem, setDragItem] = useState<string | null>(null);
-  const [hotZone, setHotZone] = useState<"flask" | "burette" | null>(null);
 
   // References
-  const stageRef = useRef<HTMLDivElement>(null);
-  const wrapRef = useRef<HTMLDivElement>(null);
   const toastTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-  const coachTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const lastTimeRef = useRef<number>(performance.now());
   const warnSoundRef = useRef(false);
 
-  // Sync audio toggle with acoustic engine
   const toggleAudio = () => {
     acoustics.enabled = !audioEnabled;
     setAudioEnabled(!audioEnabled);
   };
 
-  // Responsive stage scaler
-  const updateStageScale = useCallback(() => {
-    if (!wrapRef.current || !stageRef.current) return;
-    const wrapRect = wrapRef.current.getBoundingClientRect();
-    const scale = Math.min(wrapRect.width / 1000, wrapRect.height / 620);
-    stageRef.current.style.transform = `scale(${scale}) rotateX(${tilt.rx}deg) rotateY(${tilt.ry}deg)`;
-    stageRef.current.style.left = `${(wrapRect.width - 1000 * scale) / 2}px`;
-    stageRef.current.style.top = `${(wrapRect.height - 620 * scale) / 2}px`;
-  }, [tilt.rx, tilt.ry]);
-
-  useEffect(() => {
-    updateStageScale();
-    window.addEventListener("resize", updateStageScale);
-    return () => window.removeEventListener("resize", updateStageScale);
-  }, [updateStageScale]);
-
-  // Toast notification
   const triggerToast = useCallback((msg: string) => {
     setToastMsg(msg);
     if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
     toastTimeoutRef.current = setTimeout(() => setToastMsg(null), 3200);
   }, []);
 
-  // Target endpoint volume for active phase
   const currentTargetEndpoint = useMemo(() => {
     return phase === 1 ? truths.v1 : targetV2;
   }, [phase, truths.v1, targetV2]);
 
-  // Determine active pedagogical coach guidance
-  const getNextStep = useCallback((): CoachStep | null => {
-    if (!flaskPlaced) {
-      return {
-        text: "Pick up the 250 mL conical flask and drop it onto the white tile beneath the burette.",
-        targetId: "tray-flask",
-        zoneId: "zone-flask",
-      };
-    }
-    if (!buretteFilled) {
-      return {
-        text: "Drag 0.01 N EDTA standard solution onto the burette tube to fill and zero the meniscus at 0.00 mL.",
-        targetId: "tray-edta",
-        zoneId: "zone-bur",
-      };
-    }
-    if (!pipetteAdded) {
-      return {
-        text: `Pipette 20.0 mL of ${phase === 1 ? "standard hard water (1000 ppm CaCO₃ eq)" : "the unknown water sample"} into the conical flask.`,
-        targetId: "tray-pip",
-        zoneId: "zone-flask",
-      };
-    }
-    if (!bufferAdded) {
-      return {
-        text: "Add 4 mL of ammonia buffer (NH₃–NH₄Cl) to buffer the solution to pH 10 for stable EDTA chelation.",
-        targetId: "tray-buf",
-        zoneId: "zone-flask",
-      };
-    }
-    if (!ebtAdded) {
-      return {
-        text: "Add 3 drops of Eriochrome Black-T (EBT) indicator. Free Ca²⁺/Mg²⁺ form an unstable wine-red complex.",
-        targetId: "tray-ebt",
-        zoneId: "zone-flask",
-      };
-    }
-    if (finalRecorded === null && !endpointReached) {
-      return {
-        text: "Hold 'Hold to Run' to deliver EDTA. Switch to '1 Drop' single drops as wine-red turns purple.",
-        targetId: "btn-run",
-      };
-    }
-    if (finalRecorded === null) {
-      return {
-        text: "The solution is crisp steel blue (all metal ions complexed). Click 'Record Final Reading'.",
-        targetId: "btn-fin",
-      };
-    }
-    return null;
-  }, [flaskPlaced, buretteFilled, pipetteAdded, bufferAdded, ebtAdded, finalRecorded, endpointReached, phase]);
-
-  // Position coach tooltip
-  const positionCoach = useCallback((step: CoachStep) => {
-    const el = document.getElementById(step.targetId);
-    if (!el) return;
-    const r = el.getBoundingClientRect();
-    const w = 280;
-    const isBelow = r.bottom + 120 < window.innerHeight;
-    const left = Math.max(12, Math.min(window.innerWidth - w - 12, r.left + r.width / 2 - w / 2));
-    const top = isBelow ? r.bottom + 12 : Math.max(10, r.top - 110);
-    const arrowX = Math.max(16, Math.min(w - 24, r.left + r.width / 2 - left - 6));
-    setCoachPos({ left, top, isBelow, arrowX });
-    setShowCoach(true);
-  }, []);
-
-  const refreshCoach = useCallback(() => {
-    const next = getNextStep();
-    setCoachStep(next);
-    if (next) {
-      positionCoach(next);
-      if (coachTimeoutRef.current) clearTimeout(coachTimeoutRef.current);
-      coachTimeoutRef.current = setTimeout(() => setShowCoach(false), 9000);
-    } else {
-      setShowCoach(false);
-    }
-  }, [getNextStep, positionCoach]);
-
-  useEffect(() => {
-    const timer = setTimeout(refreshCoach, 400);
-    return () => clearTimeout(timer);
-  }, [refreshCoach]);
-
-  // Continuous titration animation loop & droplet cadence
-  useEffect(() => {
-    let animId: number;
-    let dropTimer = 0;
-
-    const tick = (now: number) => {
-      const dt = Math.min(0.05, (now - lastTimeRef.current) / 1000);
-      lastTimeRef.current = now;
-
-      if (isRunning && ebtAdded && buretteFilled && finalRecorded === null && buretteUsed < 50) {
-        setBuretteUsed((prev) => Math.min(50, prev + 1.25 * dt));
-        dropTimer += dt;
-        if (dropTimer > 0.08) {
-          dropTimer = 0;
-          acoustics.playDrop();
-        }
-      }
-
-      if (dropsPulse > 0) {
-        setDropsPulse((prev) => Math.max(0, prev - dt));
-      }
-
-      animId = requestAnimationFrame(tick);
-    };
-
-    animId = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(animId);
-  }, [isRunning, ebtAdded, buretteFilled, finalRecorded, buretteUsed, dropsPulse]);
-
-  // Endpoint detection & warning
-  useEffect(() => {
-    const f = buretteUsed / currentTargetEndpoint;
-    if (ebtAdded && f >= 1.0 && !endpointReached && finalRecorded === null) {
-      setEndpointReached(true);
-      setIsRunning(false);
-      acoustics.playSuccess();
-      triggerToast("Steel blue endpoint reached! Stop titration and record reading.");
-    }
-    if (ebtAdded && f > 0.85 && f < 1.0 && !warnSoundRef.current) {
-      warnSoundRef.current = true;
-      triggerToast("Solution turning purple: switch to single 0.05 mL drops.");
-    }
-  }, [buretteUsed, currentTargetEndpoint, ebtAdded, endpointReached, finalRecorded, triggerToast]);
-
-  // Color calculation with realistic continuous spectral transition
+  // Color calculation with continuous spectral transition
   const solutionColor = useMemo(() => {
     if (!ebtAdded) {
-      return bufferAdded ? "#e5eff5" : pipetteAdded ? "#dbe9f4" : "transparent";
+      return bufferAdded ? "rgb(228, 239, 245)" : pipetteAdded ? "rgb(219, 233, 244)" : "rgb(240, 244, 248)";
     }
 
     const f = buretteUsed / currentTargetEndpoint;
@@ -402,17 +245,55 @@ export default function ExperimentOnePage() {
     }
   }, [ebtAdded, bufferAdded, pipetteAdded, buretteUsed, currentTargetEndpoint]);
 
-  // Direct apparatus interaction
+  // Continuous titration animation loop & droplet cadence
+  useEffect(() => {
+    let animId: number;
+    let dropTimer = 0;
+
+    const tick = (now: number) => {
+      const dt = Math.min(0.05, (now - lastTimeRef.current) / 1000);
+      lastTimeRef.current = now;
+
+      if (isRunning && ebtAdded && buretteFilled && finalRecorded === null && buretteUsed < 50) {
+        setBuretteUsed((prev) => Math.min(50, prev + 1.25 * dt));
+        dropTimer += dt;
+        if (dropTimer > 0.08) {
+          dropTimer = 0;
+          acoustics.playDrop();
+        }
+      }
+
+      animId = requestAnimationFrame(tick);
+    };
+
+    animId = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(animId);
+  }, [isRunning, ebtAdded, buretteFilled, finalRecorded, buretteUsed]);
+
+  // Endpoint detection & warning
+  useEffect(() => {
+    const f = buretteUsed / currentTargetEndpoint;
+    if (ebtAdded && f >= 1.0 && !endpointReached && finalRecorded === null) {
+      setEndpointReached(true);
+      setIsRunning(false);
+      acoustics.playSuccess();
+      triggerToast("Steel blue endpoint reached! Stop titration and record reading.");
+    }
+    if (ebtAdded && f > 0.85 && f < 1.0 && !warnSoundRef.current) {
+      warnSoundRef.current = true;
+      triggerToast("Solution turning purple: switch to single 0.05 mL drops.");
+    }
+  }, [buretteUsed, currentTargetEndpoint, ebtAdded, endpointReached, finalRecorded, triggerToast]);
+
+  // Apparatus card interactions
   const handleItemAction = useCallback(
     (id: string) => {
-      setShowCoach(false);
-
       if (id === "flask") {
         if (flaskPlaced) return;
         setFlaskPlaced(true);
         acoustics.playGlass();
         if (typeof navigator !== "undefined" && navigator.vibrate) navigator.vibrate(12);
-        triggerToast("Conical flask mounted on white tile ✓");
+        triggerToast("Conical flask mounted on porcelain tile in 3D bench ✓");
         return;
       }
 
@@ -429,7 +310,7 @@ export default function ExperimentOnePage() {
       }
 
       if (!flaskPlaced) {
-        triggerToast("Mount the conical flask onto the white tile first.");
+        triggerToast("Mount the conical flask onto the porcelain tile first.");
         return;
       }
 
@@ -474,14 +355,13 @@ export default function ExperimentOnePage() {
     [flaskPlaced, buretteFilled, pipetteAdded, bufferAdded, ebtAdded, phase, triggerToast]
   );
 
-  // Precision single drop delivery (+0.05 mL)
+  // Single drop delivery (+0.05 mL)
   const handleSingleDrop = () => {
     if (!ebtAdded || !buretteFilled || finalRecorded !== null || buretteUsed >= 50) return;
     setBuretteUsed((prev) => Math.min(50, prev + 0.05));
-    setDropsPulse(0.35);
+    canvas3DRef.current?.triggerDropAnim();
     acoustics.playDrop();
     if (typeof navigator !== "undefined" && navigator.vibrate) navigator.vibrate(10);
-    setShowCoach(false);
   };
 
   // Record final meniscus reading
@@ -520,7 +400,7 @@ export default function ExperimentOnePage() {
     if (advancePhase) {
       setPhase(2);
       acoustics.playSuccess();
-      triggerToast("Titration II: 20 mL pipette now dispenses unknown water sample.");
+      triggerToast("Titration II: Pipette now dispenses unknown water sample.");
     } else {
       acoustics.playGlass();
       triggerToast("Preparing next trial. Flask rinsed and reset.");
@@ -596,90 +476,8 @@ export default function ExperimentOnePage() {
     triggerToast(`Graded! Skill marks: ${marks}/10 (Error: ${errorPct.toFixed(1)}%). Lab manual record generated!`);
   };
 
-  // "Show me" ghost animation
-  const handleDemo = (step: CoachStep) => {
-    setShowCoach(false);
-    const src = document.getElementById(step.targetId);
-    const z = step.zoneId ? document.getElementById(step.zoneId) : null;
-    const ghost = document.getElementById("ghost");
-    if (!src || !z || !ghost) return;
-
-    ghost.innerHTML = src.innerHTML;
-    ghost.style.left = `${src.offsetLeft}px`;
-    ghost.style.top = `${src.offsetTop}px`;
-    ghost.style.opacity = "0.9";
-    ghost.style.transition = "none";
-
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        ghost.style.transition = "all 1.2s cubic-bezier(0.2, 0, 0.1, 1)";
-        ghost.style.left = `${z.offsetLeft + z.offsetWidth / 2 - 48}px`;
-        ghost.style.top = `${z.offsetTop + z.offsetHeight / 2 - 40}px`;
-      });
-    });
-
-    setTimeout(() => {
-      ghost.style.opacity = "0";
-    }, 1400);
-    setTimeout(() => {
-      ghost.innerHTML = "";
-    }, 1800);
-  };
-
-  // Drag interaction with stage 3D parallax
-  const onPointerDownItem = (e: React.PointerEvent, id: string) => {
-    e.currentTarget.setPointerCapture(e.pointerId);
-    setDragItem(id);
-    setShowCoach(false);
-    acoustics.playGlass();
-  };
-
-  const onPointerMoveStage = (e: React.PointerEvent) => {
-    if (!stageRef.current) return;
-    const stageRect = stageRef.current.getBoundingClientRect();
-    const centerX = stageRect.left + stageRect.width / 2;
-    const centerY = stageRect.top + stageRect.height / 2;
-    const normX = (e.clientX - centerX) / (stageRect.width / 2);
-    const normY = (e.clientY - centerY) / (stageRect.height / 2);
-
-    // Subtle 3D glided parallax
-    setTilt({
-      rx: Math.max(-5, Math.min(5, -normY * 4)),
-      ry: Math.max(-6, Math.min(6, normX * 5)),
-    });
-
-    if (!dragItem) return;
-
-    const scale = stageRect.width / 1000;
-    const mouseX = (e.clientX - stageRect.left) / scale;
-    const mouseY = (e.clientY - stageRect.top) / scale;
-
-    if (mouseX >= 410 && mouseX <= 590 && mouseY >= 380 && mouseY <= 530) {
-      if (dragItem !== "edta") setHotZone("flask");
-      else setHotZone(null);
-    } else if (mouseX >= 470 && mouseX <= 530 && mouseY >= 50 && mouseY <= 340) {
-      if (dragItem === "edta") setHotZone("burette");
-      else setHotZone(null);
-    } else {
-      setHotZone(null);
-    }
-  };
-
-  const onPointerUpItem = (e: React.PointerEvent, id: string) => {
-    if (hotZone === "flask" && id !== "edta") {
-      handleItemAction(id);
-    } else if (hotZone === "burette" && id === "edta") {
-      handleItemAction(id);
-    }
-    setDragItem(null);
-    setHotZone(null);
-  };
-
   return (
     <div className="exp1-root">
-      {/* Background Ambient Lighting */}
-      <div className="exp1-ambient-glow" />
-
       {/* Navigation Header */}
       <header className="exp1-nav">
         <div className="exp1-brand">
@@ -718,15 +516,6 @@ export default function ExperimentOnePage() {
           </button>
           <button
             type="button"
-            className="exp1-btn-subtle"
-            id="btn-hint"
-            onClick={() => refreshCoach()}
-            aria-label="Show contextual hint"
-          >
-            ? Hint
-          </button>
-          <button
-            type="button"
             className="exp1-btn-subtle exp1-btn-record"
             onClick={() => setShowManualModal(true)}
             aria-label="View official VIT lab manual record sheet"
@@ -746,397 +535,198 @@ export default function ExperimentOnePage() {
 
       {/* Main Work Area */}
       <main className="exp1-main">
-        {/* Stage Wrapper */}
-        <div className="exp1-wrap" ref={wrapRef} onPointerMove={onPointerMoveStage}>
-          <div className="exp1-stage" ref={stageRef}>
-            {/* SVG Apparatus Scene with 3D Lighting & Shading */}
-            <svg className="absolute inset-0 w-full h-full pointer-events-none exp1-glass-filter" viewBox="0 0 1000 620">
-              <defs>
-                <clipPath id="flaskClip">
-                  <path d="M482 400H518V445L575 518Q579 522 572 522H428Q421 522 425 518L482 445Z" />
-                </clipPath>
-                {/* 3D Glass Specular Gradient */}
-                <linearGradient id="glassSheen" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stopColor="rgba(255,255,255,0.45)" />
-                  <stop offset="25%" stopColor="rgba(255,255,255,0.15)" />
-                  <stop offset="70%" stopColor="rgba(255,255,255,0.05)" />
-                  <stop offset="100%" stopColor="rgba(255,255,255,0.35)" />
-                </linearGradient>
-                {/* Meniscus Shadow */}
-                <linearGradient id="meniscusGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                  <stop offset="0%" stopColor="#70b5f5" />
-                  <stop offset="100%" stopColor="#4187cc" />
-                </linearGradient>
-                {/* Metallic Retort Rod */}
-                <linearGradient id="rodGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stopColor="#3d4743" />
-                  <stop offset="45%" stopColor="#879690" />
-                  <stop offset="70%" stopColor="#55635e" />
-                  <stop offset="100%" stopColor="#2c3330" />
-                </linearGradient>
-              </defs>
+        {/* Actual 3D WebGL Three.js Canvas Container */}
+        <div className="exp1-canvas-container">
+          <Exp1Canvas3D
+            ref={canvas3DRef}
+            flaskPlaced={flaskPlaced}
+            buretteFilled={buretteFilled}
+            pipetteAdded={pipetteAdded}
+            bufferAdded={bufferAdded}
+            ebtAdded={ebtAdded}
+            buretteUsed={buretteUsed}
+            isRunning={isRunning}
+            solutionColor={solutionColor}
+            cameraView={cameraView}
+          />
 
-              {/* Bench surface with beveled 3D perspective edge */}
-              <rect x="190" y="520" width="810" height="100" fill="var(--exp-bench)" />
-              <rect x="190" y="516" width="810" height="4" fill="var(--exp-bench-edge)" />
-              <rect x="190" y="514" width="810" height="2" fill="rgba(255,255,255,0.12)" />
+          {/* Floating Camera Presets Pill */}
+          <div className="exp1-cam-pill">
+            <button
+              type="button"
+              className={`exp1-cam-btn ${cameraView === "overview" ? "active" : ""}`}
+              onClick={() => setCameraView("overview")}
+              aria-label="Overview bench angle"
+            >
+              ⊞ Bench Overview
+            </button>
+            <button
+              type="button"
+              className={`exp1-cam-btn ${cameraView === "meniscus" ? "active" : ""}`}
+              onClick={() => setCameraView("meniscus")}
+              aria-label="Meniscus close-up view"
+            >
+              🔍 Meniscus Zoom
+            </button>
+            <button
+              type="button"
+              className={`exp1-cam-btn ${cameraView === "flask" ? "active" : ""}`}
+              onClick={() => setCameraView("flask")}
+              aria-label="Conical flask endpoint view"
+            >
+              🧪 Reaction Flask
+            </button>
+          </div>
 
-              {/* White titration porcelain tile */}
-              <rect x="400" y="518" width="200" height="6" rx="3" fill="#ffffff" opacity="0.98" filter="drop-shadow(0 2px 4px rgba(0,0,0,0.3))" />
-
-              {/* Retort Stand & Clamp Assembly */}
-              <rect x="718" y="55" width="10" height="465" rx="3" fill="url(#rodGrad)" />
-              <rect x="615" y="510" width="230" height="12" rx="4" fill="url(#rodGrad)" filter="drop-shadow(0 4px 6px rgba(0,0,0,0.4))" />
-              <rect x="502" y="148" width="226" height="8" rx="2" fill="url(#rodGrad)" />
-              <rect x="492" y="138" width="24" height="28" rx="4" fill="#323c38" stroke="#485450" strokeWidth="1" />
-              {/* Clamp fingers around burette */}
-              <path d="M486 142H492V162H486Z" fill="#242b28" />
-
-              {/* Burette graduations (0 to 50 mL) */}
-              <g stroke="var(--exp-mute)" strokeWidth="1" fontSize="10" fill="var(--exp-mute)" opacity="0.9">
-                {[...Array(11)].map((_, i) => {
-                  const m = i * 5;
-                  const y = 72 + m * 5.2;
-                  return (
-                    <g key={m}>
-                      <line x1="479" x2="488" y1={y} y2={y} strokeWidth="1.2" />
-                      <text x="458" y={y + 3.5} textAnchor="end" fontFamily="var(--font-mono, monospace)" fontSize="9.5">
-                        {m}
-                      </text>
-                      {/* Minor tick marks */}
-                      {i < 10 && (
-                        <>
-                          <line x1="483" x2="488" y1={y + 5.2 * 1} y2={y + 5.2 * 1} strokeWidth="0.7" opacity="0.6" />
-                          <line x1="483" x2="488" y1={y + 5.2 * 2} y2={y + 5.2 * 2} strokeWidth="0.7" opacity="0.6" />
-                          <line x1="483" x2="488" y1={y + 5.2 * 3} y2={y + 5.2 * 3} strokeWidth="0.7" opacity="0.6" />
-                          <line x1="483" x2="488" y1={y + 5.2 * 4} y2={y + 5.2 * 4} strokeWidth="0.7" opacity="0.6" />
-                        </>
-                      )}
-                    </g>
-                  );
-                })}
-              </g>
-
-              {/* Burette Glass Tube */}
-              <rect
-                x="488"
-                y="68"
-                width="24"
-                height="266"
-                rx="4"
-                fill="var(--exp-glass)"
-                stroke="var(--exp-line)"
-                strokeWidth="1.5"
-              />
-              <rect x="490" y="70" width="8" height="262" rx="2" fill="url(#glassSheen)" opacity="0.6" />
-
-              {/* Burette Liquid Column with Meniscus Curve */}
-              {buretteFilled && (
-                <g>
-                  <rect
-                    x="490"
-                    y={72 + buretteUsed * 5.2}
-                    width="20"
-                    height={Math.max(0, 260 - buretteUsed * 5.2)}
-                    fill="url(#meniscusGrad)"
-                    opacity="0.88"
-                  />
-                  {/* Curved Meniscus Surface */}
-                  <path
-                    d={`M490 ${72 + buretteUsed * 5.2} Q500 ${75 + buretteUsed * 5.2} 510 ${72 + buretteUsed * 5.2}`}
-                    stroke="rgba(255,255,255,0.7)"
-                    strokeWidth="1.5"
-                    fill="none"
-                  />
-                </g>
-              )}
-
-              {/* Stopcock valve assembly */}
-              <rect x="494" y="332" width="12" height="10" fill="var(--exp-rod)" rx="1" />
-              {/* 3D Stopcock Handle (Rotates smoothly during flow) */}
-              <rect
-                x="484"
-                y="334"
-                width="32"
-                height="7"
-                rx="2"
-                fill="#dc2626"
-                stroke="#991b1b"
-                strokeWidth="1"
-                transform={isRunning ? "rotate(90 500 337)" : "none"}
-                style={{ transition: "transform 0.18s cubic-bezier(0.16, 1, 0.3, 1)" }}
-                filter="drop-shadow(0 2px 4px rgba(0,0,0,0.3))"
-              />
-
-              {/* Burette Delivery Tip */}
-              <path d="M497 342H503V362L500 368L497 362Z" fill="var(--exp-glass)" stroke="var(--exp-line)" strokeWidth="1" />
-
-              {/* Falling Liquid Droplet with Fluid Stretch Physics */}
-              {(isRunning || dropsPulse > 0) && (
-                <ellipse cx="500" cy="382" rx="2.8" ry="4.2" fill="#70b5f5" opacity="0.95" filter="drop-shadow(0 1px 2px rgba(0,0,0,0.2))" />
-              )}
-
-              {/* Conical Flask on Porcelain Tile */}
-              {flaskPlaced && (
-                <g>
-                  {/* Liquid inside flask with smooth color progression */}
-                  <g clipPath="url(#flaskClip)">
-                    <rect
-                      x="420"
-                      y={
-                        522 -
-                        (pipetteAdded
-                          ? Math.min(115, 20 + (bufferAdded ? 8 : 0) + (ebtAdded ? 4 : 0) + buretteUsed * 1.5)
-                          : 0)
-                      }
-                      width="160"
-                      height={
-                        pipetteAdded
-                          ? Math.min(115, 20 + (bufferAdded ? 8 : 0) + (ebtAdded ? 4 : 0) + buretteUsed * 1.5)
-                          : 0
-                      }
-                      fill={solutionColor}
-                      opacity="0.94"
-                      style={{ transition: "fill 0.25s ease, height 0.2s ease" }}
-                    />
-                    {/* Liquid surface wave ripple */}
-                    {pipetteAdded && (isRunning || dropsPulse > 0) && (
-                      <ellipse
-                        cx="500"
-                        cy={522 - Math.min(115, 20 + (bufferAdded ? 8 : 0) + (ebtAdded ? 4 : 0) + buretteUsed * 1.5)}
-                        rx="24"
-                        ry="4"
-                        fill="rgba(255,255,255,0.4)"
-                        opacity="0.7"
-                      />
-                    )}
-                  </g>
-
-                  {/* Pyrex Glass Flask Body & Specular Highlights */}
-                  <path
-                    d="M482 400H518V445L575 518Q579 522 572 522H428Q421 522 425 518L482 445Z"
-                    fill="rgba(255,255,255,0.12)"
-                    stroke="var(--exp-mute)"
-                    strokeWidth="2.2"
-                  />
-                  {/* Refractive curved highlight */}
-                  <path
-                    d="M486 410L486 442L438 506"
-                    stroke="rgba(255,255,255,0.4)"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    fill="none"
-                  />
-                  {/* Pyrex Volume Graduations */}
-                  <line x1="535" y1="480" x2="547" y2="480" stroke="rgba(255,255,255,0.5)" strokeWidth="1" />
-                  <line x1="542" y1="495" x2="556" y2="495" stroke="rgba(255,255,255,0.5)" strokeWidth="1" />
-                  <text x="562" y="498" fill="rgba(255,255,255,0.6)" fontSize="8" fontFamily="sans-serif">
-                    100
-                  </text>
-                </g>
-              )}
-            </svg>
-
-            {/* Apparatus Tray on Stage with Glided Cards */}
-            <div className="exp1-tray">
-              <span className="exp1-tray-header">Apparatus Tray</span>
-              <div className="exp1-tray-items">
-                {/* 1. Conical Flask */}
-                <div
-                  id="tray-flask"
-                  className={`exp1-item ${dragItem === "flask" ? "drag" : ""} ${flaskPlaced ? "gone" : ""}`}
-                  onPointerDown={(e) => onPointerDownItem(e, "flask")}
-                  onPointerUp={(e) => onPointerUpItem(e, "flask")}
-                  role="button"
-                  tabIndex={0}
-                  aria-label="Conical Flask: 250 mL Pyrex"
-                >
-                  <svg viewBox="0 0 70 78">
-                    <path
-                      d="M27 6h16v22l20 40q2 6-4 6H11q-6 0-4-6l20-40z"
-                      fill="#ffffff44"
-                      stroke="#8e9e96"
-                      strokeWidth="2.5"
-                    />
-                  </svg>
-                  <span className="exp1-item-label">Conical Flask</span>
-                  <span className="exp1-item-sub">250 mL Pyrex</span>
-                  <button
-                    type="button"
-                    className="exp1-item-quick-btn"
-                    onClick={() => handleItemAction("flask")}
-                    aria-label="Mount conical flask onto white tile"
-                  >
-                    Place
-                  </button>
+          {/* Floating Apparatus Tray on Left */}
+          <div className="exp1-tray-floating">
+            <div className="exp1-tray-title">Apparatus Rack</div>
+            <div className="exp1-tray-scroll">
+              {/* 1. Conical Flask */}
+              <div
+                className={`exp1-app-card ${flaskPlaced ? "done" : ""}`}
+                onClick={() => handleItemAction("flask")}
+                role="button"
+                tabIndex={0}
+                aria-label="250 mL Conical Flask"
+              >
+                <div className="exp1-app-card-top">
+                  <span className="exp1-app-card-icon">🧪</span>
+                  <span className={`exp1-status-dot ${flaskPlaced ? "active" : ""}`} />
                 </div>
-
-                {/* 2. 0.01 N EDTA Bottle */}
-                <div
-                  id="tray-edta"
-                  className={`exp1-item ${dragItem === "edta" ? "drag" : ""}`}
-                  onPointerDown={(e) => onPointerDownItem(e, "edta")}
-                  onPointerUp={(e) => onPointerUpItem(e, "edta")}
-                  role="button"
-                  tabIndex={0}
-                  aria-label="0.01 N Disodium EDTA solution bottle"
-                >
-                  <svg viewBox="0 0 70 78">
-                    <rect x="26" y="4" width="18" height="12" rx="3" fill="#555" />
-                    <path d="M24 16h22l6 12v42q0 6-6 6H24q-6 0-6-6V28z" fill="#cfe6ff" stroke="#0004" />
-                    <rect x="21" y="38" width="28" height="22" rx="3" fill="#fff" />
-                    <text x="35" y="53" fontSize="9" textAnchor="middle" fill="#222" fontWeight="600">
-                      EDTA
-                    </text>
-                  </svg>
-                  <span className="exp1-item-label">0.01 N EDTA</span>
-                  <span className="exp1-item-sub">Standard Titrant</span>
-                  <button
-                    type="button"
-                    className="exp1-item-quick-btn"
-                    onClick={() => handleItemAction("edta")}
-                    aria-label="Fill Class-A burette with EDTA"
-                  >
-                    Fill
-                  </button>
+                <div className="exp1-app-card-name">Conical Flask</div>
+                <div className="exp1-app-card-desc">
+                  {flaskPlaced ? "Mounted on Tile ✓" : "250 mL Pyrex"}
                 </div>
+              </div>
 
-                {/* 3. 20 mL Bulb Pipette */}
-                <div
-                  id="tray-pip"
-                  className={`exp1-item ${dragItem === "pip" ? "drag" : ""}`}
-                  onPointerDown={(e) => onPointerDownItem(e, "pip")}
-                  onPointerUp={(e) => onPointerUpItem(e, "pip")}
-                  role="button"
-                  tabIndex={0}
-                  aria-label="20 mL Volumetric Bulb Pipette"
-                >
-                  <svg viewBox="0 0 70 78">
-                    <rect x="32" y="2" width="6" height="52" fill="#ffffff55" stroke="#778" />
-                    <ellipse cx="35" cy="34" rx="9" ry="12" fill="#ffffff55" stroke="#778" />
-                    <path d="M32 54l3 20 3-20z" fill="#ffffff55" stroke="#778" />
-                    <rect x="32" y="40" width="6" height="14" fill="#8cc4ff" />
-                  </svg>
-                  <span className="exp1-item-label">
-                    {phase === 1 ? "20 mL Pipette" : "20 mL Sample Pipette"}
-                  </span>
-                  <span className="exp1-item-sub">
-                    {phase === 1 ? "Std Hard Water" : "Water Sample"}
-                  </span>
-                  <button
-                    type="button"
-                    className="exp1-item-quick-btn"
-                    onClick={() => handleItemAction("pip")}
-                    aria-label="Pipette 20 mL water into flask"
-                  >
-                    Pipette
-                  </button>
+              {/* 2. 0.01 N EDTA */}
+              <div
+                className={`exp1-app-card ${buretteFilled ? "done" : ""}`}
+                onClick={() => handleItemAction("edta")}
+                role="button"
+                tabIndex={0}
+                aria-label="0.01 N EDTA Standard Solution"
+              >
+                <div className="exp1-app-card-top">
+                  <span className="exp1-app-card-icon">🧴</span>
+                  <span className={`exp1-status-dot ${buretteFilled ? "active" : ""}`} />
                 </div>
-
-                {/* 4. Ammonia Buffer Solution Bottle */}
-                <div
-                  id="tray-buf"
-                  className={`exp1-item ${dragItem === "buf" ? "drag" : ""}`}
-                  onPointerDown={(e) => onPointerDownItem(e, "buf")}
-                  onPointerUp={(e) => onPointerUpItem(e, "buf")}
-                  role="button"
-                  tabIndex={0}
-                  aria-label="NH3-NH4Cl buffer solution bottle (pH 10)"
-                >
-                  <svg viewBox="0 0 70 78">
-                    <rect x="26" y="4" width="18" height="12" rx="3" fill="#555" />
-                    <path d="M24 16h22l6 12v42q0 6-6 6H24q-6 0-6-6V28z" fill="#e8e1b8" stroke="#0004" />
-                    <rect x="21" y="38" width="28" height="22" rx="3" fill="#fff" />
-                    <text x="35" y="53" fontSize="9" textAnchor="middle" fill="#222" fontWeight="600">
-                      pH 10
-                    </text>
-                  </svg>
-                  <span className="exp1-item-label">NH₃–NH₄Cl Buffer</span>
-                  <span className="exp1-item-sub">Maintains pH 10</span>
-                  <button
-                    type="button"
-                    className="exp1-item-quick-btn"
-                    onClick={() => handleItemAction("buf")}
-                    aria-label="Add ammonia buffer to flask"
-                  >
-                    Add
-                  </button>
+                <div className="exp1-app-card-name">0.01 N EDTA</div>
+                <div className="exp1-app-card-desc">
+                  {buretteFilled ? "Burette Zeroed ✓" : "Standard Titrant"}
                 </div>
+              </div>
 
-                {/* 5. Eriochrome Black-T (EBT) Indicator Dropper */}
-                <div
-                  id="tray-ebt"
-                  className={`exp1-item ${dragItem === "ebt" ? "drag" : ""}`}
-                  onPointerDown={(e) => onPointerDownItem(e, "ebt")}
-                  onPointerUp={(e) => onPointerUpItem(e, "ebt")}
-                  role="button"
-                  tabIndex={0}
-                  aria-label="Eriochrome Black-T Indicator Dropper bottle"
-                >
-                  <svg viewBox="0 0 70 78">
-                    <rect x="26" y="4" width="18" height="12" rx="3" fill="#555" />
-                    <path d="M24 16h22l6 12v42q0 6-6 6H24q-6 0-6-6V28z" fill="#7b2a4b" stroke="#0004" />
-                    <rect x="21" y="38" width="28" height="22" rx="3" fill="#fff" />
-                    <text x="35" y="53" fontSize="9" textAnchor="middle" fill="#fff" fontWeight="600">
-                      EBT
-                    </text>
-                  </svg>
-                  <span className="exp1-item-label">EBT Indicator</span>
-                  <span className="exp1-item-sub">Wine-red → Blue</span>
-                  <button
-                    type="button"
-                    className="exp1-item-quick-btn"
-                    onClick={() => handleItemAction("ebt")}
-                    aria-label="Add 3 drops of EBT indicator"
-                  >
-                    Add
-                  </button>
+              {/* 3. 20 mL Pipette */}
+              <div
+                className={`exp1-app-card ${pipetteAdded ? "done" : ""}`}
+                onClick={() => handleItemAction("pip")}
+                role="button"
+                tabIndex={0}
+                aria-label="20 mL Volumetric Bulb Pipette"
+              >
+                <div className="exp1-app-card-top">
+                  <span className="exp1-app-card-icon">🔬</span>
+                  <span className={`exp1-status-dot ${pipetteAdded ? "active" : ""}`} />
+                </div>
+                <div className="exp1-app-card-name">
+                  {phase === 1 ? "20 mL Pipette" : "20 mL Sample"}
+                </div>
+                <div className="exp1-app-card-desc">
+                  {pipetteAdded
+                    ? "20 mL Added ✓"
+                    : phase === 1
+                    ? "Std Hard Water"
+                    : "Water Sample"}
+                </div>
+              </div>
+
+              {/* 4. Ammonia Buffer (pH 10) */}
+              <div
+                className={`exp1-app-card ${bufferAdded ? "done" : ""}`}
+                onClick={() => handleItemAction("buf")}
+                role="button"
+                tabIndex={0}
+                aria-label="Ammonia Buffer Solution (pH 10)"
+              >
+                <div className="exp1-app-card-top">
+                  <span className="exp1-app-card-icon">⚗️</span>
+                  <span className={`exp1-status-dot ${bufferAdded ? "active" : ""}`} />
+                </div>
+                <div className="exp1-app-card-name">NH₃–NH₄Cl Buffer</div>
+                <div className="exp1-app-card-desc">
+                  {bufferAdded ? "Buffered (pH 10) ✓" : "Maintains pH 10"}
+                </div>
+              </div>
+
+              {/* 5. EBT Indicator */}
+              <div
+                className={`exp1-app-card ${ebtAdded ? "done" : ""}`}
+                onClick={() => handleItemAction("ebt")}
+                role="button"
+                tabIndex={0}
+                aria-label="Eriochrome Black-T Indicator"
+              >
+                <div className="exp1-app-card-top">
+                  <span className="exp1-app-card-icon">💧</span>
+                  <span className={`exp1-status-dot ${ebtAdded ? "active" : ""}`} />
+                </div>
+                <div className="exp1-app-card-name">EBT Indicator</div>
+                <div className="exp1-app-card-desc">
+                  {ebtAdded ? "Wine Red Active ✓" : "Wine-red → Blue"}
                 </div>
               </div>
             </div>
+          </div>
 
-            {/* Drop Zones */}
-            <div
-              id="zone-flask"
-              className={`exp1-zone ${hotZone === "flask" ? "hot" : ""}`}
-              style={{ left: "410px", top: "380px", width: "180px", height: "150px" }}
-            />
-            <div
-              id="zone-bur"
-              className={`exp1-zone ${hotZone === "burette" ? "hot" : ""}`}
-              style={{ left: "470px", top: "50px", width: "64px", height: "290px" }}
-            />
-
-            {/* Dynamic Burette HUD Readout */}
-            <div className="exp1-hud">
-              <span>
-                Burette: {buretteFilled ? (Math.round(buretteUsed * 20) / 20).toFixed(2) : "–"} mL
-              </span>
-              <small>Read bottom of concave meniscus</small>
+          {/* Floating Instrument HUD Top Right */}
+          <div className="exp1-hud-floating">
+            <div className="exp1-hud-panel">
+              <span className="exp1-hud-label">Class-A Burette Meniscus</span>
+              <div className="exp1-hud-val">
+                <span>{buretteFilled ? (Math.round(buretteUsed * 20) / 20).toFixed(2) : "0.00"}</span>
+                <small>mL (±0.05)</small>
+              </div>
+              <div className="exp1-endpoint-bar">
+                <div
+                  className="exp1-endpoint-fill"
+                  style={{
+                    width: `${Math.min(100, (buretteUsed / currentTargetEndpoint) * 100)}%`,
+                    backgroundColor: endpointReached
+                      ? "#38bdf8"
+                      : buretteUsed / currentTargetEndpoint > 0.85
+                      ? "#a855f7"
+                      : "#ef4444",
+                  }}
+                />
+              </div>
             </div>
 
-            {/* Chemical Reaction Phase HUD */}
-            <div className="exp1-rxn-hud">
-              <span className="exp1-rxn-title">Chemical State</span>
-              <div className="exp1-rxn-state">
+            <div className="exp1-hud-panel">
+              <span className="exp1-hud-label">Chemical State</span>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "2px" }}>
                 <span
-                  className="exp1-rxn-indicator"
                   style={{
+                    width: "10px",
+                    height: "10px",
+                    borderRadius: "50%",
                     backgroundColor: ebtAdded
                       ? endpointReached
                         ? "#38bdf8"
                         : buretteUsed / currentTargetEndpoint > 0.85
-                        ? "#8b5cf6"
+                        ? "#a855f7"
                         : "#ef4444"
-                      : "#94a3b8",
+                      : "#64748b",
+                    boxShadow: ebtAdded ? "0 0 8px currentColor" : "none",
                   }}
                 />
-                <span>
+                <span style={{ fontSize: "12.5px", fontWeight: 600 }}>
                   {!ebtAdded
                     ? bufferAdded
-                      ? "Buffered (pH 10)"
+                      ? "Buffered at pH 10"
                       : pipetteAdded
-                      ? "Aqueous Sample"
+                      ? "Aqueous Analyte"
                       : "Bench Ready"
                     : endpointReached
                     ? "Free EBT (Steel Blue)"
@@ -1146,9 +736,6 @@ export default function ExperimentOnePage() {
                 </span>
               </div>
             </div>
-
-            {/* Ghost demo node for animated tutorials */}
-            <div id="ghost" />
           </div>
         </div>
 
@@ -1161,7 +748,7 @@ export default function ExperimentOnePage() {
               <span className="exp1-badge">{phase === 1 ? "Titration I (Std)" : "Titration II (Sample)"}</span>
             </div>
             <ul className="exp1-steps">
-              <li className={flaskPlaced ? "done" : ""}>Mount 250 mL conical flask on white tile</li>
+              <li className={flaskPlaced ? "done" : ""}>Mount 250 mL conical flask on porcelain tile</li>
               <li className={buretteFilled ? "done" : ""}>Fill Class-A burette with 0.01 N EDTA to 0.00 mL</li>
               <li className={pipetteAdded ? "done" : ""}>
                 Pipette 20.0 mL of {phase === 1 ? "standard hard water (1000 ppm)" : "the unknown water sample"}
@@ -1187,7 +774,6 @@ export default function ExperimentOnePage() {
                 onPointerDown={() => {
                   setIsRunning(true);
                   acoustics.playValve();
-                  setShowCoach(false);
                 }}
                 onPointerUp={() => setIsRunning(false)}
                 onPointerLeave={() => setIsRunning(false)}
@@ -1379,32 +965,6 @@ export default function ExperimentOnePage() {
           )}
         </aside>
       </main>
-
-      {/* Floating Pedagogical Step Coach */}
-      {showCoach && coachStep && (
-        <div
-          className="exp1-coach on"
-          style={{
-            left: `${coachPos.left}px`,
-            top: `${coachPos.top}px`,
-            ["--ax" as any]: `${coachPos.arrowX}px`,
-          }}
-          role="status"
-        >
-          <div className={`exp1-coach-arrow ${coachPos.isBelow ? "t" : "b"}`} />
-          <p style={{ margin: 0 }}>{coachStep.text}</p>
-          <div className="exp1-coach-actions">
-            {coachStep.zoneId && (
-              <button type="button" onClick={() => handleDemo(coachStep)}>
-                Show me
-              </button>
-            )}
-            <button type="button" onClick={() => setShowCoach(false)}>
-              Got it
-            </button>
-          </div>
-        </div>
-      )}
 
       {/* Toast Notification */}
       {toastMsg && <div className="exp1-toast">{toastMsg}</div>}
