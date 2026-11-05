@@ -1,0 +1,101 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ------------------------------------------------------------------
+   globals.css
+   Tokens, theme variables, Lenis CSS, focus ring and reduced-motion
+   guard are injected by tailwind.config.ts (the plugin's addBase).
+   This file adds the app-level base styles and shared components.
+------------------------------------------------------------------- */
+
+@layer base {
+  html {
+    font-family: var(--font-sans), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-feature-settings: "kern", "liga", "calt";
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans;
+    font-size: 1rem;
+    line-height: 1.65;
+    overscroll-behavior-y: none;
+  }
+
+  h1, h2, h3, h4 {
+    @apply font-display;
+    text-wrap: balance;
+  }
+
+  p, li { text-wrap: pretty; }
+
+  a { color: inherit; text-decoration: none; }
+
+  button {
+    font: inherit;
+    color: inherit;
+    background: none;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+  }
+
+  img, svg, canvas, video { display: block; max-width: 100%; }
+
+  /* Lock scroll while the intro loader is up (page.tsx removes the class) */
+  html.is-loading,
+  html.is-loading body {
+    overflow: hidden;
+  }
+
+  /* Skip link: first tab stop, visible on focus */
+  .skip-link {
+    position: fixed;
+    left: 1rem;
+    top: 0.75rem;
+    z-index: 100;
+    padding: 0.6rem 1rem;
+    border-radius: 999px;
+    background: rgb(var(--accent));
+    color: rgb(var(--on-accent));
+    font-size: 0.875rem;
+    font-weight: 500;
+    transform: translateY(-200%);
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .skip-link:focus-visible { transform: translateY(0); }
+}
+
+@layer components {
+  /* Buttons */
+  .btn {
+    @apply relative inline-flex min-h-11 select-none items-center justify-center gap-2 rounded-full px-6 text-small font-medium;
+    @apply transition-[transform,background-color,box-shadow,color] duration-quick ease-out-quart;
+  }
+  .btn-sm { @apply min-h-10 px-4; }
+
+  .btn-primary {
+    @apply bg-accent text-accent-on shadow-glow-accent;
+  }
+  .btn-primary:hover { box-shadow: 0 0 64px -6px rgb(var(--accent) / 0.65); }
+  .btn-primary:active { transform: scale(0.97); }
+
+  .btn-ghost {
+    @apply hairline bg-transparent text-foreground;
+  }
+  .btn-ghost:hover { background-color: rgb(var(--foreground) / 0.06); }
+  .btn-ghost:active { transform: scale(0.97); }
+
+  /* Small label chip */
+  .chip {
+    @apply hairline inline-flex items-center gap-2 rounded-full px-3 py-1 text-small text-muted;
+  }
+
+  /* Status dot used in run logs and HUD lines */
+  .dot {
+    @apply inline-block h-2 w-2 rounded-full bg-signal;
+  }
+  .dot[data-s="run"]  { @apply bg-accent animate-pulse-slow; }
+  .dot[data-s="wait"] { @apply bg-muted; }
+}
