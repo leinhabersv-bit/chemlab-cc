@@ -1,112 +1,86 @@
-/* ====================================================================
-   CHEMLAB CC · Experiment 1: 3D Virtual Chemical Laboratory
-   Ultra-Rich Modern UI & Physical WebGL Studio Theme
-   ==================================================================== */
+/* ------------------------------------------------------------------
+   exp1.css: bespoke layout, 3D laboratory surfaces and HUDs for Exp 1.
+   Uses the semantic CSS variables emitted by tailwind.config.ts and
+   tokens.ts (--background, --surface, --raised, --line, --accent, ...).
+   They hold rgb channels, so always write rgb(var(--x) / alpha).
+   No Tailwind directives in this file on purpose.
+------------------------------------------------------------------- */
 
 .exp1-root {
-  --exp-bg: #070b0a;
-  --exp-panel: rgba(14, 22, 20, 0.85);
-  --exp-panel-solid: #0e1614;
-  --exp-surface: rgba(22, 34, 31, 0.75);
-  --exp-surface-hover: rgba(30, 46, 42, 0.9);
-  --exp-ink: #f0f6f3;
-  --exp-mute: #8e9e97;
-  --exp-line: rgba(61, 214, 186, 0.15);
-  --exp-line-bright: rgba(61, 214, 186, 0.35);
-  --exp-acc: #3dd6ba;
-  --exp-acc-glow: rgba(61, 214, 186, 0.3);
-  --exp-onacc: #041a15;
-  --exp-bench: #151816;
-  --exp-warn: #f59e0b;
-  --exp-ruby: #ef4444;
-  --exp-blue: #38bdf8;
-  --exp-purple: #a855f7;
+  --gutter: clamp(1rem, 0.5rem + 2vw, 2.5rem);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: var(--exp-bg);
-  color: var(--exp-ink);
-  font-family: var(--font-sans, system-ui, -apple-system, sans-serif);
+  background: rgb(var(--background));
+  color: rgb(var(--foreground));
+  font-family: var(--font-sans), ui-sans-serif, system-ui, sans-serif;
   position: relative;
   overflow-x: hidden;
 }
 
-[data-theme="light"] .exp1-root {
-  --exp-bg: #eef2ed;
-  --exp-panel: rgba(255, 255, 255, 0.88);
-  --exp-panel-solid: #ffffff;
-  --exp-surface: rgba(235, 241, 237, 0.8);
-  --exp-surface-hover: rgba(225, 233, 228, 0.95);
-  --exp-ink: #111b17;
-  --exp-mute: #586962;
-  --exp-line: rgba(14, 132, 115, 0.18);
-  --exp-line-bright: rgba(14, 132, 115, 0.4);
-  --exp-acc: #0e8473;
-  --exp-acc-glow: rgba(14, 132, 115, 0.22);
-  --exp-onacc: #ffffff;
-  --exp-bench: #d2ccc0;
-}
-
-/* Header */
+/* ============================ Header Nav ============================ */
 .exp1-nav {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 24px;
-  background: var(--exp-panel);
-  border-bottom: 1px solid var(--exp-line);
+  padding: 0.75rem 1.5rem;
+  background: rgb(var(--surface) / 0.82);
+  border-bottom: 1px solid rgb(var(--line) / 0.7);
   position: sticky;
   top: 0;
   z-index: 50;
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
 }
 
 .exp1-brand {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 1rem;
 }
 
 .exp1-back-btn {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 6px;
-  font-size: 13px;
+  gap: 0.4rem;
+  font-size: 0.8125rem;
   font-weight: 500;
-  color: var(--exp-mute);
-  text-decoration: none;
-  padding: 7px 12px;
-  border-radius: 8px;
-  border: 1px solid var(--exp-line);
-  background: var(--exp-surface);
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  color: rgb(var(--muted));
+  padding: 0.45rem 0.85rem;
+  border-radius: 9999px;
+  border: 1px solid rgb(var(--line));
+  background: rgb(var(--raised) / 0.5);
+  transition: all 0.2s var(--ease-out-quart);
 }
 
 .exp1-back-btn:hover {
-  color: var(--exp-ink);
-  border-color: var(--exp-acc);
+  color: rgb(var(--foreground));
+  border-color: rgb(var(--accent));
+  background: rgb(var(--raised));
   transform: translateX(-2px);
 }
 
 .exp1-title-group h1 {
-  font-size: 16px;
+  font-family: var(--font-display), serif;
+  font-size: 1.0625rem;
   font-weight: 600;
   letter-spacing: -0.01em;
   margin: 0;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 0.5rem;
 }
 
 .exp1-badge {
-  font-size: 11px;
-  font-family: var(--font-mono, monospace);
-  padding: 2px 7px;
-  border-radius: 6px;
-  background: var(--exp-surface);
-  border: 1px solid var(--exp-line);
-  color: var(--exp-acc);
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.6875rem;
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+  background: rgb(var(--raised));
+  border: 1px solid rgb(var(--line));
+  color: rgb(var(--accent));
 }
 
 .exp1-badge.gold {
@@ -116,52 +90,52 @@
 }
 
 .exp1-title-group p {
-  font-size: 12px;
-  color: var(--exp-mute);
-  margin: 2px 0 0;
+  font-size: 0.75rem;
+  color: rgb(var(--muted));
+  margin: 0.15rem 0 0;
 }
 
 .exp1-nav-actions {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 0.5rem;
 }
 
 .exp1-btn-subtle {
-  font-size: 12px;
+  font-size: 0.75rem;
   font-weight: 500;
-  padding: 7px 12px;
+  padding: 0.45rem 0.85rem;
   border-radius: 8px;
-  background: var(--exp-surface);
-  border: 1px solid var(--exp-line);
-  color: var(--exp-ink);
+  background: rgb(var(--raised) / 0.6);
+  border: 1px solid rgb(var(--line));
+  color: rgb(var(--foreground));
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.2s var(--ease-out-quart);
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 0.4rem;
 }
 
 .exp1-btn-subtle:hover {
-  border-color: var(--exp-acc);
-  color: var(--exp-acc);
-  background: var(--exp-surface-hover);
+  border-color: rgb(var(--accent));
+  color: rgb(var(--accent));
+  background: rgb(var(--raised));
 }
 
 .exp1-btn-record {
-  background: linear-gradient(135deg, rgba(61, 214, 186, 0.2), rgba(61, 214, 186, 0.05));
-  border-color: var(--exp-acc);
-  color: var(--exp-acc);
+  background: linear-gradient(135deg, rgb(var(--accent) / 0.18), rgb(var(--accent) / 0.04));
+  border-color: rgb(var(--accent) / 0.6);
+  color: rgb(var(--accent));
   font-weight: 600;
 }
 
 .exp1-btn-record:hover {
-  background: var(--exp-acc);
-  color: var(--exp-onacc);
-  box-shadow: 0 4px 16px var(--exp-acc-glow);
+  background: rgb(var(--accent));
+  color: rgb(var(--on-accent));
+  box-shadow: 0 0 24px -4px rgb(var(--accent) / 0.6);
 }
 
-/* Main Layout */
+/* ======================== Main 3D Canvas Viewport ======================== */
 .exp1-main {
   flex: 1;
   display: flex;
@@ -170,12 +144,11 @@
   overflow: hidden;
 }
 
-/* 3D WebGL Canvas Viewport Container */
 .exp1-canvas-container {
   flex: 1;
   position: relative;
   min-width: 0;
-  background: #060a09;
+  background: rgb(var(--background));
   overflow: hidden;
   display: flex;
 }
@@ -183,72 +156,72 @@
 /* Floating 3D Camera Controls */
 .exp1-cam-pill {
   position: absolute;
-  bottom: 24px;
+  bottom: 1.5rem;
   left: 50%;
   transform: translateX(-50%);
-  background: var(--exp-panel);
-  border: 1px solid var(--exp-line-bright);
+  background: rgb(var(--surface) / 0.85);
+  border: 1px solid rgb(var(--line));
   backdrop-filter: blur(20px);
-  padding: 4px;
-  border-radius: 30px;
+  padding: 0.25rem;
+  border-radius: 9999px;
   display: flex;
-  gap: 4px;
+  gap: 0.25rem;
   z-index: 20;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 16px 36px -8px rgba(0, 0, 0, 0.6);
 }
 
 .exp1-cam-btn {
-  font-size: 12px;
+  font-size: 0.75rem;
   font-weight: 500;
-  padding: 6px 14px;
-  border-radius: 20px;
+  padding: 0.35rem 0.85rem;
+  border-radius: 9999px;
   border: none;
   background: transparent;
-  color: var(--exp-mute);
+  color: rgb(var(--muted));
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.2s var(--ease-out-quart);
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 0.35rem;
 }
 
 .exp1-cam-btn:hover {
-  color: var(--exp-ink);
+  color: rgb(var(--foreground));
 }
 
 .exp1-cam-btn.active {
-  background: var(--exp-acc);
-  color: var(--exp-onacc);
+  background: rgb(var(--accent));
+  color: rgb(var(--on-accent));
   font-weight: 600;
-  box-shadow: 0 2px 10px var(--exp-acc-glow);
+  box-shadow: 0 2px 10px rgb(var(--accent) / 0.3);
 }
 
-/* Floating Apparatus Tray */
+/* ==================== Floating Apparatus Tray (Left) ==================== */
 .exp1-tray-floating {
   position: absolute;
-  left: 20px;
-  top: 20px;
-  bottom: 20px;
-  width: 200px;
-  background: var(--exp-panel);
+  left: 1.25rem;
+  top: 1.25rem;
+  bottom: 1.25rem;
+  width: 13.5rem;
+  background: rgb(var(--surface) / 0.84);
   backdrop-filter: blur(24px);
-  border: 1px solid var(--exp-line);
-  border-radius: 16px;
-  padding: 14px 12px;
+  border: 1px solid rgb(var(--line) / 0.8);
+  border-radius: 1rem;
+  padding: 1rem 0.85rem;
   display: flex;
   flex-direction: column;
   z-index: 20;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+  box-shadow: 0 20px 48px -12px rgba(0, 0, 0, 0.55);
 }
 
 .exp1-tray-title {
-  font-size: 11px;
-  font-family: var(--font-mono, monospace);
-  letter-spacing: 0.12em;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.6875rem;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--exp-acc);
-  margin-bottom: 12px;
-  padding-left: 4px;
+  color: rgb(var(--accent));
+  margin-bottom: 0.85rem;
+  padding-left: 0.25rem;
 }
 
 .exp1-tray-scroll {
@@ -256,34 +229,34 @@
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  padding-right: 2px;
+  gap: 0.65rem;
+  padding-right: 0.15rem;
 }
 
-/* Sleek Apparatus Card */
+/* Apparatus Card */
 .exp1-app-card {
-  background: var(--exp-surface);
-  border: 1px solid var(--exp-line);
-  border-radius: 12px;
-  padding: 10px 12px;
+  background: rgb(var(--raised) / 0.6);
+  border: 1px solid rgb(var(--line));
+  border-radius: 0.75rem;
+  padding: 0.7rem 0.8rem;
   cursor: pointer;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.25s var(--ease-out-expo);
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 0.35rem;
   position: relative;
 }
 
 .exp1-app-card:hover:not(.done) {
-  border-color: var(--exp-acc);
-  background: var(--exp-surface-hover);
+  border-color: rgb(var(--accent));
+  background: rgb(var(--raised));
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 8px 24px -4px rgba(0, 0, 0, 0.35);
 }
 
 .exp1-app-card.done {
   opacity: 0.45;
-  border-color: var(--exp-line);
+  border-color: rgb(var(--line) / 0.5);
 }
 
 .exp1-app-card-top {
@@ -293,113 +266,114 @@
 }
 
 .exp1-app-card-icon {
-  font-size: 18px;
+  font-size: 1.125rem;
 }
 
 .exp1-status-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--exp-mute);
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 9999px;
+  background: rgb(var(--muted));
+  transition: all 0.2s ease;
 }
 
 .exp1-status-dot.active {
-  background: var(--exp-acc);
-  box-shadow: 0 0 8px var(--exp-acc);
+  background: rgb(var(--signal));
+  box-shadow: 0 0 10px rgb(var(--signal));
 }
 
 .exp1-app-card-name {
-  font-size: 12.5px;
+  font-size: 0.8125rem;
   font-weight: 600;
-  color: var(--exp-ink);
+  color: rgb(var(--foreground));
 }
 
 .exp1-app-card-desc {
-  font-size: 10.5px;
-  color: var(--exp-mute);
-  font-family: var(--font-mono, monospace);
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.65rem;
+  color: rgb(var(--muted));
 }
 
-/* Floating Instrument HUD Top Right */
+/* ================== Floating Instrument HUD (Top Right) ================== */
 .exp1-hud-floating {
   position: absolute;
-  top: 20px;
-  right: 20px;
+  top: 1.25rem;
+  right: 1.25rem;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 0.65rem;
   z-index: 20;
 }
 
 .exp1-hud-panel {
-  background: var(--exp-panel);
+  background: rgb(var(--surface) / 0.84);
   backdrop-filter: blur(24px);
-  border: 1px solid var(--exp-line);
-  border-radius: 14px;
-  padding: 12px 18px;
-  box-shadow: 0 16px 36px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgb(var(--line) / 0.8);
+  border-radius: 0.875rem;
+  padding: 0.75rem 1.15rem;
+  box-shadow: 0 16px 36px -8px rgba(0, 0, 0, 0.5);
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 0.25rem;
 }
 
 .exp1-hud-label {
-  font-size: 10.5px;
-  font-family: var(--font-mono, monospace);
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.65rem;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--exp-mute);
+  letter-spacing: 0.12em;
+  color: rgb(var(--muted));
 }
 
 .exp1-hud-val {
-  font-size: 22px;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 1.35rem;
   font-weight: 700;
-  font-family: var(--font-mono, monospace);
-  color: var(--exp-acc);
+  color: rgb(var(--accent));
   display: flex;
   align-items: baseline;
-  gap: 6px;
+  gap: 0.4rem;
 }
 
 .exp1-hud-val small {
-  font-size: 12px;
-  color: var(--exp-mute);
+  font-size: 0.75rem;
+  color: rgb(var(--muted));
   font-weight: 400;
 }
 
 .exp1-endpoint-bar {
-  width: 160px;
-  height: 6px;
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 3px;
+  width: 10rem;
+  height: 0.35rem;
+  background: rgb(var(--line) / 0.6);
+  border-radius: 9999px;
   overflow: hidden;
-  margin-top: 4px;
+  margin-top: 0.25rem;
 }
 
 .exp1-endpoint-fill {
   height: 100%;
-  border-radius: 3px;
+  border-radius: 9999px;
   transition: width 0.15s ease, background-color 0.25s ease;
 }
 
-/* Cockpit Aside Right */
+/* ==================== Cockpit Aside Panel (Right) ==================== */
 .exp1-cockpit {
-  width: 420px;
+  width: 25.5rem;
   max-width: 45%;
-  border-left: 1px solid var(--exp-line);
-  background: var(--exp-panel-solid);
+  border-left: 1px solid rgb(var(--line));
+  background: rgb(var(--surface));
   overflow-y: auto;
-  padding: 24px;
+  padding: 1.5rem;
   display: flex;
   flex-direction: column;
-  gap: 22px;
+  gap: 1.5rem;
   z-index: 30;
 }
 
 .exp1-section {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 0.75rem;
 }
 
 .exp1-section-header {
@@ -409,11 +383,11 @@
 }
 
 .exp1-section-title {
-  font-size: 11.5px;
-  font-family: var(--font-mono, monospace);
-  letter-spacing: 0.12em;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.71875rem;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--exp-mute);
+  color: rgb(var(--muted));
   margin: 0;
 }
 
@@ -422,67 +396,67 @@
   list-style: none;
   margin: 0;
   padding: 0;
-  font-size: 13px;
+  font-size: 0.8125rem;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 0.4rem;
 }
 
 .exp1-steps li {
-  padding: 6px 10px 6px 26px;
+  padding: 0.4rem 0.65rem 0.4rem 1.65rem;
   position: relative;
-  color: var(--exp-mute);
+  color: rgb(var(--muted));
   border-radius: 6px;
   transition: all 0.25s ease;
-  background: rgba(255, 255, 255, 0.02);
+  background: rgb(var(--raised) / 0.3);
 }
 
 .exp1-steps li::before {
   content: "○";
   position: absolute;
-  left: 8px;
-  color: var(--exp-mute);
+  left: 0.55rem;
+  color: rgb(var(--muted));
 }
 
 .exp1-steps li.done {
-  color: var(--exp-ink);
-  background: var(--exp-surface);
+  color: rgb(var(--foreground));
+  background: rgb(var(--raised));
 }
 
 .exp1-steps li.done::before {
   content: "●";
-  color: var(--exp-acc);
+  color: rgb(var(--signal));
 }
 
-/* Controls */
+/* Tactile Control Buttons */
 .exp1-row {
   display: flex;
-  gap: 8px;
+  gap: 0.5rem;
   flex-wrap: wrap;
 }
 
 .exp1-btn-primary {
   flex: 1;
-  background: var(--exp-acc);
-  color: var(--exp-onacc);
-  border: 1px solid var(--exp-acc);
+  background: rgb(var(--accent));
+  color: rgb(var(--on-accent));
+  border: 1px solid rgb(var(--accent));
   font-weight: 600;
-  font-size: 13.5px;
-  padding: 12px 16px;
-  border-radius: 10px;
+  font-size: 0.84375rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.625rem;
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.2s var(--ease-out-expo);
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
-  box-shadow: 0 4px 14px var(--exp-acc-glow);
+  gap: 0.4rem;
+  box-shadow: 0 4px 16px -2px rgb(var(--accent) / 0.45);
 }
 
 .exp1-btn-primary:hover:not(:disabled) {
   opacity: 0.95;
   transform: translateY(-1px);
-  box-shadow: 0 6px 20px var(--exp-acc-glow);
+  box-shadow: 0 6px 24px -2px rgb(var(--accent) / 0.6);
 }
 
 .exp1-btn-primary:active:not(:disabled) {
@@ -491,21 +465,21 @@
 
 .exp1-btn-secondary {
   flex: 1;
-  background: var(--exp-surface);
-  color: var(--exp-ink);
-  border: 1px solid var(--exp-line);
+  background: rgb(var(--raised) / 0.6);
+  color: rgb(var(--foreground));
+  border: 1px solid rgb(var(--line));
   font-weight: 500;
-  font-size: 13.5px;
-  padding: 12px 16px;
-  border-radius: 10px;
+  font-size: 0.84375rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.625rem;
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.2s var(--ease-out-expo);
 }
 
 .exp1-btn-secondary:hover:not(:disabled) {
-  border-color: var(--exp-acc);
-  color: var(--exp-acc);
-  background: var(--exp-surface-hover);
+  border-color: rgb(var(--accent));
+  color: rgb(var(--accent));
+  background: rgb(var(--raised));
   transform: translateY(-1px);
 }
 
@@ -518,30 +492,30 @@
 }
 
 .exp1-tip-note {
-  font-size: 12px;
-  color: var(--exp-mute);
-  background: var(--exp-surface);
-  border: 1px solid var(--exp-line);
-  border-radius: 8px;
-  padding: 10px 12px;
-  line-height: 1.45;
+  font-size: 0.75rem;
+  color: rgb(var(--muted));
+  background: rgb(var(--raised) / 0.5);
+  border: 1px solid rgb(var(--line));
+  border-radius: 0.5rem;
+  padding: 0.65rem 0.85rem;
+  line-height: 1.5;
 }
 
-/* Notebook Table */
+/* Observation Notebook Table */
 .exp1-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 12.5px;
-  background: var(--exp-surface);
-  border-radius: 10px;
+  font-size: 0.78125rem;
+  background: rgb(var(--raised) / 0.5);
+  border-radius: 0.625rem;
   overflow: hidden;
-  border: 1px solid var(--exp-line);
+  border: 1px solid rgb(var(--line));
 }
 
 .exp1-table th,
 .exp1-table td {
-  padding: 8px 10px;
-  border-bottom: 1px solid var(--exp-line);
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid rgb(var(--line));
   text-align: right;
 }
 
@@ -551,71 +525,71 @@
 }
 
 .exp1-table th {
-  color: var(--exp-mute);
+  color: rgb(var(--muted));
   font-weight: 500;
-  background: rgba(0, 0, 0, 0.25);
-  font-size: 11px;
+  background: rgba(0, 0, 0, 0.2);
+  font-size: 0.6875rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
 
 .exp1-table-subhead {
-  background: rgba(61, 214, 186, 0.08);
-  color: var(--exp-acc);
+  background: rgb(var(--accent) / 0.08);
+  color: rgb(var(--accent));
   font-weight: 600;
-  font-size: 11.5px;
+  font-size: 0.71875rem;
   text-align: left !important;
 }
 
-/* Results & Scoring */
+/* Results & Scoring Card */
 .exp1-res-card {
-  background: var(--exp-surface);
-  border: 1px solid var(--exp-line);
-  border-radius: 12px;
-  padding: 16px;
+  background: rgb(var(--raised) / 0.5);
+  border: 1px solid rgb(var(--line));
+  border-radius: 0.75rem;
+  padding: 1rem;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 0.85rem;
 }
 
 .exp1-input-group {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 0.5rem;
 }
 
 .exp1-input {
-  font-family: var(--font-mono, monospace);
-  font-size: 14px;
-  width: 130px;
-  padding: 9px 12px;
-  border-radius: 8px;
-  border: 1px solid var(--exp-line);
-  background: var(--exp-bg);
-  color: var(--exp-ink);
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.875rem;
+  width: 8rem;
+  padding: 0.55rem 0.75rem;
+  border-radius: 0.5rem;
+  border: 1px solid rgb(var(--line));
+  background: rgb(var(--background));
+  color: rgb(var(--foreground));
   transition: border-color 0.2s ease;
 }
 
 .exp1-input:focus {
-  border-color: var(--exp-acc);
+  border-color: rgb(var(--accent));
   outline: none;
 }
 
 .exp1-score-box {
-  padding: 12px 14px;
-  border-radius: 8px;
-  font-size: 13px;
+  padding: 0.75rem 0.9rem;
+  border-radius: 0.5rem;
+  font-size: 0.8125rem;
   line-height: 1.5;
-  background: var(--exp-bg);
-  border: 1px solid var(--exp-line);
+  background: rgb(var(--background));
+  border: 1px solid rgb(var(--line));
 }
 
 .exp1-score-box.pass {
-  border-color: var(--exp-acc);
+  border-color: rgb(var(--signal));
 }
 
 .exp1-score-box.warn {
-  border-color: var(--exp-warn);
+  border-color: rgb(var(--warn));
 }
 
 /* Toast */
@@ -623,15 +597,15 @@
   position: fixed;
   z-index: 90;
   left: 50%;
-  top: 24px;
+  top: 1.5rem;
   transform: translateX(-50%);
-  background: var(--exp-panel);
-  border: 1px solid var(--exp-acc);
-  border-radius: 10px;
-  padding: 10px 20px;
-  font-size: 13.5px;
-  color: var(--exp-ink);
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4);
+  background: rgb(var(--surface) / 0.95);
+  border: 1px solid rgb(var(--accent));
+  border-radius: 0.625rem;
+  padding: 0.65rem 1.25rem;
+  font-size: 0.84375rem;
+  color: rgb(var(--foreground));
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5);
   animation: exp1-toast-anim 3.2s ease-out forwards;
   pointer-events: none;
   text-align: center;
@@ -651,52 +625,53 @@
   inset: 0;
   z-index: 100;
   background: rgba(0, 0, 0, 0.75);
-  backdrop-filter: blur(8px);
+  backdrop-filter: blur(10px);
   display: grid;
   place-items: center;
-  padding: 20px;
+  padding: 1.25rem;
 }
 
 .exp1-modal-card {
-  background: var(--exp-panel-solid);
-  border: 1px solid var(--exp-line);
-  border-radius: 16px;
-  max-width: 600px;
+  background: rgb(var(--surface));
+  border: 1px solid rgb(var(--line));
+  border-radius: 1rem;
+  max-width: 37.5rem;
   width: 100%;
   max-height: 85vh;
   overflow-y: auto;
-  padding: 28px;
+  padding: 1.75rem;
   box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6);
 }
 
 .exp1-modal-card h2 {
-  font-size: 20px;
+  font-family: var(--font-display), serif;
+  font-size: 1.25rem;
   font-weight: 600;
-  margin: 0 0 12px;
+  margin: 0 0 0.75rem;
 }
 
 .exp1-modal-card p,
 .exp1-modal-card li {
-  font-size: 14px;
-  color: var(--exp-mute);
+  font-size: 0.875rem;
+  color: rgb(var(--muted));
   line-height: 1.6;
 }
 
 .exp1-modal-card code {
-  font-family: var(--font-mono, monospace);
-  color: var(--exp-acc);
-  background: var(--exp-surface);
-  padding: 2px 6px;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  color: rgb(var(--accent));
+  background: rgb(var(--raised));
+  padding: 0.15rem 0.35rem;
   border-radius: 4px;
 }
 
-/* Official VIT Lab Manual Record Sheet Modal */
+/* ================= Official VIT Manual Record Sheet Modal ================= */
 .exp1-manual-modal {
-  max-width: 780px;
+  max-width: 48rem;
   background: #ffffff;
   color: #111827;
-  border-radius: 12px;
-  padding: 32px 36px;
+  border-radius: 0.75rem;
+  padding: 2rem 2.25rem;
   box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
   font-family: "Segoe UI", -apple-system, system-ui, sans-serif;
   max-height: 90vh;
@@ -705,49 +680,48 @@
 
 .exp1-manual-header {
   border-bottom: 2px solid #1f2937;
-  padding-bottom: 14px;
-  margin-bottom: 20px;
+  padding-bottom: 0.85rem;
+  margin-bottom: 1.25rem;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
 }
 
 .exp1-manual-title h2 {
-  font-size: 18px;
+  font-size: 1.125rem;
   font-weight: 700;
   margin: 0;
   color: #111827;
-  letter-spacing: -0.01em;
 }
 
 .exp1-manual-title h3 {
-  font-size: 13px;
+  font-size: 0.8125rem;
   font-weight: 600;
-  margin: 4px 0 0;
+  margin: 0.25rem 0 0;
   color: #374151;
 }
 
 .exp1-manual-title p {
-  font-size: 11px;
-  margin: 3px 0 0;
+  font-size: 0.6875rem;
+  margin: 0.15rem 0 0;
   color: #6b7280;
 }
 
 .exp1-manual-meta {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
-  margin-bottom: 20px;
-  padding: 10px 14px;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+  padding: 0.65rem 0.85rem;
   background: #f9fafb;
   border: 1px solid #e5e7eb;
-  border-radius: 8px;
-  font-size: 12px;
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
 }
 
 .exp1-manual-meta div span {
   display: block;
-  font-size: 10px;
+  font-size: 0.625rem;
   text-transform: uppercase;
   color: #6b7280;
   font-weight: 600;
@@ -755,42 +729,42 @@
 
 .exp1-manual-meta div strong {
   color: #111827;
-  font-size: 12.5px;
+  font-size: 0.78125rem;
 }
 
 .exp1-manual-section {
-  margin-bottom: 18px;
+  margin-bottom: 1.15rem;
 }
 
 .exp1-manual-section h4 {
-  font-size: 13px;
+  font-size: 0.8125rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: #111827;
-  margin: 0 0 6px;
+  margin: 0 0 0.35rem;
   border-bottom: 1px solid #e5e7eb;
-  padding-bottom: 4px;
+  padding-bottom: 0.25rem;
 }
 
 .exp1-manual-section p {
-  font-size: 12.5px;
+  font-size: 0.78125rem;
   line-height: 1.55;
   color: #374151;
-  margin: 0 0 6px;
+  margin: 0 0 0.35rem;
 }
 
 .exp1-manual-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 12px;
-  margin: 8px 0 12px;
+  font-size: 0.75rem;
+  margin: 0.5rem 0 0.75rem;
 }
 
 .exp1-manual-table th,
 .exp1-manual-table td {
   border: 1px solid #d1d5db;
-  padding: 6px 10px;
+  padding: 0.4rem 0.65rem;
   text-align: center;
 }
 
@@ -803,17 +777,17 @@
 .exp1-calc-box {
   background: #f8fafc;
   border: 1px solid #e2e8f0;
-  border-radius: 6px;
-  padding: 12px 16px;
-  font-family: ui-monospace, Menlo, monospace;
-  font-size: 12px;
+  border-radius: 0.375rem;
+  padding: 0.75rem 1rem;
+  font-family: var(--font-mono), ui-monospace, monospace;
+  font-size: 0.75rem;
   line-height: 1.6;
   color: #0f172a;
 }
 
 .exp1-signoff {
-  margin-top: 24px;
-  padding-top: 16px;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
   border-top: 2px solid #1f2937;
   display: flex;
   justify-content: space-between;
@@ -822,27 +796,27 @@
 
 .exp1-rubric-stamp {
   border: 2px dashed #059669;
-  padding: 8px 14px;
-  border-radius: 8px;
+  padding: 0.5rem 0.85rem;
+  border-radius: 0.5rem;
   background: #ecfdf5;
   color: #065f46;
-  font-size: 12px;
+  font-size: 0.75rem;
   font-weight: 600;
 }
 
 .exp1-faculty-sig {
   text-align: right;
-  font-size: 12px;
+  font-size: 0.75rem;
   color: #4b5563;
 }
 
 .exp1-sig-line {
-  width: 180px;
+  width: 11rem;
   border-bottom: 1px solid #111827;
-  margin-bottom: 4px;
+  margin-bottom: 0.25rem;
 }
 
-/* Print Styles */
+/* ============================ Print Styles ============================ */
 @media print {
   body * {
     visibility: hidden;
@@ -866,7 +840,7 @@
   }
 }
 
-/* Responsive Media Queries */
+/* ====================== Responsive Media Queries ====================== */
 @media (max-width: 960px) {
   .exp1-main {
     flex-direction: column;
@@ -875,7 +849,7 @@
     width: 100%;
     max-width: none;
     border-left: 0;
-    border-top: 1px solid var(--exp-line);
+    border-top: 1px solid rgb(var(--line));
     max-height: 52vh;
   }
   .exp1-canvas-container {
@@ -883,14 +857,14 @@
     height: 55vh;
   }
   .exp1-tray-floating {
-    top: 10px;
-    left: 10px;
-    width: 160px;
+    top: 0.75rem;
+    left: 0.75rem;
+    width: 10rem;
     bottom: auto;
     max-height: 280px;
   }
   .exp1-hud-floating {
-    top: 10px;
-    right: 10px;
+    top: 0.75rem;
+    right: 0.75rem;
   }
 }
