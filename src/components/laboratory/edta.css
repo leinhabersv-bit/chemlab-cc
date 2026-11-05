@@ -126,79 +126,14 @@
   overflow: hidden;
   background: #dbe4d7;
 }
-.edta-stage-label {
-  position: absolute;
-  z-index: 2;
-  top: 20px;
-  left: 22px;
-  right: 22px;
-  display: flex;
-  justify-content: space-between;
-  font-size: 10px;
-  letter-spacing: 1px;
-  gap: 15px;
-}
-.edta-stage-label span:last-child {
-  letter-spacing: 0;
-}
 .edta-scene {
   display: block;
   width: 100%;
   height: auto;
 }
-.edta-hotspots {
-  position: absolute;
-  inset: 0 0 48px;
-  pointer-events: none;
-}
-.edta-lab .edta-hotspot {
-  position: absolute;
-  pointer-events: auto;
-  min-height: 44px;
-  padding: 6px 10px;
-  background: #fafdf0ed;
-  box-shadow: 0 4px 15px #26473412;
-  border: 1px solid #abc0aa;
-  border-radius: 7px;
-  font-size: 11px;
-  white-space: nowrap;
-}
-.edta-hotspot.selected {
-  outline: 2px solid #9c623f;
-}
-.edta-hotspot b {
-  display: block;
-  font-size: 16px;
-  font-weight: 400;
-  margin-top: 2px;
-}
-.edta-burette {
-  left: 60%;
-  top: 26%;
-}
 .edta-sample {
   left: 12%;
   top: 84%;
-}
-.edta-buffer {
-  left: 25.5%;
-  top: 84%;
-}
-.edta-indicator {
-  left: 34%;
-  top: 84%;
-}
-.edta-pipette {
-  left: 70%;
-  top: 49%;
-  touch-action: none !important;
-}
-.edta-flask {
-  left: 47%;
-  top: 67%;
-  min-width: 100px;
-  min-height: 70px !important;
-  background: #ffffffb8 !important;
 }
 .edta-observation {
   min-height: 48px;
@@ -452,18 +387,6 @@
   .edta-course {
     display: none;
   }
-  .edta-stage-label span:last-child {
-    display: none;
-  }
-  .edta-hotspot {
-    font-size: 10px !important;
-  }
-  .edta-buffer {
-    left: 24%;
-  }
-  .edta-indicator {
-    left: 35%;
-  }
 }
 @media (max-width: 720px) {
   .edta-header {
@@ -488,51 +411,11 @@
   .edta-scene {
     border-radius: 12px 12px 0 0;
   }
-  .edta-stage-label {
-    font-size: 8px;
-    left: 12px;
-    top: 12px;
-  }
-  .edta-hotspots {
-    bottom: 68px;
-  }
-  .edta-lab .edta-hotspot {
-    font-size: 9px !important;
-    padding: 5px;
-    min-height: 44px;
-  }
-  .edta-burette {
-    left: 60%;
-    top: 22%;
-  }
-  .edta-hotspot b {
-    font-size: 14px;
-  }
-  .edta-pipette {
-    left: 72%;
-    top: 49%;
-    max-width: 27%;
-    white-space: normal !important;
-  }
   .edta-sample {
     left: 6%;
     top: 82%;
     max-width: 24%;
     white-space: normal !important;
-  }
-  .edta-buffer {
-    left: 30%;
-    top: 82%;
-  }
-  .edta-indicator {
-    left: 47%;
-    top: 82%;
-  }
-  .edta-flask {
-    left: 47%;
-    top: 59%;
-    min-width: 78px;
-    min-height: 52px !important;
   }
   .edta-observation {
     min-height: 68px;
@@ -587,9 +470,6 @@
     z-index: 5;
     box-shadow: 0 8px 20px #24423418;
   }
-  .edta-lab .edta-hotspot {
-    min-width: 44px;
-  }
 }
 
 .edta-demo-explanation {
@@ -639,17 +519,6 @@
   padding: 14px 18px;
   background: #f8faef;
   font-size: 13px;
-}
-.edta-hand-controls label {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-.edta-hand-controls input {
-  min-width: 80px;
-  flex: 1;
-  accent-color: #245a48;
-  height: 44px;
 }
 .edta-hand-controls p {
   margin: 8px 0;

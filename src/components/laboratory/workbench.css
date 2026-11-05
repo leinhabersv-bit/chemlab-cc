@@ -1,0 +1,351 @@
+/* Quiet workbench chrome; the apparatus and next action carry the emphasis. */
+.edta-lab {
+  --paper: #f5f6f1;
+  --ink: #173e37;
+  --line: #dce4dc;
+  padding: 0 clamp(16px, 3vw, 48px) 24px;
+}
+.edta-header {
+  height: 72px;
+}
+.edta-header-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.edta-brand {
+  font-size: 29px;
+}
+.edta-title {
+  padding: 24px 0 20px;
+  align-items: center;
+}
+.edta-title h1 {
+  font-size: clamp(28px, 3vw, 42px);
+  letter-spacing: -1.3px;
+  margin: 7px 0 8px;
+}
+.edta-title .edta-eyebrow {
+  color: #517b6a;
+}
+.edta-modes {
+  padding: 5px;
+  background: #e8eee7;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+.edta-lab button {
+  border-radius: 9px;
+  font-weight: 500;
+  transition:
+    background 0.18s ease,
+    box-shadow 0.18s ease,
+    transform 0.18s ease;
+}
+.edta-lab button:hover {
+  box-shadow: 0 3px 10px #284f3e0d;
+}
+.edta-session-strip {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  padding: 12px 0 18px;
+  font-size: 12px;
+  color: #547367;
+  flex-wrap: wrap;
+}
+.edta-session-strip span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.edta-session-strip i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #437d65;
+}
+.edta-session-strip button {
+  margin-left: auto;
+  background: transparent;
+  border: 0;
+  min-height: 32px;
+  padding: 4px 8px;
+}
+.edta-layout {
+  grid-template-columns: minmax(0, 1fr) 310px;
+  gap: 20px;
+}
+.edta-stage {
+  border-radius: 18px;
+  border-color: #d1ddd3;
+  box-shadow: 0 10px 30px #203b2a08;
+  background: #e7eee7;
+}
+.edta-controls {
+  padding: 24px;
+  background: #fffef9;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  box-shadow: 0 6px 24px #203b2a05;
+}
+.edta-controls h2 {
+  font-size: 26px;
+  margin: 9px 0 16px;
+}
+.edta-controls p {
+  line-height: 1.6;
+}
+.edta-controls > button {
+  margin-bottom: 9px;
+}
+.edta-hand-toolbar {
+  background: #fffef9;
+  border-bottom: 1px solid var(--line);
+  padding: 11px 15px;
+  min-height: 61px;
+}
+.edta-hand-toolbar label {
+  font-size: 11px;
+}
+.edta-hand-toolbar select {
+  padding: 8px;
+}
+.edta-view-switch {
+  display: flex;
+  gap: 3px;
+  padding: 3px;
+  background: #edf1e9;
+  border-radius: 9px;
+}
+.edta-view-switch button {
+  font-size: 12px;
+  min-height: 34px;
+  padding: 7px 12px;
+  border: 0;
+  background: transparent;
+}
+.edta-view-switch button[aria-pressed="true"] {
+  color: #173e37;
+  background: #fffef9;
+  box-shadow: 0 2px 6px #204d3314;
+}
+.edta-scene-wrap {
+  position: relative;
+  isolation: isolate;
+}
+.edta-webgl {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.edta-webgl canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.edta-scene-wrap > svg {
+  position: relative;
+  z-index: 1;
+}
+.is-3d > .edta-scene > * {
+  opacity: 0;
+}
+.is-3d > .edta-scene > [data-testid="pour-stream"] {
+  opacity: 0.35;
+}
+.is-3d .edta-stage-label {
+  display: none;
+}
+.edta-render-note {
+  font-size: 12px;
+  padding: 10px 16px;
+  background: #fff6df;
+  margin: 0;
+}
+.edta-hand-controls {
+  background: #fffef9;
+  padding: 15px 18px;
+  border-top: 1px solid var(--line);
+}
+.edta-hand-controls strong {
+  font-size: 12px;
+  font-weight: 600;
+}
+.edta-hand-controls p {
+  min-height: 0;
+  margin: 8px 0;
+}
+.edta-hand-controls small {
+  display: block;
+  font-size: 11px;
+  max-width: 680px;
+}
+.edta-observation {
+  background: #eef3eb;
+  gap: 14px;
+  border-top: 1px solid #dbe5d8;
+}
+.edta-guidance {
+  background: #edf2e8;
+  border: 1px solid #dce5d6;
+  border-radius: 14px;
+  padding: 16px 20px;
+  margin: 20px 0;
+}
+.edta-guidance p {
+  margin: 5px 0;
+}
+.edta-progress {
+  background: #fffef9;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 20px;
+  gap: 20px;
+}
+.edta-progress b {
+  font-size: 28px;
+}
+.edta-notebook {
+  background: #fffef9;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 24px;
+  margin-top: 20px;
+}
+.edta-warning:empty {
+  display: none;
+}
+.edta-demo-explanation {
+  border-radius: 10px;
+  background: #edf2e5;
+}
+#detailed-procedure {
+  scroll-margin-top: 20px;
+  margin-top: 22px;
+  animation: edta-panel-in 0.3s ease-out;
+}
+@keyframes edta-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@media (min-width: 1600px) {
+  .edta-lab {
+    padding-left: max(48px, calc((100vw - 1530px) / 2));
+    padding-right: max(48px, calc((100vw - 1530px) / 2));
+  }
+}
+@media (max-width: 1000px) {
+  .edta-layout {
+    grid-template-columns: minmax(0, 1fr) 270px;
+    gap: 14px;
+  }
+  .edta-controls {
+    padding: 18px;
+  }
+  .edta-session-strip {
+    gap: 14px;
+  }
+}
+@media (max-width: 720px) {
+  .edta-header {
+    height: auto;
+    min-height: 74px;
+    gap: 10px;
+    flex-wrap: wrap;
+    padding: 12px 0;
+  }
+  .edta-header-actions {
+    gap: 6px;
+  }
+  .edta-header-actions button {
+    font-size: 11px;
+    padding: 8px;
+  }
+  .edta-brand {
+    font-size: 26px;
+    gap: 8px;
+  }
+  .edta-brand span {
+    font-size: 8px;
+    max-width: 80px;
+  }
+  .edta-title {
+    padding: 22px 0 14px;
+    align-items: flex-start;
+  }
+  .edta-title h1 {
+    font-size: 32px;
+  }
+  .edta-modes {
+    width: 100%;
+  }
+  .edta-modes button {
+    flex: 1;
+    font-size: 12px;
+  }
+  .edta-session-strip {
+    gap: 10px;
+    font-size: 11px;
+    padding: 0 0 12px;
+  }
+  .edta-session-strip button {
+    margin-left: 0;
+  }
+  .edta-layout {
+    display: flex;
+    gap: 16px;
+  }
+  .edta-stage {
+    position: relative;
+    top: auto;
+    z-index: auto;
+    box-shadow: none;
+  }
+  .edta-controls {
+    width: 100%;
+    border-radius: 16px;
+    padding: 20px;
+  }
+  .edta-hand-toolbar {
+    padding: 9px;
+    gap: 6px;
+  }
+  .edta-hand-toolbar label {
+    font-size: 10px;
+  }
+  .edta-hand-toolbar select {
+    margin-left: 3px;
+  }
+  .edta-view-switch button {
+    padding: 7px 9px;
+    font-size: 11px;
+  }
+  .edta-guidance {
+    padding: 14px;
+  }
+  .edta-progress {
+    padding: 16px;
+  }
+  .edta-notebook {
+    padding: 16px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  #detailed-procedure {
+    animation: none;
+  }
+  .edta-lab button {
+    transition: none;
+  }
+}
+
+.is-3d > .edta-scene > [data-burette-readout] {
+  opacity: 1;
+}

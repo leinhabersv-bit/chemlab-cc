@@ -1,0 +1,377 @@
+.procedure-guide {
+  margin: 28px 0;
+  border: 1px solid #d6dfd6;
+  border-radius: 18px;
+  background: #fcfcf5;
+  color: #24473d;
+  overflow: hidden;
+  font-family: inherit;
+}
+.procedure-guide-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 24px 26px 18px;
+}
+.procedure-guide-eyebrow {
+  margin: 0 0 7px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: #62796d;
+}
+.procedure-guide h2 {
+  margin: 0;
+  font-size: clamp(22px, 3vw, 29px);
+  line-height: 1.2;
+  font-weight: 500;
+  letter-spacing: -0.03em;
+}
+.procedure-guide-phase {
+  padding: 7px 11px;
+  border-radius: 30px;
+  background: #e8eee5;
+  font-size: 11px;
+  white-space: nowrap;
+}
+.procedure-guide-milestones {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  margin: 0 26px 20px;
+  background: #dce4d9;
+  border: 1px solid #dce4d9;
+  border-radius: 12px;
+  overflow: hidden;
+}
+.procedure-guide-milestones > div {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 14px 16px;
+  background: #f3f6ed;
+}
+.procedure-guide-milestones span,
+.procedure-guide-milestones small {
+  font-size: 11px;
+  line-height: 1.4;
+  color: #5a7064;
+}
+.procedure-guide-milestones strong {
+  font-size: 24px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+.procedure-guide-milestones em {
+  font-size: 12px;
+  font-style: normal;
+}
+.procedure-guide-tabs {
+  display: flex;
+  gap: 6px;
+  padding: 0 26px 16px;
+  border-bottom: 1px solid #e0e6da;
+}
+.edta-lab .procedure-guide button {
+  min-height: 40px;
+  border: 1px solid #d3ded0;
+  border-radius: 8px;
+  background: transparent;
+  color: #315548;
+  padding: 8px 13px;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+.edta-lab .procedure-guide-tabs button[aria-pressed="true"] {
+  background: #244f43;
+  color: #fffef2;
+  border-color: #244f43;
+}
+.procedure-guide button:focus-visible,
+.procedure-guide summary:focus-visible,
+.procedure-guide input:focus-visible {
+  outline: 3px solid #9e773c;
+  outline-offset: 3px;
+}
+.procedure-guide-current {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px 16px;
+  padding: 18px 26px;
+  background: #edf3e8;
+}
+.procedure-guide-current > span {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: #647b68;
+}
+.procedure-guide-current p {
+  flex: 1;
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+}
+.procedure-guide-search {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px 26px 8px;
+  font-size: 12px;
+}
+.procedure-guide-search input {
+  width: min(360px, 100%);
+  min-width: 0;
+  border: 1px solid #d3ded0;
+  background: #fffef9;
+  color: #24473d;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font: inherit;
+}
+.procedure-guide-caption {
+  padding: 0 26px;
+  margin: 5px 0 16px;
+  font-size: 11px;
+  line-height: 1.5;
+  color: #65786d;
+}
+.procedure-guide-steps {
+  padding: 0 26px 24px;
+}
+.procedure-guide-steps details {
+  border-top: 1px solid #e0e6da;
+}
+.procedure-guide-steps details:last-child {
+  border-bottom: 1px solid #e0e6da;
+}
+.procedure-guide-steps summary {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  min-height: 60px;
+  padding: 12px 10px;
+  cursor: pointer;
+  list-style: none;
+  font-size: 13px;
+  font-weight: 500;
+}
+.procedure-guide-steps summary::-webkit-details-marker {
+  display: none;
+}
+.procedure-guide-steps summary::after {
+  content: "+";
+  margin-left: auto;
+  color: #70816f;
+  font-size: 20px;
+  font-weight: 400;
+}
+.procedure-guide-steps details[open] summary::after {
+  content: "−";
+}
+.procedure-guide-number {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 29px;
+  height: 29px;
+  border: 1px solid #d6dfd2;
+  border-radius: 8px;
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+  color: #6a7b6a;
+}
+.procedure-guide-steps .is-current .procedure-guide-number {
+  background: #244f43;
+  color: #fffef2;
+  border-color: #244f43;
+}
+.procedure-guide-step-state {
+  margin-left: auto;
+  font-size: 10px;
+  font-weight: 400;
+  color: #5a7860;
+}
+.procedure-guide-step-content {
+  padding: 0 16px 20px 52px;
+  font-size: 13px;
+  line-height: 1.7;
+}
+.procedure-guide-step-content > p {
+  margin: 0 0 12px;
+}
+.procedure-guide-why {
+  background: #f0f3e8;
+  border-left: 2px solid #90a782;
+  border-radius: 0 8px 8px 0;
+  padding: 12px 15px;
+}
+.procedure-guide-why strong {
+  font-size: 11px;
+  color: #486243;
+}
+.procedure-guide-why p {
+  margin: 3px 0 0;
+}
+.procedure-guide-step-content .procedure-guide-check {
+  margin: 12px 0 0;
+  color: #64715d;
+  font-size: 12px;
+}
+.procedure-guide-empty {
+  padding: 20px 0;
+  color: #65786d;
+  font-size: 13px;
+}
+.procedure-guide-reference {
+  padding: 24px 26px;
+}
+.procedure-guide h3 {
+  margin: 0 0 10px;
+  font-size: 16px;
+  line-height: 1.4;
+  font-weight: 500;
+}
+.procedure-guide-reference p,
+.procedure-guide-reference li,
+.procedure-guide-reference dd {
+  font-size: 12px;
+  line-height: 1.7;
+}
+.procedure-guide-formula {
+  padding: 20px;
+  background: #edf3e8;
+  border-radius: 12px;
+}
+.procedure-guide-formula h3 {
+  font-size: clamp(18px, 3vw, 24px);
+}
+.procedure-guide dl {
+  margin: 14px 0 0;
+}
+.procedure-guide dl > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 8px 0;
+  border-top: 1px solid #dbe3d4;
+}
+.procedure-guide dt {
+  font-size: 12px;
+  line-height: 1.7;
+  font-weight: 500;
+}
+.procedure-guide dd {
+  margin: 0;
+  text-align: right;
+  color: #526b59;
+  font-variant-numeric: tabular-nums;
+}
+.procedure-guide-reference-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+  padding-top: 24px;
+}
+.procedure-guide-reference-grid article {
+  min-width: 0;
+}
+.procedure-guide-reference ul {
+  padding-left: 18px;
+}
+.procedure-guide-reference li {
+  margin-bottom: 8px;
+}
+.procedure-guide-colours {
+  padding: 0;
+  list-style: none;
+}
+.procedure-guide-colours li {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+.procedure-guide-colours i {
+  flex-shrink: 0;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+.procedure-guide-source {
+  margin: 24px 0 0;
+  border-top: 1px solid #dbe3d4;
+  padding-top: 16px;
+  color: #6c7968;
+}
+@media (max-width: 600px) {
+  .procedure-guide-heading {
+    align-items: flex-start;
+    flex-direction: column;
+    padding: 20px 16px 16px;
+  }
+  .procedure-guide-milestones {
+    margin: 0 16px 16px;
+  }
+  .procedure-guide-milestones > div {
+    padding: 10px 9px;
+  }
+  .procedure-guide-milestones span,
+  .procedure-guide-milestones small {
+    font-size: 10px;
+  }
+  .procedure-guide-milestones strong {
+    font-size: 21px;
+  }
+  .procedure-guide-tabs {
+    padding: 0 16px 14px;
+  }
+  .edta-lab .procedure-guide-tabs button {
+    font-size: 11px;
+    padding: 8px 10px;
+  }
+  .procedure-guide-current,
+  .procedure-guide-search,
+  .procedure-guide-reference {
+    padding: 16px;
+  }
+  .procedure-guide-current > span {
+    width: 100%;
+  }
+  .procedure-guide-current p {
+    min-width: 150px;
+  }
+  .procedure-guide-search {
+    flex-direction: column;
+    align-items: stretch;
+    padding-bottom: 4px;
+  }
+  .procedure-guide-caption {
+    padding: 0 16px;
+  }
+  .procedure-guide-steps {
+    padding: 0 16px 16px;
+  }
+  .procedure-guide-steps summary {
+    padding: 10px 0;
+    gap: 9px;
+    font-size: 12px;
+  }
+  .procedure-guide-step-content {
+    padding: 0 0 18px;
+  }
+  .procedure-guide-step-state {
+    font-size: 9px;
+  }
+  .procedure-guide-reference-grid {
+    grid-template-columns: 1fr;
+  }
+  .procedure-guide-formula {
+    padding: 16px;
+  }
+  .procedure-guide dl > div {
+    gap: 12px;
+  }
+}

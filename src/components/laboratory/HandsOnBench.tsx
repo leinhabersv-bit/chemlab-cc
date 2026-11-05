@@ -1,4 +1,7 @@
 "use client";
+import dynamic from "next/dynamic";
+import { benchPositions } from "./bench-layout";
+const Bench3D = dynamic(() => import("./Bench3D"), { ssr: false });
 import {
   useEffect,
   useRef,
@@ -18,15 +21,7 @@ import {
 type Item =
   "flask" | "pipette" | "sample" | "buffer" | "indicator" | "edta" | "wash";
 type Point = { x: number; y: number };
-const initialPositions: Record<Item, Point> = {
-  flask: { x: 490, y: 510 },
-  pipette: { x: 640, y: 400 },
-  sample: { x: 170, y: 510 },
-  buffer: { x: 260, y: 510 },
-  indicator: { x: 330, y: 510 },
-  edta: { x: 730, y: 510 },
-  wash: { x: 820, y: 510 },
-};
+const initialPositions = benchPositions;
 const mouthY = (item: Item) =>
   item === "pipette" ? 127 : item === "flask" ? -146 : -119;
 const names: Record<Item, string> = {
@@ -42,13 +37,18 @@ export function HandsOnBench({
   s,
   send,
   select,
+  demo = false,
 }: {
   s: EdtaState;
+  demo?: boolean;
   send: (c: EdtaCommand) => void;
   select: (
     tool: "bench" | "burette" | "pipette" | "buffer" | "indicator" | "flask",
   ) => void;
 }) {
+  const [render3D, setRender3D] = useState(true);
+  const [ready3D, setReady3D] = useState(false);
+  const [failed3D, setFailed3D] = useState(false);
   const [positions, setPositions] = useState(initialPositions);
   const [selected, setSelected] = useState<Item>("pipette");
   const [angle, setAngle] = useState(0);
@@ -108,6 +108,67 @@ export function HandsOnBench({
     if (s.positioned)
       setPositions((old) => ({ ...old, flask: initialPositions.flask }));
   }, [s.positioned]);
+  const previousDemo = useRef(s);
+  useEffect(() => {
+    const old = previousDemo.current;
+    previousDemo.current = s;
+    if (!demo) return;
+    const before = old.vessels.flask.contents,
+      after = s.vessels.flask.contents;
+    let item: Item | null = null;
+    let p: Point | null = null;
+    let from: Point | null = null;
+    let to: Point = { x: 490, y: 480 };
+    let rinse = false;
+    if (volume(s.vessels.flask) < volume(old.vessels.flask)) {
+      item = "wash";
+      p = { x: 120, y: 200 };
+      to = { x: 120, y: 310 };
+      rinse = true;
+    } else if (after.buffer > before.buffer) item = "buffer";
+    else if (after.indicator > before.indicator) item = "indicator";
+    else if (after.standard + after.unknown > before.standard + before.unknown)
+      item = "pipette";
+    else if (
+      volume(s.vessels.burette) > volume(old.vessels.burette) ||
+      (!old.buretteRinsed && s.buretteRinsed)
+    ) {
+      item = "edta";
+      p = { x: 490, y: 160 };
+      to = { x: 490, y: 70 };
+      rinse = !old.buretteRinsed;
+    } else if (after.edta > before.edta && s.valve === 0)
+      from = { x: 490, y: 357 };
+    if (!item && !from) return;
+    if (item) {
+      p ??= { x: 490, y: item === "pipette" ? 260 : 425 };
+      setSelected(item);
+      setAngle(65);
+      setPositions({
+        ...initialPositions,
+        [item]: p,
+        ...(rinse && item === "wash" ? { flask: { x: 120, y: 340 } } : {}),
+      });
+      from = { x: p.x, y: p.y + mouthY(item) };
+    }
+    setFlow({
+      from: from!,
+      to,
+      colour: item === "indicator" ? "#8d345f" : "#58acc0",
+      rinse,
+    });
+    const timer = setTimeout(() => {
+      setFlow(null);
+      setAngle(0);
+      setPositions(initialPositions);
+    }, 1200);
+    return () => {
+      clearTimeout(timer);
+      setFlow(null);
+      setAngle(0);
+      setPositions(initialPositions);
+    };
+  }, [s, demo]);
   const point = (e: PointerEvent<SVGElement>): Point => {
     const matrix = svg.current?.getScreenCTM();
     return matrix
@@ -168,6 +229,7 @@ export function HandsOnBench({
     }
   };
   const down = (item: Item, e: PointerEvent<SVGGElement>) => {
+    if (demo) return;
     e.preventDefault();
     e.stopPropagation();
     choose(item);
@@ -216,6 +278,7 @@ export function HandsOnBench({
     settled(d.item, end);
   };
   const keyboard = (item: Item, e: KeyboardEvent<SVGGElement>) => {
+    if (demo) return;
     if (e.key === "Escape") {
       e.preventDefault();
       setAngle(0);
@@ -340,7 +403,7 @@ export function HandsOnBench({
   };
   const props = (item: Item) => ({
     role: "button",
-    tabIndex: 0,
+    tabIndex: demo ? -1 : 0,
     "aria-label":
       item === "pipette"
         ? "Select pipette"
@@ -360,7 +423,9 @@ export function HandsOnBench({
       stopFlow();
     },
     onKeyDown: (e: KeyboardEvent<SVGGElement>) => keyboard(item, e),
-    onFocus: () => choose(item),
+    onFocus: () => {
+      if (!demo) choose(item);
+    },
     className: "edta-movable",
   });
   return (
@@ -369,10 +434,18 @@ export function HandsOnBench({
       aria-label="Movable laboratory bench"
     >
       <div className="edta-hand-toolbar">
-        <strong>Grab • move • tilt</strong>
+        <div className="edta-view-switch" aria-label="Bench rendering">
+          <button aria-pressed={render3D} onClick={() => setRender3D(true)}>
+            3D lab
+          </button>
+          <button aria-pressed={!render3D} onClick={() => setRender3D(false)}>
+            Flat view
+          </button>
+        </div>
         <label>
           Conditioning / filling{" "}
           <select
+            disabled={demo}
             aria-label="Rinse or fill"
             value={purpose}
             onChange={(e) => setPurpose(e.target.value as "rinse" | "fill")}
@@ -382,353 +455,408 @@ export function HandsOnBench({
           </select>
         </label>
       </div>
-      <svg
-        ref={svg}
-        viewBox="0 0 900 630"
-        className="edta-scene"
-        aria-label="Drag apparatus on this bench"
-      >
-        <defs>
-          <linearGradient id="hand-room" x2=".8" y2="1">
-            <stop stopColor="#f6f4e9" />
-            <stop offset="1" stopColor="#d8e1d7" />
-          </linearGradient>
-          <linearGradient id="hand-glass">
-            <stop stopColor="#fff" stopOpacity=".75" />
-            <stop offset=".4" stopColor="#d3eeee" stopOpacity=".15" />
-            <stop offset="1" stopColor="#779f9c" stopOpacity=".55" />
-          </linearGradient>
-          <clipPath id="hand-flask">
-            <path d="M-14 -146H14V-105L67 -11Q71 0 57 3H-57Q-71 0 -67 -11L-14 -105Z" />
-          </clipPath>
-        </defs>
-        <rect width="900" height="630" fill="url(#hand-room)" />
-        <path d="M40 0H340L680 450H160Z" fill="#fffdf2" opacity=".6" />
-        <path
-          d="M60 40H340V270H60Z"
-          fill="#e4ebe0"
-          stroke="#c1cfc1"
-          strokeWidth="5"
-        />
-        <path d="M200 40V270M60 155H340" stroke="#f8faf2" strokeWidth="8" />
-        <path d="M0 450H900V630H0Z" fill="#ccd8ca" />
-        <path d="M0 580H900" stroke="#f7fbef" strokeWidth="3" />
-        <rect
-          x="35"
-          y="280"
-          width="170"
-          height="115"
-          rx="22"
-          fill="#b8c6bf"
-          stroke="#6e8c80"
-          strokeWidth="3"
-        />
-        <ellipse cx="120" cy="340" rx="65" ry="33" fill="#849e92" />
-        <circle cx="120" cy="350" r="14" fill="#425f51" />
-        <text x="120" y="420" textAnchor="middle" fill="#254a39" fontSize="13">
-          WASTE / RINSE AREA
-        </text>
-        <rect x="375" y="60" width="12" height="480" rx="6" fill="#a2b8a7" />
-        <rect x="375" y="145" width="110" height="10" rx="5" fill="#829b8a" />
-        <rect
-          x="475"
-          y="65"
-          width="30"
-          height="260"
-          rx="5"
-          fill="url(#hand-glass)"
-          stroke="#75988a"
-          strokeWidth="2"
-        />
-        <rect
-          x="480"
-          y={70 + reading(s) * 4.8}
-          width="20"
-          height={volume(s.vessels.burette) * 4.8}
-          fill="#92cbd0"
-          opacity=".7"
-        />
-        {Array.from({ length: 11 }, (_, i) => (
-          <g key={i}>
-            <path d={`M476 ${70 + i * 24}h12`} stroke="#4f7461" />
-            <text x="512" y={74 + i * 24} fontSize="10" fill="#39594f">
-              {i * 5}
-            </text>
-          </g>
-        ))}
-        <path
-          d="M485 325V348L490 359L495 348V325"
-          fill="url(#hand-glass)"
-          stroke="#6b9080"
-        />
-        <rect
-          x="462"
-          y="321"
-          width="56"
-          height="11"
-          rx="5"
-          fill="#ac754e"
-          transform={`rotate(${s.valve * 90} 490 326)`}
-        />
-        {s.valve > 0 && s.positioned && (
-          <path
-            className="edta-stream"
-            d="M490 359V450"
-            stroke="#73b8c3"
-            strokeWidth="4"
-            strokeDasharray="4 8"
+      {failed3D && render3D && (
+        <p className="edta-render-note">
+          3D is unavailable on this device. The flat bench keeps all controls
+          available.
+        </p>
+      )}
+      <div className={`edta-scene-wrap ${render3D && ready3D ? "is-3d" : ""}`}>
+        {render3D && (
+          <Bench3D
+            s={s}
+            positions={positions}
+            selected={selected}
+            angle={angle}
+            flow={flow}
+            onReady={(ok) => {
+              setReady3D(ok);
+              setFailed3D(!ok);
+            }}
           />
         )}
-        <g
-          role="button"
-          tabIndex={0}
-          aria-label="Select burette"
-          onClick={() => select("burette")}
-          onKeyDown={(e) => {
-            if (e.key === "Enter") select("burette");
-          }}
-          className="edta-movable"
+        <svg
+          ref={svg}
+          viewBox="0 0 900 630"
+          className="edta-scene"
+          aria-label="Drag apparatus on this bench"
         >
-          <rect
-            x="550"
-            y="180"
-            width="105"
-            height="50"
-            rx="6"
-            fill="#faffee"
-            stroke="#9ab59c"
-          />
-          <text
-            x="602"
-            y="200"
-            textAnchor="middle"
-            fill="#254a39"
-            fontSize="12"
-          >
-            Burette
-          </text>
-          <text
-            x="602"
-            y="218"
-            textAnchor="middle"
-            fill="#254a39"
-            fontSize="14"
-          >
-            {reading(s).toFixed(2)} mL
-          </text>
-        </g>
-        <rect x="405" y="520" width="170" height="42" rx="8" fill="#28594b" />
-        <text x="490" y="546" textAnchor="middle" fill="#f7f5df" fontSize="12">
-          STIRRER / FLASK POSITION
-        </text>
-        <g {...props("flask")}>
-          <title>Drag body to move; drag neck sideways to tilt</title>
+          <defs>
+            <linearGradient id="hand-room" x2=".8" y2="1">
+              <stop stopColor="#f6f4e9" />
+              <stop offset="1" stopColor="#d8e1d7" />
+            </linearGradient>
+            <linearGradient id="hand-glass">
+              <stop stopColor="#fff" stopOpacity=".75" />
+              <stop offset=".4" stopColor="#d3eeee" stopOpacity=".15" />
+              <stop offset="1" stopColor="#779f9c" stopOpacity=".55" />
+            </linearGradient>
+            <clipPath id="hand-flask">
+              <path d="M-14 -146H14V-105L67 -11Q71 0 57 3H-57Q-71 0 -67 -11L-14 -105Z" />
+            </clipPath>
+          </defs>
+          <rect width="900" height="630" fill="url(#hand-room)" />
+          <path d="M40 0H340L680 450H160Z" fill="#fffdf2" opacity=".6" />
           <path
-            d="M-14 -146H14V-105L67 -11Q71 0 57 3H-57Q-71 0 -67 -11L-14 -105Z"
+            d="M60 40H340V270H60Z"
+            fill="#e4ebe0"
+            stroke="#c1cfc1"
+            strokeWidth="5"
+          />
+          <path d="M200 40V270M60 155H340" stroke="#f8faf2" strokeWidth="8" />
+          <path d="M0 450H900V630H0Z" fill="#ccd8ca" />
+          <path d="M0 580H900" stroke="#f7fbef" strokeWidth="3" />
+          <rect
+            x="35"
+            y="280"
+            width="170"
+            height="115"
+            rx="22"
+            fill="#b8c6bf"
+            stroke="#6e8c80"
+            strokeWidth="3"
+          />
+          <ellipse cx="120" cy="340" rx="65" ry="33" fill="#849e92" />
+          <circle cx="120" cy="350" r="14" fill="#425f51" />
+          <text
+            x="120"
+            y="420"
+            textAnchor="middle"
+            fill="#254a39"
+            fontSize="13"
+          >
+            WASTE / RINSE AREA
+          </text>
+          <rect x="375" y="60" width="12" height="480" rx="6" fill="#a2b8a7" />
+          <rect x="375" y="145" width="110" height="10" rx="5" fill="#829b8a" />
+          <rect
+            x="475"
+            y="65"
+            width="30"
+            height="260"
+            rx="5"
             fill="url(#hand-glass)"
-            stroke="#648a7b"
+            stroke="#75988a"
             strokeWidth="2"
           />
           <rect
-            data-tilt="flask"
-            x="-23"
-            y="-156"
-            width="46"
-            height="60"
-            fill="transparent"
-            className="edta-tilt-grip"
+            x="480"
+            y={70 + reading(s) * 4.8}
+            width="20"
+            height={volume(s.vessels.burette) * 4.8}
+            fill="#92cbd0"
+            opacity=".7"
           />
-          <g clipPath="url(#hand-flask)" pointerEvents="none">
-            <rect
-              x="-70"
-              y={-Math.min(volume(s.vessels.flask) * 1.2, 140)}
-              width="140"
-              height="150"
-              fill={o.colourHex}
-              opacity={volume(s.vessels.flask) > 0 ? 0.8 : 0}
-            />
-            <path
-              d="M-48 -20L-6 -110V-140"
-              stroke="white"
-              strokeWidth="5"
-              opacity=".65"
-            />
-          </g>
-          <text x="0" y="-50" textAnchor="middle" fill="#244d3c" fontSize="12">
-            250 mL
-          </text>
-          <rect x="-54" y="7" width="108" height="28" rx="5" fill="#f8fceb" />
-          <text x="0" y="26" textAnchor="middle" fill="#244d3c" fontSize="12">
-            Conical flask
-          </text>
-        </g>
-        {(["sample", "buffer", "indicator", "edta", "wash"] as const).map(
-          (item) => (
-            <g key={item} {...props(item)}>
-              <title>Drag body to move; drag neck sideways to tilt</title>
-              <rect
-                x="-27"
-                y="-100"
-                width="54"
-                height="100"
-                rx="8"
-                fill={
-                  item === "indicator"
-                    ? "#83504a"
-                    : item === "buffer"
-                      ? "#b4935f"
-                      : "#8bb1a5"
-                }
-                stroke="#678d78"
-                strokeWidth="2"
-              />
-              <rect
-                data-tilt={item}
-                className="edta-tilt-grip"
-                x="-22"
-                y="-119"
-                width="44"
-                height="30"
-                rx="4"
-                fill={item === "indicator" ? "#393d39" : "#335d4b"}
-              />
-              <rect
-                x="-24"
-                y="-65"
-                width="48"
-                height="46"
-                rx="3"
-                fill="#f8f1dc"
-              />
-              <text
-                x="0"
-                y="-46"
-                textAnchor="middle"
-                fill="#284d3c"
-                fontSize="10"
-              >
-                {item === "sample"
-                  ? s.sample === "standard"
-                    ? "STANDARD"
-                    : "UNKNOWN"
-                  : item === "wash"
-                    ? "WATER"
-                    : item.toUpperCase()}
-              </text>
-              <text
-                x="0"
-                y="-30"
-                textAnchor="middle"
-                fill="#284d3c"
-                fontSize="10"
-              >
-                {item === "buffer"
-                  ? "pH 10"
-                  : item === "indicator"
-                    ? "3 drops"
-                    : ""}
-              </text>
-              <text
-                x="0"
-                y="22"
-                textAnchor="middle"
-                fill="#284d3c"
-                fontSize="12"
-              >
-                {names[item]}
+          {Array.from({ length: 11 }, (_, i) => (
+            <g key={i}>
+              <path d={`M476 ${70 + i * 24}h12`} stroke="#4f7461" />
+              <text x="512" y={74 + i * 24} fontSize="10" fill="#39594f">
+                {i * 5}
               </text>
             </g>
-          ),
-        )}
-        <g {...props("pipette")}>
-          <rect x="-24" y="-105" width="48" height="220" fill="transparent" />
-          <ellipse
-            data-tilt="pipette"
-            className="edta-tilt-grip"
-            cx="0"
-            cy="-90"
-            rx="22"
-            ry="27"
-            fill="#b26245"
-          />
+          ))}
           <path
-            d="M-4 -65V-15Q-16 -8 -13 17Q-12 29 -4 34V110L0 127L4 110V34Q12 29 13 17Q16 -8 4 -15V-65Z"
+            d="M485 325V348L490 359L495 348V325"
             fill="url(#hand-glass)"
-            stroke="#699380"
-            strokeWidth="2"
+            stroke="#6b9080"
           />
-          {volume(s.vessels.pipette) > 0 && (
-            <path
-              d="M-2 -15Q-13 -6 -11 16Q-10 26 -2 33V108H2V33Q10 26 11 16Q13 -6 2 -15Z"
-              fill="#6cb6c4"
-            />
-          )}
-          <rect x="-45" y="132" width="90" height="28" rx="4" fill="#f7fbe9" />
-          <text x="0" y="151" textAnchor="middle" fill="#244d3c" fontSize="12">
-            Pipette {volume(s.vessels.pipette).toFixed(0)} mL
-          </text>
-        </g>
-        {flow && (
-          <g
-            data-testid="pour-stream"
-            pointerEvents="none"
-            aria-label={
-              flow.rinse ? "Rinsing liquid flowing" : "Liquid pouring"
-            }
-          >
-            <path
-              d={`M${flow.from.x} ${flow.from.y} Q${flow.to.x} ${flow.from.y} ${flow.to.x} ${flow.to.y}`}
-              fill="none"
-              stroke={flow.colour}
-              strokeWidth="6"
-              opacity=".35"
-            />
+          <rect
+            x="462"
+            y="321"
+            width="56"
+            height="11"
+            rx="5"
+            fill="#ac754e"
+            transform={`rotate(${s.valve * 90} 490 326)`}
+          />
+          {s.valve > 0 && s.positioned && (
             <path
               className="edta-stream"
-              d={`M${flow.from.x} ${flow.from.y} Q${flow.to.x} ${flow.from.y} ${flow.to.x} ${flow.to.y}`}
-              fill="none"
-              stroke={flow.colour}
-              strokeWidth="3"
-              strokeDasharray="7 5"
+              d="M490 359V450"
+              stroke="#73b8c3"
+              strokeWidth="4"
+              strokeDasharray="4 8"
             />
-            <ellipse
-              className="edta-pour-ripple"
-              cx={flow.to.x}
-              cy={flow.to.y}
-              rx="16"
-              ry="5"
-              fill="none"
-              stroke={flow.colour}
+          )}
+          <g
+            role="button"
+            tabIndex={0}
+            data-burette-readout="true"
+            aria-label="Select burette"
+            onClick={() => select("burette")}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") select("burette");
+            }}
+            className="edta-movable"
+          >
+            <rect
+              x="550"
+              y="180"
+              width="105"
+              height="50"
+              rx="6"
+              fill="#faffee"
+              stroke="#9ab59c"
+            />
+            <text
+              x="602"
+              y="200"
+              textAnchor="middle"
+              fill="#254a39"
+              fontSize="12"
+            >
+              Burette
+            </text>
+            <text
+              x="602"
+              y="218"
+              textAnchor="middle"
+              fill="#254a39"
+              fontSize="14"
+            >
+              {reading(s).toFixed(2)} mL
+            </text>
+          </g>
+          <rect x="405" y="520" width="170" height="42" rx="8" fill="#28594b" />
+          <text
+            x="490"
+            y="546"
+            textAnchor="middle"
+            fill="#f7f5df"
+            fontSize="12"
+          >
+            STIRRER / FLASK POSITION
+          </text>
+          <g {...props("flask")}>
+            <title>Drag body to move; drag neck sideways to tilt</title>
+            <path
+              d="M-14 -146H14V-105L67 -11Q71 0 57 3H-57Q-71 0 -67 -11L-14 -105Z"
+              fill="url(#hand-glass)"
+              stroke="#648a7b"
               strokeWidth="2"
             />
-            {flow.rinse && (
+            <rect
+              data-tilt="flask"
+              x="-23"
+              y="-156"
+              width="46"
+              height="60"
+              fill="transparent"
+              className="edta-tilt-grip"
+            />
+            <g clipPath="url(#hand-flask)" pointerEvents="none">
+              <rect
+                x="-70"
+                y={-Math.min(volume(s.vessels.flask) * 1.2, 140)}
+                width="140"
+                height="150"
+                fill={o.colourHex}
+                opacity={volume(s.vessels.flask) > 0 ? 0.8 : 0}
+              />
+              <path
+                d="M-48 -20L-6 -110V-140"
+                stroke="white"
+                strokeWidth="5"
+                opacity=".65"
+              />
+            </g>
+            <text
+              x="0"
+              y="-50"
+              textAnchor="middle"
+              fill="#244d3c"
+              fontSize="12"
+            >
+              250 mL
+            </text>
+            <rect x="-54" y="7" width="108" height="28" rx="5" fill="#f8fceb" />
+            <text x="0" y="26" textAnchor="middle" fill="#244d3c" fontSize="12">
+              Conical flask
+            </text>
+          </g>
+          {(["sample", "buffer", "indicator", "edta", "wash"] as const).map(
+            (item) => (
+              <g key={item} {...props(item)}>
+                <title>Drag body to move; drag neck sideways to tilt</title>
+                <rect
+                  x="-27"
+                  y="-100"
+                  width="54"
+                  height="100"
+                  rx="8"
+                  fill={
+                    item === "indicator"
+                      ? "#83504a"
+                      : item === "buffer"
+                        ? "#b4935f"
+                        : "#8bb1a5"
+                  }
+                  stroke="#678d78"
+                  strokeWidth="2"
+                />
+                <rect
+                  data-tilt={item}
+                  className="edta-tilt-grip"
+                  x="-22"
+                  y="-119"
+                  width="44"
+                  height="30"
+                  rx="4"
+                  fill={item === "indicator" ? "#393d39" : "#335d4b"}
+                />
+                <rect
+                  x="-24"
+                  y="-65"
+                  width="48"
+                  height="46"
+                  rx="3"
+                  fill="#f8f1dc"
+                />
+                <text
+                  x="0"
+                  y="-46"
+                  textAnchor="middle"
+                  fill="#284d3c"
+                  fontSize="10"
+                >
+                  {item === "sample"
+                    ? s.sample === "standard"
+                      ? "STANDARD"
+                      : "UNKNOWN"
+                    : item === "wash"
+                      ? "WATER"
+                      : item.toUpperCase()}
+                </text>
+                <text
+                  x="0"
+                  y="-30"
+                  textAnchor="middle"
+                  fill="#284d3c"
+                  fontSize="10"
+                >
+                  {item === "buffer"
+                    ? "pH 10"
+                    : item === "indicator"
+                      ? "3 drops"
+                      : ""}
+                </text>
+                <text
+                  x="0"
+                  y="22"
+                  textAnchor="middle"
+                  fill="#284d3c"
+                  fontSize="12"
+                >
+                  {names[item]}
+                </text>
+              </g>
+            ),
+          )}
+          <g {...props("pipette")}>
+            <rect x="-24" y="-105" width="48" height="220" fill="transparent" />
+            <ellipse
+              data-tilt="pipette"
+              className="edta-tilt-grip"
+              cx="0"
+              cy="-90"
+              rx="22"
+              ry="27"
+              fill="#b26245"
+            />
+            <path
+              d="M-4 -65V-15Q-16 -8 -13 17Q-12 29 -4 34V110L0 127L4 110V34Q12 29 13 17Q16 -8 4 -15V-65Z"
+              fill="url(#hand-glass)"
+              stroke="#699380"
+              strokeWidth="2"
+            />
+            {volume(s.vessels.pipette) > 0 && (
+              <path
+                d="M-2 -15Q-13 -6 -11 16Q-10 26 -2 33V108H2V33Q10 26 11 16Q13 -6 2 -15Z"
+                fill="#6cb6c4"
+              />
+            )}
+            <rect
+              x="-45"
+              y="132"
+              width="90"
+              height="28"
+              rx="4"
+              fill="#f7fbe9"
+            />
+            <text
+              x="0"
+              y="151"
+              textAnchor="middle"
+              fill="#244d3c"
+              fontSize="12"
+            >
+              Pipette {volume(s.vessels.pipette).toFixed(0)} mL
+            </text>
+          </g>
+          {flow && (
+            <g
+              data-testid="pour-stream"
+              pointerEvents="none"
+              aria-label={
+                flow.rinse ? "Rinsing liquid flowing" : "Liquid pouring"
+              }
+            >
+              <path
+                d={`M${flow.from.x} ${flow.from.y} Q${flow.to.x} ${flow.from.y} ${flow.to.x} ${flow.to.y}`}
+                fill="none"
+                stroke={flow.colour}
+                strokeWidth="6"
+                opacity=".35"
+              />
               <path
                 className="edta-stream"
-                d={
-                  selected === "edta"
-                    ? "M490 330 Q300 290 120 350"
-                    : `M${flow.to.x} ${flow.to.y} Q180 300 120 350`
-                }
+                d={`M${flow.from.x} ${flow.from.y} Q${flow.to.x} ${flow.from.y} ${flow.to.x} ${flow.to.y}`}
                 fill="none"
                 stroke={flow.colour}
                 strokeWidth="3"
-                strokeDasharray="5 7"
+                strokeDasharray="7 5"
               />
-            )}
-          </g>
-        )}
-      </svg>
-      <div className="edta-hand-controls">
-        <strong>
-          {names[selected]}: {Math.round(angle)}&deg;
-        </strong>
-        <p role="status">{s.warning ?? message}</p>
-        <small>
-          Drag the body to move. Drag the neck or pipette bulb sideways to tilt.
-          Release to stop. Keyboard: arrows move, Shift + arrows tilt, Escape
-          stops.
-        </small>
+              <ellipse
+                className="edta-pour-ripple"
+                cx={flow.to.x}
+                cy={flow.to.y}
+                rx="16"
+                ry="5"
+                fill="none"
+                stroke={flow.colour}
+                strokeWidth="2"
+              />
+              {flow.rinse && (
+                <path
+                  className="edta-stream"
+                  d={
+                    selected === "edta"
+                      ? "M490 330 Q300 290 120 350"
+                      : `M${flow.to.x} ${flow.to.y} Q180 300 120 350`
+                  }
+                  fill="none"
+                  stroke={flow.colour}
+                  strokeWidth="3"
+                  strokeDasharray="5 7"
+                />
+              )}
+            </g>
+          )}
+        </svg>
       </div>
+      {!demo && (
+        <div className="edta-hand-controls">
+          <strong>
+            {names[selected]}: {Math.round(angle)}&deg;
+          </strong>
+          <p role="status">{s.warning ?? message}</p>
+          <small>
+            Drag the body to move. Drag the neck or pipette bulb sideways to
+            tilt. Release to stop. Keyboard: arrows move, Shift + arrows tilt,
+            Escape stops.
+          </small>
+        </div>
+      )}
       <div className="edta-observation">
         <span className="edta-swatch" style={{ background: o.colourHex }} />
         <span data-testid="colour">{o.colour}</span>

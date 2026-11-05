@@ -2,6 +2,7 @@
 
 import { useEffect, useReducer, useState } from "react";
 import Link from "next/link";
+import { ProcedureGuide } from "./ProcedureGuide";
 import {
   concordant,
   createEdta,
@@ -15,6 +16,7 @@ import {
   type EdtaState,
 } from "@/lib/simulation/edta";
 import "./edta.css";
+import "./workbench.css";
 import { HandsOnBench } from "./HandsOnBench";
 
 type Tool = "bench" | "burette" | "pipette" | "buffer" | "indicator" | "flask";
@@ -146,7 +148,7 @@ export function EdtaLab() {
   const [notebook, setNotebook] = useState(false);
   const [finalReading, setFinalReading] = useState("");
   const [showHint, setShowHint] = useState(true);
-  const [dragging, setDragging] = useState(false);
+  const [guideOpen, setGuideOpen] = useState(false);
   const o = observe(s),
     ppm = result(s),
     c = s.vessels.flask.contents;
@@ -154,20 +156,6 @@ export function EdtaLab() {
     v2 = concordant(s, "unknown");
   const send = (command: EdtaCommand) => {
     if (mode !== "demo") dispatch(command);
-  };
-  const choose = (selected: Tool) => {
-    if (mode === "demo") return;
-    if (
-      selected === "flask" &&
-      (tool === "pipette" || tool === "buffer" || tool === "indicator")
-    ) {
-      send({
-        type: "transfer",
-        from: tool,
-        to: "flask",
-        volumeMl: tool === "pipette" ? 20 : tool === "buffer" ? 4 : 0.05,
-      });
-    } else setTool(selected);
   };
 
   useEffect(() => {
@@ -245,9 +233,18 @@ export function EdtaLab() {
           CC<span>CHEMLAB / CHENNAI</span>
         </Link>
         <span className="edta-course">BCHY101P · WATER ANALYSIS / 01A</span>
-        <button onClick={() => setNotebook(!notebook)}>
-          Notebook <span className="edta-count">{s.trials.length}</span>
-        </button>
+        <div className="edta-header-actions">
+          <button
+            aria-expanded={guideOpen}
+            aria-controls="detailed-procedure"
+            onClick={() => setGuideOpen(!guideOpen)}
+          >
+            Procedure & theory
+          </button>
+          <button onClick={() => setNotebook(!notebook)}>
+            Notebook <span className="edta-count">{s.trials.length}</span>
+          </button>
+        </div>
       </header>
       <div className="edta-title">
         <div>
@@ -267,473 +264,47 @@ export function EdtaLab() {
           ))}
         </div>
       </div>
+      <section className="edta-session-strip" aria-label="Experiment progress">
+        <span>
+          <i />
+          {mode === "demo"
+            ? "Guided demonstration"
+            : mode === "challenge"
+              ? "Independent practice"
+              : "Hands-on laboratory"}
+        </span>
+        <span>
+          01 /{" "}
+          {s.sample === "standard" ? "Standardization" : "Unknown analysis"}
+        </span>
+        <span>{s.trials.length} accepted trials</span>
+        <button
+          onClick={() => {
+            setGuideOpen(true);
+            setTimeout(
+              () =>
+                document.getElementById("detailed-procedure")?.scrollIntoView({
+                  behavior: window.matchMedia(
+                    "(prefers-reduced-motion: reduce)",
+                  ).matches
+                    ? "instant"
+                    : "smooth",
+                }),
+              30,
+            );
+          }}
+        >
+          View detailed procedure &darr;
+        </button>
+      </section>
       <div className="edta-layout">
-        {mode !== "demo" ? (
-          <HandsOnBench
-            key={s.config.seed}
-            s={s}
-            send={send}
-            select={setTool}
-          />
-        ) : (
-          <section
-            className="edta-stage"
-            aria-label="Interactive chemistry bench"
-          >
-            <div className="edta-stage-label">
-              <span>
-                01 /{" "}
-                {s.sample === "standard"
-                  ? "STANDARDIZE THE EDTA"
-                  : "ANALYZE UNKNOWN WATER"}
-              </span>
-              <span>
-                20 mL aliquot ·{" "}
-                {s.trials.filter((t) => t.sample === s.sample).length} trials
-                recorded
-              </span>
-            </div>
-            <svg
-              className="edta-scene"
-              viewBox="0 0 900 630"
-              role="img"
-              aria-label={`Laboratory scene. Flask: ${o.colour}, ${volume(s.vessels.flask).toFixed(2)} mL. Burette: ${reading(s).toFixed(2)} mL.`}
-            >
-              <defs>
-                <linearGradient id="room" x2="0.8" y2="1">
-                  <stop stopColor="#f6f4e9" />
-                  <stop offset="1" stopColor="#d8e1d7" />
-                </linearGradient>
-                <linearGradient id="glass">
-                  <stop stopColor="#ffffff" stopOpacity=".7" />
-                  <stop offset=".25" stopColor="#d3eeee" stopOpacity=".12" />
-                  <stop offset=".7" stopColor="#ffffff" stopOpacity=".08" />
-                  <stop offset="1" stopColor="#779f9c" stopOpacity=".45" />
-                </linearGradient>
-                <linearGradient id="metal">
-                  <stop stopColor="#526761" />
-                  <stop offset=".4" stopColor="#f4f6ef" />
-                  <stop offset=".6" stopColor="#c2cfc6" />
-                  <stop offset="1" stopColor="#6d8077" />
-                </linearGradient>
-                <linearGradient id="bench" x2="0" y2="1">
-                  <stop stopColor="#ebeee4" />
-                  <stop offset="1" stopColor="#bdcabe" />
-                </linearGradient>
-                <radialGradient id="shadow">
-                  <stop stopColor="#274035" stopOpacity=".3" />
-                  <stop offset="1" stopColor="#274035" stopOpacity="0" />
-                </radialGradient>
-                <clipPath id="flask-liquid">
-                  <path d="M476 364 L504 364 L504 405 L557 499 Q561 510 547 513 L433 513 Q419 510 423 499 L476 405 Z" />
-                </clipPath>
-              </defs>
-              <rect width="900" height="630" fill="url(#room)" />
-              <path d="M35 0H340L680 445H160Z" fill="#fffdf2" opacity=".58" />
-              <path
-                d="M60 40H340V315H60Z"
-                fill="#e4ebe0"
-                stroke="#c1cfc1"
-                strokeWidth="6"
-              />
-              <path
-                d="M200 40V315M60 175H340"
-                stroke="#f8faf2"
-                strokeWidth="8"
-              />
-              <path d="M0 445H900V630H0Z" fill="url(#bench)" />
-              <path d="M0 580H900V630H0Z" fill="#a9bcae" />
-              <path d="M0 579H900" stroke="#fafff3" strokeWidth="3" />
-              <text
-                x="690"
-                y="100"
-                fontSize="64"
-                fill="#c0ccbf"
-                fontFamily="Georgia"
-              >
-                H₂O
-              </text>
-              <text
-                x="690"
-                y="128"
-                fontSize="12"
-                letterSpacing="3"
-                fill="#6f8372"
-              >
-                WATER ANALYSIS
-              </text>
-              <ellipse cx="490" cy="547" rx="150" ry="32" fill="url(#shadow)" />
-              <rect
-                x="371"
-                y="81"
-                width="12"
-                height="450"
-                rx="6"
-                fill="url(#metal)"
-              />
-              <path d="M350 523H445L461 546H332Z" fill="#718379" />
-              <rect
-                x="374"
-                y="147"
-                width="110"
-                height="10"
-                rx="4"
-                fill="url(#metal)"
-              />
-              <rect
-                x="477"
-                y="69"
-                width="26"
-                height="257"
-                rx="4"
-                fill="url(#glass)"
-                stroke="#7e9b94"
-                strokeWidth="2"
-              />
-              {volume(s.vessels.burette) > 0 && (
-                <>
-                  <rect
-                    x="481"
-                    y={74 + reading(s) * 4.7}
-                    width="18"
-                    height={volume(s.vessels.burette) * 4.7}
-                    fill="#91c8cc"
-                    opacity=".65"
-                  />
-                  <ellipse
-                    cx="490"
-                    cy={74 + reading(s) * 4.7}
-                    rx="9"
-                    ry="2"
-                    fill="#e9fdff"
-                    stroke="#72a4a7"
-                  />
-                </>
-              )}
-              {Array.from({ length: 11 }, (_, i) => (
-                <g key={i}>
-                  <path
-                    d={`M478 ${75 + i * 23.5}h${i % 2 ? 8 : 13}`}
-                    stroke="#466861"
-                  />
-                  <text x="514" y={79 + i * 23.5} fontSize="10" fill="#39594f">
-                    {i * 5}
-                  </text>
-                </g>
-              ))}
-              <path
-                d="M485 326V345L490 355L495 345V326"
-                fill="url(#glass)"
-                stroke="#7e9b94"
-              />
-              {!s.tipClear && volume(s.vessels.burette) > 0 && (
-                <circle cx="490" cy="337" r="4" fill="white" stroke="#8badb1" />
-              )}
-              <g transform={`rotate(${s.valve * 90} 490 326)`}>
-                <rect
-                  x="463"
-                  y="321"
-                  width="54"
-                  height="10"
-                  rx="5"
-                  fill="#ad7044"
-                />
-                <circle cx="490" cy="326" r="7" fill="#d5ab72" />
-              </g>
-              {s.valve > 0 && (
-                <path
-                  className="edta-stream"
-                  d="M490 355V441"
-                  stroke="#74b9c1"
-                  strokeWidth="3"
-                  strokeDasharray="4 8"
-                />
-              )}
-              <g opacity={s.positioned ? 1 : 0.35}>
-                <path
-                  d="M415 519H565L579 555H402Z"
-                  fill="#f5f5eb"
-                  stroke="#8ba091"
-                />
-                <rect
-                  x="402"
-                  y="552"
-                  width="177"
-                  height="22"
-                  rx="5"
-                  fill="#234f45"
-                />
-                <circle
-                  cx="550"
-                  cy="562"
-                  r="7"
-                  fill={s.stirring ? "#b9de7c" : "#9cb4aa"}
-                />
-                <text
-                  x="418"
-                  y="566"
-                  fill="#e9f0df"
-                  fontSize="10"
-                  letterSpacing="2"
-                >
-                  MAGNETIC MIXER
-                </text>
-                <path
-                  d="M476 364 L504 364 L504 405 L557 499 Q561 510 547 513 L433 513 Q419 510 423 499 L476 405 Z"
-                  fill="url(#glass)"
-                  stroke="#76928a"
-                  strokeWidth="2"
-                />
-                <g clipPath="url(#flask-liquid)">
-                  {volume(s.vessels.flask) > 0 && (
-                    <>
-                      <rect
-                        x="420"
-                        y={510 - Math.min(volume(s.vessels.flask) * 1.2, 140)}
-                        width="140"
-                        height="150"
-                        fill={o.colourHex}
-                        opacity=".83"
-                      />
-                      <ellipse
-                        cx="490"
-                        cy={510 - Math.min(volume(s.vessels.flask) * 1.2, 140)}
-                        rx="70"
-                        ry="4"
-                        fill={o.colourHex}
-                      />
-                    </>
-                  )}
-                  <path
-                    d="M444 484L482 411V374"
-                    stroke="white"
-                    strokeWidth="5"
-                    opacity=".55"
-                  />
-                </g>
-                <path d="M473 363H507" stroke="#6f8e87" strokeWidth="4" />
-                <path d="M522 474h16M512 454h14M505 434h10" stroke="#eff9f2" />
-                <text x="464" y="456" fontSize="12" fill="#345e58">
-                  250 mL
-                </text>
-                {s.stirring && (
-                  <ellipse
-                    className="edta-stir"
-                    cx="490"
-                    cy="503"
-                    rx="14"
-                    ry="3"
-                    fill="#f3f0d7"
-                  />
-                )}
-              </g>
-              <g transform="translate(145 377)">
-                <ellipse cx="30" cy="149" rx="55" ry="13" fill="url(#shadow)" />
-                <rect
-                  x="1"
-                  y="16"
-                  width="58"
-                  height="127"
-                  rx="9"
-                  fill="#759c92"
-                  opacity=".7"
-                  stroke="#4e7668"
-                />
-                <rect x="9" width="42" height="26" rx="4" fill="#325d50" />
-                <rect
-                  x="6"
-                  y="66"
-                  width="48"
-                  height="52"
-                  rx="2"
-                  fill="#f9f7e7"
-                />
-                <text
-                  x="30"
-                  y="86"
-                  textAnchor="middle"
-                  fontSize="10"
-                  fill="#254d3d"
-                >
-                  {s.sample === "standard" ? "STANDARD" : "UNKNOWN"}
-                </text>
-                <text
-                  x="30"
-                  y="103"
-                  textAnchor="middle"
-                  fontSize="10"
-                  fill="#254d3d"
-                >
-                  WATER
-                </text>
-              </g>
-              <g transform="translate(245 427)">
-                <rect
-                  width="40"
-                  height="87"
-                  rx="6"
-                  fill="#a17c45"
-                  opacity=".85"
-                />
-                <rect
-                  x="5"
-                  y="-13"
-                  width="30"
-                  height="18"
-                  rx="3"
-                  fill="#e8e6d9"
-                />
-                <rect x="3" y="29" width="34" height="38" fill="#fbf2d9" />
-                <text
-                  x="20"
-                  y="43"
-                  textAnchor="middle"
-                  fontSize="9"
-                  fill="#453e24"
-                >
-                  BUFFER
-                </text>
-                <text
-                  x="20"
-                  y="58"
-                  textAnchor="middle"
-                  fontSize="10"
-                  fill="#453e24"
-                >
-                  pH 10
-                </text>
-              </g>
-              <g transform="translate(311 449)">
-                <rect width="30" height="67" rx="5" fill="#6e423d" />
-                <rect
-                  x="7"
-                  y="-20"
-                  width="16"
-                  height="25"
-                  rx="7"
-                  fill="#3b4541"
-                />
-                <rect x="2" y="24" width="26" height="27" fill="#eedccb" />
-                <text
-                  x="15"
-                  y="42"
-                  textAnchor="middle"
-                  fontSize="11"
-                  fill="#593736"
-                >
-                  EBT
-                </text>
-              </g>
-              <g transform="translate(650 300) rotate(12)">
-                <ellipse cx="0" cy="0" rx="17" ry="24" fill="#b26245" />
-                <path
-                  d="M-4 23V75Q-16 82 -13 107Q-12 119 -4 124V200L0 217L4 200V124Q12 119 13 107Q16 82 4 75V23Z"
-                  fill="url(#glass)"
-                  stroke="#79978e"
-                  strokeWidth="2"
-                />
-                {volume(s.vessels.pipette) > 0 && (
-                  <path
-                    d="M-2 75Q-13 84 -11 106Q-10 116 -2 123V198H2V123Q10 116 11 106Q13 84 2 75Z"
-                    fill="#87c5cb"
-                    opacity=".8"
-                  />
-                )}
-                <path d="M-7 59H7" stroke="#b76242" strokeWidth="2" />
-              </g>
-              <text x="700" y="494" fontSize="13" fill="#496959">
-                20 mL
-              </text>
-              <text x="700" y="515" fontSize="10" fill="#496959">
-                VOLUMETRIC PIPETTE
-              </text>
-            </svg>
-            <div className="edta-hotspots">
-              <button
-                className={`edta-hotspot edta-burette ${tool === "burette" ? "selected" : ""}`}
-                aria-label="Select burette"
-                onClick={() => choose("burette")}
-              >
-                Burette <b>{reading(s).toFixed(2)} mL</b>
-              </button>
-              <button
-                className="edta-hotspot edta-sample"
-                onClick={() => setTool("pipette")}
-                aria-label="Select water sample"
-              >
-                {s.sample === "standard" ? "Standard" : "Unknown"} water
-              </button>
-              <button
-                className={`edta-hotspot edta-buffer ${tool === "buffer" ? "selected" : ""}`}
-                onClick={() => choose("buffer")}
-              >
-                Buffer
-              </button>
-              <button
-                className={`edta-hotspot edta-indicator ${tool === "indicator" ? "selected" : ""}`}
-                onClick={() => choose("indicator")}
-              >
-                EBT
-              </button>
-              <button
-                className={`edta-hotspot edta-pipette ${tool === "pipette" ? "selected" : ""}`}
-                aria-label="Select pipette"
-                onClick={() => choose("pipette")}
-                onPointerDown={(e) => {
-                  if (mode !== "demo" && volume(s.vessels.pipette) > 0) {
-                    e.currentTarget.setPointerCapture(e.pointerId);
-                    setDragging(true);
-                  }
-                }}
-                onPointerUp={(e) => {
-                  if (dragging) {
-                    const flask = document
-                      .getElementById("edta-flask-target")
-                      ?.getBoundingClientRect();
-                    if (
-                      flask &&
-                      e.clientX >= flask.left &&
-                      e.clientX <= flask.right &&
-                      e.clientY >= flask.top &&
-                      e.clientY <= flask.bottom
-                    )
-                      send({
-                        type: "transfer",
-                        from: "pipette",
-                        to: "flask",
-                        volumeMl: 20,
-                      });
-                    setDragging(false);
-                  }
-                }}
-                onPointerCancel={() => setDragging(false)}
-              >
-                {dragging
-                  ? "Move to flask →"
-                  : `Pipette · ${volume(s.vessels.pipette).toFixed(0)} mL`}
-              </button>
-              <button
-                id="edta-flask-target"
-                className={`edta-hotspot edta-flask ${tool === "flask" ? "selected" : ""}`}
-                onClick={() => choose("flask")}
-                aria-label="Select flask or transfer selected reagent"
-              >
-                {tool === "pipette" || tool === "buffer" || tool === "indicator"
-                  ? "↓ Transfer here"
-                  : "Conical flask"}
-              </button>
-            </div>
-            <div className="edta-observation">
-              <span
-                className="edta-swatch"
-                style={{ background: o.colourHex }}
-              />
-              <span data-testid="colour">{o.colour}</span>
-              <span>{volume(s.vessels.flask).toFixed(2)} mL in flask</span>
-              <span>{s.stirring ? "Mixing" : "Stirrer off"}</span>
-            </div>
-          </section>
-        )}
+        <HandsOnBench
+          key={s.config.seed}
+          s={s}
+          send={send}
+          select={setTool}
+          demo={mode === "demo"}
+        />
         <aside
           className="edta-controls"
           aria-label="Selected apparatus controls"
@@ -1048,6 +619,11 @@ export function EdtaLab() {
           </div>
         </aside>
       </div>
+      {guideOpen && (
+        <div id="detailed-procedure">
+          <ProcedureGuide s={s} />
+        </div>
+      )}
       <section className="edta-guidance">
         <div>
           <p className="edta-eyebrow">
