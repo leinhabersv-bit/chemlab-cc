@@ -35,15 +35,13 @@ const mono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Assay: the lab notebook that runs your experiments",
+  title: "CHEMLAB CC — Virtual Chemistry Laboratory | VIT Chennai BCHY101P",
   description:
-    "Describe a protocol in plain language, review the plan, and watch every step run on your instruments, logged and reproducible.",
+    "Free open-access virtual chemistry laboratory for Engineering Chemistry BCHY101P. Calibrate instruments, titrate solutions, and verify experimental results with real-time error rubrics.",
   openGraph: {
-    title: "Assay: experiments that run themselves",
-    description: "The lab notebook that talks to your instruments.",
+    title: "CHEMLAB CC — Virtual Chemistry Laboratory | VIT Chennai",
+    description: "Interactive laboratory bench for BCHY101P Engineering Chemistry. 100% free open-access.",
     type: "website",
-    // Add a still of the 3D hero here for social sharing:
-    // images: [{ url: "/og.png", width: 1200, height: 630 }],
   },
 };
 

@@ -351,24 +351,60 @@ const BEATS = {
 const SECTION_IDS = ["top", "features", "process", "stats", "cta"] as const;
 
 /* ====================================================================
-   4. CONTENT
+   4. CONTENT (VIT Chennai BCHY101P Engineering Chemistry Lab)
    ==================================================================== */
 
-const LABS = ["Northfield Bio", "Helix Row", "Kestrel Labs", "Orbital Genomics", "Fathom Therapeutics", "Meridian Cell Co."];
-const INSTRUMENTS = ["Plate reader", "Liquid handler", "Sequencer", "Mass spec", "Microscope"];
-const INTEGRATIONS = ["LIMS", "ELN", "Slack", "S3"];
+const MODULES = [
+  "Exp 1: EDTA Water Hardness",
+  "Exp 2: Potentiometric Redox (Fe²⁺)",
+  "Exp 3: Conductometric Acid-Base",
+  "Exp 4: Weak Acid pH-Metry (pKa)",
+  "Exp 5: UV-Vis Iron Spectrophotometry",
+  "Exp 6: Polymer Viscometry",
+  "Exp 7: Flame Photometry (Na/K)",
+  "Exp 8: Corrosion Weight Loss",
+  "Exp 9: Winkler Dissolved Oxygen",
+  "Exp 10: COD Wastewater Assay",
+];
+
+const GLASSWARE = [
+  "Class-A 50 mL Burette",
+  "20 mL Bulb Pipette",
+  "NH₃–NH₄Cl Buffer (pH 10)",
+  "Eriochrome Black-T",
+  "0.01 N EDTA Standard",
+];
+
+const CURRICULUM = ["BCHY101P Aligned", "BIS 10500:2012", "FAT 40M Rubric", "Internal 60M"];
 
 const STEPS = [
-  { n: "01", title: "Connect your instruments", body: "Plug in plate readers, handlers and sequencers once. Assay learns what each one can do and keeps their calibration history." },
-  { n: "02", title: "Describe the run", body: "Write the protocol the way you would tell a colleague. Assay drafts the steps, flags conflicts, and waits for your review." },
-  { n: "03", title: "Run it and sign off", body: "Approve the plan and it executes. Every action is timestamped, every result traceable, every run reproducible." },
+  {
+    n: "01",
+    title: "Mount & Fill Apparatus",
+    body: "Drag the 250 mL conical flask onto the white tile. Pour 0.01 N standard EDTA into the Class-A burette to zero the lower meniscus.",
+  },
+  {
+    n: "02",
+    title: "Pipette & Buffer Analyte",
+    body: "Pipette 20.0 mL of standard or unknown water, add 4 mL of ammonia buffer (pH 10), and add 3 drops of EBT indicator (wine red).",
+  },
+  {
+    n: "03",
+    title: "Titrate to Concordance",
+    body: "Run continuous delivery or single 0.05 mL drops until the wine-red complex breaks into vivid steel blue. Verify |t₁ - t₂| ≤ 0.1 mL.",
+  },
+  {
+    n: "04",
+    title: "Instant Rubric Evaluation",
+    body: "Calculate sample hardness in ppm, view automated error scoring against the VIT manual rubric (≤2% error = full marks), and inspect BIS deviation.",
+  },
 ] as const;
 
 const STATS = [
-  { value: 12, decimals: 0, unit: "×", label: "faster protocol setup" },
-  { value: 99.2, decimals: 1, unit: "%", label: "of runs reproduced first try" },
-  { value: 340, decimals: 0, unit: "", label: "labs running on Assay" },
-  { value: 38, decimals: 0, unit: "ms", label: "median query across instruments" },
+  { value: 10, decimals: 0, unit: "", label: "curriculum lab stations" },
+  { value: 0.1, decimals: 1, unit: "mL", label: "concordant titre precision" },
+  { value: 100, decimals: 0, unit: "%", label: "free open-access for students" },
+  { value: 200, decimals: 0, unit: "ppm", label: "BIS 10500 potable water limit" },
 ] as const;
 
 /* ====================================================================
@@ -683,7 +719,7 @@ export default function Home() {
       {/* Intro loader */}
       <div className="hm-loader" aria-hidden="true">
         <div className="hm-loader-inner">
-          <span className="hm-loader-word">Assay</span>
+          <span className="hm-loader-word">CHEMLAB CC</span>
           <div className="hm-loader-bar"><i /></div>
           <span className="hm-loader-count">000</span>
         </div>
@@ -709,41 +745,41 @@ export default function Home() {
 
       {/* Nav */}
       <header className="hm-nav">
-        <a href="#top" className="hm-brand" data-magnetic aria-label="Assay home">
+        <a href="#top" className="hm-brand" data-magnetic aria-label="CHEMLAB CC home">
           <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <circle cx="12" cy="12" r="5" fill="rgb(var(--accent))" />
             <ellipse cx="12" cy="12" rx="10" ry="4" stroke="rgb(var(--info))" strokeWidth="1" transform="rotate(-24 12 12)" />
           </svg>
-          Assay
+          CHEMLAB CC
         </a>
         <nav className="hm-links" aria-label="Primary">
-          <a href="#features" data-nav="features">Product</a>
-          <a href="#process" data-nav="process">How it works</a>
-          <a href="#stats" data-nav="stats">Results</a>
+          <a href="#features" data-nav="features">Stations</a>
+          <a href="#process" data-nav="process">Protocol</a>
+          <a href="#stats" data-nav="stats">Rubric</a>
         </nav>
-        <a href="#cta" className="btn btn-primary btn-sm" data-magnetic>Start free</a>
+        <a href="/experiments/exp-1" className="btn btn-primary btn-sm" data-magnetic>Launch Exp 1 →</a>
       </header>
 
       <main id="main" ref={mainRef}>
         {/* ============ Hero ============ */}
         <section id="top" className="hm-hero stage">
           <div className="hm-hero-copy">
-            <a href="#features" className="hm-pill" data-intro>
-              <span className="hm-pill-tag">New</span>
-              Notebook 2.0 now runs your protocols
+            <a href="/experiments/exp-1" className="hm-pill" data-intro>
+              <span className="hm-pill-tag">Live Now</span>
+              Experiment 1: Total Hardness by EDTA Titration
               <span aria-hidden="true">→</span>
             </a>
             <h1 className="hm-title font-display text-display-xl">
-              <span className="hm-line block"><span className="block">Experiments</span></span>
-              <span className="hm-line block"><span className="block">that run</span></span>
-              <span className="hm-line block"><span className="block"><em>themselves.</em></span></span>
+              <span className="hm-line block"><span className="block">Real chemistry.</span></span>
+              <span className="hm-line block"><span className="block">Exact physics.</span></span>
+              <span className="hm-line block"><span className="block"><em>Zero cleanup.</em></span></span>
             </h1>
             <p className="hm-lead text-lead text-muted" data-intro>
-              Assay is the lab notebook that talks to your instruments. Describe a protocol in plain language, review the plan, and watch every step run, logged and reproducible.
+              Interactive virtual apparatus for Engineering Chemistry BCHY101P. Calibrate standard solutions, titrate drop-by-drop with realistic meniscus dynamics, calculate concordant titres, and verify results against official VIT rubrics and BIS 10500 standards.
             </p>
             <div className="hm-actions" data-intro>
-              <a href="#cta" className="btn btn-primary" data-magnetic>Start free</a>
-              <a href="#process" className="btn btn-ghost" data-magnetic>See it run</a>
+              <a href="/experiments/exp-1" className="btn btn-primary" data-magnetic>Launch Experiment 1 →</a>
+              <a href="#features" className="btn btn-ghost" data-magnetic>Browse 10 Stations</a>
             </div>
           </div>
           <div className="hm-orb-zone" role="img" aria-label="Interactive 3D instrument core. Drag to rotate it." />
@@ -751,70 +787,76 @@ export default function Home() {
         </section>
 
         {/* ============ Marquee ============ */}
-        <div className="hm-marquee stage" aria-label="Trusted by research teams">
+        <div className="hm-marquee stage" aria-label="Syllabus experiments">
           <ul className="hm-marquee-track animate-marquee">
-            {[...LABS, ...LABS].map((name, i) => (
-              <li key={i} aria-hidden={i >= LABS.length ? true : undefined}>{name}</li>
+            {[...MODULES, ...MODULES].map((name, i) => (
+              <li key={i} aria-hidden={i >= MODULES.length ? true : undefined}>{name}</li>
             ))}
           </ul>
         </div>
 
-        {/* ============ Features ============ */}
+        {/* ============ Features / Stations ============ */}
         <section id="features" className="hm-section stage">
           <div className="hm-head" data-reveal>
-            <p className="text-eyebrow uppercase text-accent-ink">The platform</p>
-            <h2 className="font-display text-display-lg">One notebook. Every instrument.</h2>
+            <p className="text-eyebrow uppercase text-accent-ink">Curriculum Stations</p>
+            <h2 className="font-display text-display-lg">10 Engineering Chemistry stations. One bench.</h2>
             <p className="text-lead text-muted max-w-measure">
-              Everything your lab needs to plan, run and prove an experiment, without stitching six tools together.
+              Hands-on virtual apparatus calibrated to the official VIT Chennai BCHY101P syllabus. Free open-access for every student and faculty member.
             </p>
           </div>
 
           <div className="hm-bento">
             <article className="hm-tile hm-tile-a t3d persp-mid" data-tilt data-reveal>
               <div>
-                <p className="hud text-accent-ink">Protocols</p>
-                <h3 className="mt-3 max-w-tight">Protocols that write themselves</h3>
-                <p className="mt-3">Describe the assay once. Assay drafts the plan, checks it against what each instrument can do, and keeps a live log as it runs.</p>
+                <p className="hud text-accent-ink">Experiment 01 · Interactive Bench</p>
+                <h3 className="mt-3 max-w-tight">Water Hardness by EDTA Titration</h3>
+                <p className="mt-3">
+                  Standardise 0.01 N EDTA with 1000 ppm standard hard water, then titrate an unknown water sample. Watch Eriochrome Black-T transition from wine-red to crisp steel-blue at pH 10.
+                </p>
+                <div className="mt-4">
+                  <a href="/experiments/exp-1" className="btn btn-primary btn-sm" data-magnetic>
+                    Open Experiment 1 Bench →
+                  </a>
+                </div>
               </div>
-              <ul className="hm-log hud" aria-label="Example run log">
-                <li><span className="dot" aria-hidden="true" />Plate 04 · read complete<time>00:41</time></li>
-                <li><span className="dot" data-s="run" aria-hidden="true" />Handler B · dispensing 20 µL<time>live</time></li>
-                <li><span className="dot" data-s="wait" aria-hidden="true" />Incubate · 37 °C<time>queued</time></li>
+              <ul className="hm-log hud" aria-label="Live bench state">
+                <li><span className="dot" aria-hidden="true" />Class-A 50 mL Burette · calibrated<time>0.00 mL</time></li>
+                <li><span className="dot" data-s="run" aria-hidden="true" />Buffer pH 10 + EBT · wine-red<time>ready</time></li>
+                <li><span className="dot" data-s="wait" aria-hidden="true" />Concordant check · |t₁ - t₂| ≤ 0.1 mL<time>FAT 10M</time></li>
               </ul>
             </article>
 
             <article className="hm-tile hm-tile-b t3d persp-mid" data-tilt data-reveal>
-              <p className="hud text-muted">Latency</p>
-              <div className="hm-big-num"><span>38</span><small>ms</small></div>
-              <p>Median query time across every connected instrument.</p>
+              <p className="hud text-muted">Evaluation Rubric</p>
+              <div className="hm-big-num"><span>≤2%</span><small>error</small></div>
+              <p>VIT FAT full marks awarded for precision within 2% of true sample hardness.</p>
             </article>
 
             <article className="hm-tile hm-tile-c t3d persp-mid" data-tilt data-reveal>
               <div>
-                <h3>Instrument-aware agents</h3>
-                <p className="mt-2">Prebuilt for the gear you already own.</p>
+                <h3>Calibrated Apparatus</h3>
+                <p className="mt-2">Class-A standard glassware with fluid meniscus physics.</p>
               </div>
               <div className="hm-chips">
-                {INSTRUMENTS.map((n) => <span key={n} className="chip">{n}</span>)}
+                {GLASSWARE.map((n) => <span key={n} className="chip">{n}</span>)}
               </div>
             </article>
 
             <article className="hm-tile hm-tile-d t3d persp-mid" data-tilt data-reveal>
               <div>
-                <h3>Audit-ready by default</h3>
-                <p className="mt-2">Every run is signed, timestamped and reproducible. Your data never trains a model.</p>
+                <h3>BIS 10500:2012 Compliance</h3>
+                <p className="mt-2">Automated potable water limit check against the 200 ppm threshold.</p>
               </div>
-              <span className="chip self-start">Signed run records</span>
+              <span className="chip self-start">Drinking Water Standard</span>
             </article>
 
             <article className="hm-tile hm-tile-e t3d persp-mid" data-tilt data-reveal>
               <div>
-                <h3>Plugs into your stack</h3>
-                <p className="mt-2">Send results where your team already works.</p>
+                <h3>100% Free Open Access</h3>
+                <p className="mt-2">No accounts, no paywalls, no software installation needed.</p>
               </div>
               <div className="hm-chips">
-                {INTEGRATIONS.map((n) => <span key={n} className="chip">{n}</span>)}
-                <span className="chip">+112 more</span>
+                {CURRICULUM.map((n) => <span key={n} className="chip">{n}</span>)}
               </div>
             </article>
           </div>
@@ -824,8 +866,8 @@ export default function Home() {
         <section id="process" className="hm-process stage">
           <div className="hm-process-sticky">
             <div className="hm-head">
-              <p className="text-eyebrow uppercase text-accent-ink">How it works</p>
-              <h2 className="font-display text-display-lg">From question to signed result.</h2>
+              <p className="text-eyebrow uppercase text-accent-ink">Laboratory Workflow</p>
+              <h2 className="font-display text-display-lg">From apparatus prep to FAT evaluation.</h2>
             </div>
             <div className="hm-steps-wrap" style={{ "--p": 0 } as CSSProperties}>
               <div className="hm-rail" aria-hidden="true"><i /></div>
@@ -846,8 +888,8 @@ export default function Home() {
         <section id="stats" className="hm-section stage">
           <div className="hm-stats-wrap">
             <div className="hm-head" data-reveal>
-              <p className="text-eyebrow uppercase text-accent-ink">Results</p>
-              <h2 className="font-display text-display-lg">Results that compound.</h2>
+              <p className="text-eyebrow uppercase text-accent-ink">Curriculum Standards</p>
+              <h2 className="font-display text-display-lg">Standards built for precision.</h2>
             </div>
             <dl className="hm-stats">
               {STATS.map((s) => (
@@ -866,18 +908,18 @@ export default function Home() {
         {/* ============ CTA ============ */}
         <section id="cta" className="hm-cta stage">
           <div className="hm-cta-inner" data-reveal>
-            <h2 className="font-display text-display-xl">Ready to run your first protocol?</h2>
-            <p className="text-lead text-muted max-w-tight">Free for 14 days. No credit card, no setup call.</p>
+            <h2 className="font-display text-display-xl">Ready to begin Experiment 1?</h2>
+            <p className="text-lead text-muted max-w-tight">100% free open-access for students & faculty. No registration or software installation needed.</p>
             <div className="hm-actions">
-              <a href="#" className="btn btn-primary" data-magnetic>Start free</a>
-              <a href="#" className="btn btn-ghost" data-magnetic>Book a demo</a>
+              <a href="/experiments/exp-1" className="btn btn-primary" data-magnetic>Launch Experiment 1 →</a>
+              <a href="#process" className="btn btn-ghost" data-magnetic>Review Lab Rubric</a>
             </div>
           </div>
         </section>
       </main>
 
       <footer className="hm-foot stage">
-        <span>© 2026 Assay Labs</span>
+        <span>© 2026 CHEMLAB CC · VIT Chennai School of Advanced Sciences (BCHY101P)</span>
         <span className="hud">Drag the instrument to turn it</span>
       </footer>
     </div>

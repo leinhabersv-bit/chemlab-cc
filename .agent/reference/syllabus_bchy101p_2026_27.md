@@ -42,3 +42,4 @@
 10. State of Charge (SoC) Determination
     - Li-ion cells (LFP vs NMC, 18650/23650)
     - SoC = (Q_available / Q_rated) × 100%, OCV relaxation and OCV vs SoC discharge curves
+
